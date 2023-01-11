@@ -1,57 +1,4 @@
-// List data type
-// You may modify this file as needed; however,
-// you may *NOT* modify the function prototypes or constant names.
-
-#ifndef _LIST_H_
-#define _LIST_H_
-#include <stdbool.h>
-
-#define LIST_SUCCESS 0
-#define LIST_FAIL -1
-
-typedef struct Node_s Node;
-//Structure to manage our nodes
-struct Node_s {
-    Node* nodes;    //An array of all of our nodes
-    bool* inUse;    //An array of booleans, 1 represents node at index in use, 0 represents node at index free
-};
-//Structure for a node of a list
-struct Node{
-    void* item;
-    Node* next;
-    Node* prev;
-};
-
-enum ListOutOfBounds {
-    LIST_OOB_START,
-    LIST_OOB_ENDS
-};
-typedef struct List_s List;
-//Structure that manages many lists
-struct List_s{
-    List* heads;
-    bool* inUse;    //An array of booleans, 1 represents head at index is in use, 0 represents head at index is free
-};
-
-//Structure to manage a list
-struct List{
-    Node* head;
-    Node* tail;
-    Node* current; 
-};
-
-// Maximum number of unique lists the system can support
-// (You may modify this, but reset the value to 10 when handing in your assignment)
-#define LIST_MAX_NUM_HEADS 10
-
-// Maximum total number of nodes (statically allocated) to be shared across all lists
-// (You may modify this, but reset the value to 100 when handing in your assignment)
-#define LIST_MAX_NUM_NODES 100
-
-// General Error Handling:
-// Client code is assumed never to call these functions with a NULL List pointer, or 
-// bad List pointer. If it does, any behaviour is permitted (such as crashing).
-// HINT: Use assert(pList != NULL); just to add a nice check, but not required.
+#include "list.h"
 
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
@@ -136,5 +83,3 @@ void List_free(List* pList, FREE_FN pItemFreeFn);
 // the first node in the list (if any).
 typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
 void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg);
-
-#endif
