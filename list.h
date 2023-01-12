@@ -12,14 +12,15 @@
 typedef struct Node_s Node;
 //Structure to manage our nodes
 struct Node_s {
-    Node* nodes;    //An array of all of our nodes
-    bool* inUse;    //An array of booleans, 1 represents node at index in use, 0 represents node at index free
+    Node nodes[LIST_MAX_NUM_NODES];    //An array of all of our nodes
+    Node* freeNodes = nodes;    //Linked list of free nodes
 };
 //Structure for a node of a list
-struct Node{
+struct Node {
     void* item;
     Node* next;
     Node* prev;
+    int index;  //The index of the node 
 };
 
 enum ListOutOfBounds {
@@ -29,15 +30,16 @@ enum ListOutOfBounds {
 typedef struct List_s List;
 //Structure that manages many lists
 struct List_s{
-    List* heads;
-    bool* inUse;    //An array of booleans, 1 represents head at index is in use, 0 represents head at index is free
+    List heads*;    //Linked list of all our heads
+    List* freeHeads;
+    int numHeads = 0;    //Index of next free head 
 };
-
 //Structure to manage a list
-struct List{
+struct List {
     Node* head;
     Node* tail;
     Node* current; 
+    enum ListOutOfBounds bounds;    //Indicate where the start and end of list is in memory (our 2D array of nodes)
 };
 
 // Maximum number of unique lists the system can support
