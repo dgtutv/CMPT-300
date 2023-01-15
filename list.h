@@ -33,9 +33,9 @@ enum ListOutOfBounds {
 typedef struct List_s List;
 //Structure to manage a list
 struct List_s {
-    Node* head = NULL;  //Node which starts the list (NULL if this list is not in use)
-    Node* tail = NULL;  //Node which ends the list (NULL if this list is not in use)
-    Node* current = NULL;   //Node referring to current (NULL if this list is not in use, head if list is empty)
+    Node* head = NULL;  //First node in list (NULL if this list is not in use)
+    Node* tail = NULL;  //Last node in list (NULL if this list is not in use)
+    Node* current = NULL;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty)
     enum ListOutOfBounds bounds;    //Indicate where the start and end of list is in memory (our 2D array of nodes)
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
