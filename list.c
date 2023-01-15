@@ -5,44 +5,49 @@
 // bad List pointer. If it does, any behaviour is permitted (such as crashing).
 // HINT: Use assert(pList != NULL); just to add a nice check, but not required.
 
+//Our manager for our list
+Manager manager;
+
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 List* List_create(){
 
-    if(Manager.nodes = NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
+    if(manager.nodes == 0){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
         //Setup our nodes
-        Manager.nodes = Node[LIST_MAX_NUM_NODES];
-        Manager.freeNodes = Manager.nodes;
-        Manager.freeNodes.next = Manager.nodes[1];
-        Manager.freeNodes.index = 0;
-        Node curr = Manager.nodes[0];
+        Node nodeArr[LIST_MAX_NUM_NODES];
+        manager.nodes = nodeArr;
+        manager.freeNodes = manager.nodes;
+        manager.freeNodes.next = manager.nodes[1];
+        manager.freeNodes.index = 0;
+        Node * curr = manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
             curr=curr.next;
             curr.index=i;
-            curr.next = Manager.nodes[i+1];
-            curr.prev = Manager.nodes[i-1];
+            curr.next = manager.nodes[i+1];
+            curr.prev = manager.nodes[i-1];
         }
         curr.next.index = LIST_MAX_NUM_NODES-1;
         curr.next.prev = curr;
         
         //Setup our heads
-        Manager.heads = List[LIST_MAX_NUM_HEADS];
-        Manager.freeHeads = Manager.heads;
-        Manager.freeHeads.next = Manager.heads[1];
-        Manager.freeHeads.index = 0;
-        curr = Manager.heads[0];
+        List listArr[LIST_MAX_NUM_HEADS];
+        manager.heads = listArr;
+        manager.freeHeads = manager.heads;
+        manager.freeHeads.next = manager.heads[1];
+        manager.freeHeads.index = 0;
+        curr = manager.heads[0];
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
             curr=curr.next;
             curr.index=i;
-            curr.next = Manager.nodes[i+1];
-            curr.prev = Manager.nodes[i-1];
+            curr.next = manager.nodes[i+1];
+            curr.prev = manager.nodes[i-1];
         }
         curr.next.index = LIST_MAX_NUM_HEADS-1;
         curr.next.prev = curr;
     }
 
-    if(Manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
+    if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
 
         //Set head to next available head (the start of our freeHeads list)
         Node head = freeHeads;  
