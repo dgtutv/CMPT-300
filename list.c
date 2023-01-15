@@ -18,49 +18,49 @@ List* List_create(){
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
         manager.freeNodes = manager.nodes;
-        manager.freeNodes.next = manager.nodes[1];
-        manager.freeNodes.index = 0;
-        Node * curr = manager.nodes[0];
+        manager.freeNodes->next = &nodeArr[1];
+        manager.freeNodes->index = 0;
+        Node* curr = &manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            curr=curr.next;
-            curr.index=i;
-            curr.next = manager.nodes[i+1];
-            curr.prev = manager.nodes[i-1];
+            curr=curr->next;
+            curr->index=i;
+            curr->next = &manager.nodes[i+1];
+            curr->prev = &manager.nodes[i-1];
         }
-        curr.next.index = LIST_MAX_NUM_NODES-1;
-        curr.next.prev = curr;
+        curr->next->index = LIST_MAX_NUM_NODES-1;
+        curr->next->prev = curr;
         
         //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
         manager.heads = listArr;
         manager.freeHeads = manager.heads;
-        manager.freeHeads.next = manager.heads[1];
-        manager.freeHeads.index = 0;
-        curr = manager.heads[0];
+        manager.freeHeads->next = &manager.heads[1];
+        manager.freeHeads->index = 0;
+        List* currL = &manager.heads[0];
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
-            curr=curr.next;
-            curr.index=i;
-            curr.next = manager.nodes[i+1];
-            curr.prev = manager.nodes[i-1];
+            currL=currL->next;
+            currL->index=i;
+            currL->next = &manager.heads[i+1];
+            currL->prev = &manager.heads[i-1];
         }
-        curr.next.index = LIST_MAX_NUM_HEADS-1;
-        curr.next.prev = curr;
+        currL->next->index = LIST_MAX_NUM_HEADS-1;
+        currL->next->prev = currL;
     }
 
-    if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
+    if(manager.freeHeads != 0){   //If possible, return a new head pointer (not possible when heads are all in use)
 
         //Set head to next available head (the start of our freeHeads list)
-        Node head = freeHeads;  
+        List* head = manager.freeHeads;  
 
         //Fully disconnect head from freeHeads list
-        head.next.prev = NULL;  
-        head.next = NULL;
-        head.prev = NULL;
+        head->next->prev = 0;  
+        head->next = 0;
+        head->prev = 0;
         return head;
     }
 
     else{
-        return NULL;
+        return 0;
     }
 }
 
