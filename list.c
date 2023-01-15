@@ -9,6 +9,8 @@
 // Returns a NULL pointer on failure.
 List* List_create(){
     //If this is the first time List_create is called, setup our list class
+    Manager.nodes = Node[LIST_MAX_NUM_NODES];
+    Manager.heads = Node[LIST_MAX_NUM_HEADS];
     
     //Otherwise, if possible, return a new head pointer
 }

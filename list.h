@@ -10,8 +10,9 @@
 #define LIST_FAIL -1
 
 typedef struct Node_s Node;
+typedef struct Manager_s Manager;
 //Structure to manage our nodes and lists
-struct Manager {
+struct Manager_s {
     Node* nodes;    //An array of all of our nodes
     Node* freeNodes = nodes;    //Linked list of free nodes
     List* heads;    //Array of all our heads
