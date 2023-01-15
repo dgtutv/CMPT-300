@@ -8,11 +8,40 @@
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 List* List_create(){
-    //If this is the first time List_create is called, setup our list class
+    if(Manager.nodes = NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
+    //Setup our nodes
     Manager.nodes = Node[LIST_MAX_NUM_NODES];
-    Manager.heads = Node[LIST_MAX_NUM_HEADS];
+    Manager.freeNodes = Manager.nodes;
+    Manager.freeNodes.next = Manager.nodes[1];
+    Manager.freeNodes.index = 0;
+    Node curr = Manager.nodes[0];
+    for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
+        curr=curr.next;
+        curr.index=i;
+        curr.next = Manager.nodes[i+1];
+        curr.prev = Manager.nodes[i-1];
+    }
+    curr.next.index = LIST_MAX_NUM_NODES-1;
+    curr.next.prev = curr;
+    //Setup our heads
+    Manager.heads = List[LIST_MAX_NUM_HEADS];
+    Manager.freeHeads = Manager.heads;
+    Manager.freeHeads.next = Manager.heads[1];
+    Manager.freeHeads.index = 0;
+    curr = Manager.heads[0];
+    for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
+        curr=curr.next;
+        curr.index=i;
+        curr.next = Manager.nodes[i+1];
+        curr.prev = Manager.nodes[i-1];
+    }
+    curr.next.index = LIST_MAX_NUM_HEADS-1;
+    curr.next.prev = curr;
+    }
     
-    //Otherwise, if possible, return a new head pointer
+    //If possible, return a new head pointer
+    Node head = freeHeads;  //Set head to next available head (the start of our freeHeads list)
+
 }
 
 // Returns the number of items in pList.

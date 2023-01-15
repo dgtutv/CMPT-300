@@ -13,17 +13,17 @@ typedef struct Node_s Node;
 typedef struct Manager_s Manager;
 //Structure to manage our nodes and lists
 struct Manager_s {
-    Node* nodes;    //An array of all of our nodes
-    Node* freeNodes = nodes;    //Linked list of free nodes
-    List* heads;    //Array of all our heads
-    List* freeHeads;    //Linked list of all our free heads
+    Node* nodes = NULL;    //An array of all of our nodes
+    Node* freeNodes = NULL;    //Linked list of free nodes
+    List* heads = NULL;    //Array of all our heads
+    List* freeHeads = NULL;    //Linked list of all our free heads
 };
 //Structure for a node of a list
 struct Node_s {
-    void* item;
-    Node* next;
-    Node* prev;
-    int index;  //The index of the node 
+    void* item = NULL;
+    Node* next = NULL;
+    Node* prev = NULL;
+    int index;  //The permanent index of the node (where it actually is in our array)
 };
 
 enum ListOutOfBounds {
@@ -33,10 +33,13 @@ enum ListOutOfBounds {
 typedef struct List_s List;
 //Structure to manage a list
 struct List_s {
-    Node* head;
-    Node* tail;
-    Node* current; 
+    Node* head = NULL;  //Node which starts the list (NULL if this list is not in use)
+    Node* tail = NULL;  //Node which ends the list (NULL if this list is not in use)
+    Node* current = NULL;   //Node referring to current (NULL if this list is not in use, head if list is empty)
     enum ListOutOfBounds bounds;    //Indicate where the start and end of list is in memory (our 2D array of nodes)
+    List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
+    List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
+    int index;  //The permanent index of the node (where it actually is in our array)
 };
 
 // Maximum number of unique lists the system can support
