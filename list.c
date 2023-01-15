@@ -8,7 +8,9 @@
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 List* List_create(){
+    //If this is the first time List_create is called, setup our list class
     
+    //Otherwise, if possible, return a new head pointer
 }
 
 // Returns the number of items in pList.

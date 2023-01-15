@@ -12,7 +12,7 @@
 typedef struct Node_s Node;
 //Structure to manage our nodes
 struct Node_s {
-    Node nodes[LIST_MAX_NUM_NODES];    //An array of all of our nodes
+    Node* nodes;    //An array of all of our nodes
     Node* freeNodes = nodes;    //Linked list of free nodes
 };
 //Structure for a node of a list
@@ -30,7 +30,7 @@ enum ListOutOfBounds {
 typedef struct List_s List;
 //Structure that manages many lists
 struct List_s{
-    List heads*;    //Linked list of all our heads
+    List* heads;    //Linked list of all our heads
     List* freeHeads;
     int numHeads = 0;    //Index of next free head 
 };
