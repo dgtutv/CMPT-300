@@ -10,13 +10,15 @@
 #define LIST_FAIL -1
 
 typedef struct Node_s Node;
-//Structure to manage our nodes
-struct Node_s {
+//Structure to manage our nodes and lists
+struct Manager {
     Node* nodes;    //An array of all of our nodes
     Node* freeNodes = nodes;    //Linked list of free nodes
+    List* heads;    //Array of all our heads
+    List* freeHeads;    //Linked list of all our free heads
 };
 //Structure for a node of a list
-struct Node {
+struct Node_s {
     void* item;
     Node* next;
     Node* prev;
@@ -28,14 +30,8 @@ enum ListOutOfBounds {
     LIST_OOB_ENDS
 };
 typedef struct List_s List;
-//Structure that manages many lists
-struct List_s{
-    List* heads;    //Linked list of all our heads
-    List* freeHeads;
-    int numHeads = 0;    //Index of next free head 
-};
 //Structure to manage a list
-struct List {
+struct List_s {
     Node* head;
     Node* tail;
     Node* current; 
