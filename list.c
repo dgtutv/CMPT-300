@@ -65,7 +65,11 @@ List* List_create(){
 }
 
 // Returns the number of items in pList.
-int List_count(List* pList);
+int List_count(List* pList){
+    int lastIndex = pList.tail.index;
+    int firstIndex = pList.head.index;
+    return(lastIndex-firstIndex+1);
+}
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
 // Returns NULL and sets current item to NULL if list is empty.

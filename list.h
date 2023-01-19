@@ -40,7 +40,7 @@ struct List_s {
     enum ListOutOfBounds bounds;    //Indicate where the start and end of list is in memory (our 2D array of nodes)
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
-    int index;  //The permanent index of the node (where it actually is in our array)
+    int index;  //The permanent index of the node (where it actually is in our list array)
 };
 
 // Maximum number of unique lists the system can support
