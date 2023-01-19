@@ -130,7 +130,20 @@ void* List_curr(List* pList){
 // If the current pointer is before the start of the pList, the item is added at the start. If 
 // the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
-int List_insert_after(List* pList, void* pItem);
+int List_insert_after(List* pList, void* pItem){
+    if(manager.freeNodes==0){    //If there are no free nodes left to use
+        return(-1);
+    }
+    else{
+        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        manager.freeNodes.next.prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+        if(pList.current.item==LIST_OOB_START){     //If the current pointer is before the start of the pList
+            
+        }
+        if(pList.current.item==LIST_OOB_ENDS){     //If the current pointer is beyond the end of the pList
+        }
+    } 
+}
 
 // Adds item to pList directly before the current item, and makes the new item the current one. 
 // If the current pointer is before the start of the pList, the item is added at the start. 
