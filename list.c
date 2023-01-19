@@ -122,7 +122,9 @@ void* List_prev(List* pList){
 }
 
 // Returns a pointer to the current item in pList.
-void* List_curr(List* pList);
+void* List_curr(List* pList){
+    return(pList.current.item);
+}
 
 // Adds the new item to pList directly after the current item, and makes item the current item. 
 // If the current pointer is before the start of the pList, the item is added at the start. If 
