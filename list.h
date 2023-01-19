@@ -12,6 +12,7 @@
 typedef struct Node_s Node;
 typedef struct Manager_s Manager;
 typedef struct List_s List;
+typedef struct Item_s Item;
 
 //Structure to manage our nodes and lists
 struct Manager_s {
@@ -22,10 +23,16 @@ struct Manager_s {
 };
 //Structure for a node of a list
 struct Node_s {
-    void* item;
+    Item* child;    //The item for the node is 
     Node* next;
     Node* prev;
     int index;  //The permanent index of the node (where it actually is in our array)
+};
+
+//Structure for an item stored in a Node
+struct Item_s{
+    Node* parent;   //The Node that owns this item, this is NULL if item is before start of list
+    void* item;
 };
 
 enum ListOutOfBounds {
@@ -36,7 +43,7 @@ enum ListOutOfBounds {
 struct List_s {
     Node* head;  //First node in list (NULL if this list is not in use)
     Node* tail;  //Last node in list (NULL if this list is not in use)
-    Node* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty)
+    Item* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
     int index;  //The permanent index of the node (where it actually is in our list array)
