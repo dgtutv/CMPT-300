@@ -11,6 +11,8 @@
 
 typedef struct Node_s Node;
 typedef struct Manager_s Manager;
+typedef struct List_s List;
+
 //Structure to manage our nodes and lists
 struct Manager_s {
     Node* nodes;    //An array of all of our nodes
@@ -30,7 +32,6 @@ enum ListOutOfBounds {
     LIST_OOB_START,
     LIST_OOB_ENDS
 };
-typedef struct List_s List;
 //Structure to manage a list
 struct List_s {
     Node* head;  //First node in list (NULL if this list is not in use)

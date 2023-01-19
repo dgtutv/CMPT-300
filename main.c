@@ -1,4 +1,4 @@
-#include <list.h>
+#include "list.c"
 #include <stdio.h>
 #include <assert.h>
 
@@ -7,5 +7,4 @@ int main(){
     List* newList = List_create();
     List* nullList = 0;
     assert(newList != nullList);    //Test our list is not undefined
-    //Issue with asserting that the list isnt empty
 }
