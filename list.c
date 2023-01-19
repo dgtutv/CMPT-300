@@ -78,8 +78,8 @@ void* List_first(List* pList){
         pList->current->item = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList->head->item;  //Pointer to first item in pList
-    pList->head->item = pList->current->item;   //Make the first item = current item
+    void* returnVal = pList->head->child->item;  //Pointer to first item in pList
+    pList->head->child->item = pList->current->item;   //Make the first item = current item (should it be the inverse?)
     return(returnVal);
 }
 
@@ -90,8 +90,8 @@ void* List_last(List* pList){
         pList->current->item = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList->tail->item;  //Pointer to last item in pList
-    pList->tail->item = pList->current->item;   //Make the last item = current item
+    void* returnVal = pList->tail->child->item;  //Pointer to last item in pList
+    pList->tail->child->item = pList->current->item;   //Make the last item = current item (should it be the inverse?)
     return(returnVal);
 }
 
@@ -99,12 +99,12 @@ void* List_last(List* pList){
 // If this operation advances the current item beyond the end of the pList, a NULL pointer 
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
-    if(pList->current == pList->tail){    //If operation advances current item beyond the end of the pList
+    if(pList->current->parent == pList->tail){    //If operation advances current item beyond the end of the pList
         enum ListOutOfBounds item = LIST_OOB_ENDS;
         pList->current->item = &item;   //Set current item to be beyond end of pList
         return(0);  //Return a NULL pointer
     }
-    pList->current = pList->current->next; //Advance pList's current item by one
+    pList->current = pList->current->parent->next->child; //Advance pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
 }
 
@@ -112,12 +112,12 @@ void* List_next(List* pList){
 // If this operation backs up the current item beyond the start of the pList, a NULL pointer 
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
-    if(pList->current == pList->head){    //If operation backs up the current item beyond the start of the pList
+    if(pList->current->parent == pList->head){    //If operation backs up the current item beyond the start of the pList
         enum ListOutOfBounds item = LIST_OOB_START;
         pList->current->item = &item;   //Set current item to be before the start of pList
         return(0);  //Return a NULL pointer
     }
-    pList->current = pList->current->prev; //Backs up pList's current item by one
+    pList->current = pList->current->parent->prev->child; //Backs up pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
 }
 
@@ -133,15 +133,32 @@ void* List_curr(List* pList){
 int List_insert_after(List* pList, void* pItem){
     if(manager.freeNodes==0){    //If there are no free nodes left to use
         return(-1);
-    }
+    }//TODO: Instantiate children when nodes are created, and link them directly to the nodes
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
         manager.freeNodes->next->prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+        newNode->child->item = pItem;      //Make the newNode's item the item provided
         if(pList->current->item==(void *)LIST_OOB_START){     //If the current pointer is before the start of the pList
-            
+            //Insert the newNode at the start of the list
+            newNode->next = pList->head;
+            pList->head->prev = newNode;
+            pList->head = newNode;
         }
-        if(pList->current->item==(void *)LIST_OOB_ENDS){     //If the current pointer is beyond the end of the pList
+        else if(pList->current->item==(void *)LIST_OOB_ENDS || pList->current->parent == pList->tail){     //If the current pointer is beyond the end of the pList OR current is the end of the list
+            //Insert the newNode at the end of the list
+            newNode->prev = pList->tail;
+            pList->tail->next = newNode;
+            pList->tail = newNode;
         }
+        else{           //The current pointer is neither before the start of the pList, nor after the end of pList
+            //Add the new item directly after the current item
+            pList->current->parent->next->prev=newNode;
+            newNode->next = pList->current->parent->next;
+            newNode->prev = pList->current->parent;
+            pList->current->parent->next = newNode;     
+        }
+        pList->current = newNode->child;    //Make item the current item
+        return(0);
     } 
 }
 
