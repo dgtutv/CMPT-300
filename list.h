@@ -20,6 +20,8 @@ struct Manager_s {
     Node* freeNodes;    //Linked list of free nodes
     List* heads;    //Array of all our heads
     List* freeHeads;    //Linked list of all our free heads
+    Item* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
+    Item* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of the
 };
 //Structure for a node of a list
 struct Node_s {
