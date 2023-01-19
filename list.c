@@ -101,7 +101,7 @@ void* List_last(List* pList){
 void* List_next(List* pList){
     if(pList.current == pList.tail){    //If operation advances current item beyond the end of the pList
         enum ListOutOfBounds item = LIST_OOB_ENDS;
-        pList.current.item = current;   //Set current item to be beyond end of pList
+        pList.current.item = item;   //Set current item to be beyond end of pList
         return(0);  //Return a NULL pointer
     }
     pList.current = pList.current.next; //Advance pList's current item by one
@@ -111,7 +111,15 @@ void* List_next(List* pList){
 // Backs up pList's current item by one, and returns a pointer to the new current item. 
 // If this operation backs up the current item beyond the start of the pList, a NULL pointer 
 // is returned and the current item is set to be before the start of pList.
-void* List_prev(List* pList);
+void* List_prev(List* pList){
+    if(pList.current == pList.head){    //If operation backs up the current item beyond the start of the pList
+        enum ListOutOfBounds item = LIST_OOB_START;
+        pList.current.item = item;   //Set current item to be before the start of pList
+        return(0);  //Return a NULL pointer
+    }
+    pList.current = pList.current.prev; //Backs up pList's current item by one
+    return(pList.current.item);  //Return a pointer to the new current item
+}
 
 // Returns a pointer to the current item in pList.
 void* List_curr(List* pList);
