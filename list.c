@@ -73,7 +73,10 @@ int List_count(List* pList){
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
 // Returns NULL and sets current item to NULL if list is empty.
-void* List_first(List* pList);
+void* List_first(List* pList){
+    pList.current.item = pList.head.item;
+    return(pList.head.item);
+}
 
 // Returns a pointer to the last item in pList and makes the last item the current item.
 // Returns NULL and sets current item to NULL if list is empty.
