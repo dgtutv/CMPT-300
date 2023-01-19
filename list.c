@@ -11,7 +11,6 @@ Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 List* List_create(){
-    //TODO: Instantiate children when nodes are created, and link them directly to the nodes
     if(manager.nodes == 0){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
         //Setup our outOfBounds Items
@@ -32,10 +31,14 @@ List* List_create(){
         manager.freeNodes->index = 0;
         Node* curr = &manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
+            Item currentItem;
             curr=curr->next;
             curr->index=i;
             curr->next = &manager.nodes[i+1];
             curr->prev = &manager.nodes[i-1];
+            currentItem.parent = curr;
+            curr->child = &currentItem;
+
         }
         curr->next->index = LIST_MAX_NUM_NODES-1;
         curr->next->prev = curr;
