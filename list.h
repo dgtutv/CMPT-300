@@ -37,7 +37,6 @@ struct List_s {
     Node* head;  //First node in list (NULL if this list is not in use)
     Node* tail;  //Last node in list (NULL if this list is not in use)
     Node* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty)
-    enum ListOutOfBounds bounds;    //Indicate where the start and end of list is in memory (our 2D array of nodes)
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
     int index;  //The permanent index of the node (where it actually is in our list array)

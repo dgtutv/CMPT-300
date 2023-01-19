@@ -66,32 +66,32 @@ List* List_create(){
 
 // Returns the number of items in pList.
 int List_count(List* pList){
-    int lastIndex = pList.tail.index;
-    int firstIndex = pList.head.index;
+    int lastIndex = pList->tail->index;
+    int firstIndex = pList->head->index;
     return(lastIndex-firstIndex+1);
 }
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
 // Returns NULL and sets current item to NULL if list is empty.
 void* List_first(List* pList){
-    if(pList.head == 0){    //If the list is empty
-        pList.current.item = 0; //Set the current item to NULL
+    if(pList->head == 0){    //If the list is empty
+        pList->current->item = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList.head.item;  //Pointer to first item in pList
-    pList.head.item = pList.current.item;   //Make the first item = current item
+    void* returnVal = pList->head->item;  //Pointer to first item in pList
+    pList->head->item = pList->current->item;   //Make the first item = current item
     return(returnVal);
 }
 
 // Returns a pointer to the last item in pList and makes the last item the current item.
 // Returns NULL and sets current item to NULL if list is empty.
 void* List_last(List* pList){
-    if(pList.head == 0){    //If the list is empty
-        pList.current.item = 0; //Set the current item to NULL
+    if(pList->head == 0){    //If the list is empty
+        pList->current->item = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList.tail.item;  //Pointer to last item in pList
-    pList.tail.item = pList.current.item;   //Make the last item = current item
+    void* returnVal = pList->tail->item;  //Pointer to last item in pList
+    pList->tail->item = pList->current->item;   //Make the last item = current item
     return(returnVal);
 }
 
@@ -99,31 +99,31 @@ void* List_last(List* pList){
 // If this operation advances the current item beyond the end of the pList, a NULL pointer 
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
-    if(pList.current == pList.tail){    //If operation advances current item beyond the end of the pList
+    if(pList->current == pList->tail){    //If operation advances current item beyond the end of the pList
         enum ListOutOfBounds item = LIST_OOB_ENDS;
-        pList.current.item = item;   //Set current item to be beyond end of pList
+        pList->current->item = &item;   //Set current item to be beyond end of pList
         return(0);  //Return a NULL pointer
     }
-    pList.current = pList.current.next; //Advance pList's current item by one
-    return(pList.current.item);  //Return a pointer to the new current item
+    pList->current = pList->current->next; //Advance pList's current item by one
+    return(pList->current->item);  //Return a pointer to the new current item
 }
 
 // Backs up pList's current item by one, and returns a pointer to the new current item. 
 // If this operation backs up the current item beyond the start of the pList, a NULL pointer 
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
-    if(pList.current == pList.head){    //If operation backs up the current item beyond the start of the pList
+    if(pList->current == pList->head){    //If operation backs up the current item beyond the start of the pList
         enum ListOutOfBounds item = LIST_OOB_START;
-        pList.current.item = item;   //Set current item to be before the start of pList
+        pList->current->item = &item;   //Set current item to be before the start of pList
         return(0);  //Return a NULL pointer
     }
-    pList.current = pList.current.prev; //Backs up pList's current item by one
-    return(pList.current.item);  //Return a pointer to the new current item
+    pList->current = pList->current->prev; //Backs up pList's current item by one
+    return(pList->current->item);  //Return a pointer to the new current item
 }
 
 // Returns a pointer to the current item in pList.
 void* List_curr(List* pList){
-    return(pList.current.item);
+    return(pList->current->item);
 }
 
 // Adds the new item to pList directly after the current item, and makes item the current item. 
@@ -136,11 +136,11 @@ int List_insert_after(List* pList, void* pItem){
     }
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
-        manager.freeNodes.next.prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
-        if(pList.current.item==LIST_OOB_START){     //If the current pointer is before the start of the pList
+        manager.freeNodes->next->prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+        if(pList->current->item==(void *)LIST_OOB_START){     //If the current pointer is before the start of the pList
             
         }
-        if(pList.current.item==LIST_OOB_ENDS){     //If the current pointer is beyond the end of the pList
+        if(pList->current->item==(void *)LIST_OOB_ENDS){     //If the current pointer is beyond the end of the pList
         }
     } 
 }
