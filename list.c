@@ -283,11 +283,7 @@ void* List_remove(List* pList){
     if(pList->head == 0 && pList->tail == 0){
         return(0);
     }
-    
-    //If current is the tail, call List_trim to take over the function
-    else if(pList->current->parent == pList->tail){
-        return(List_trim(pList));
-    }
+
     //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
     else if(pList->current == manager.outOfBoundsStart || pList->current == manager.outOfBoundsEnds){
         return(0);
@@ -312,6 +308,13 @@ void* List_remove(List* pList){
             pList->current = pList->current->parent->next->child;       //Make the next item the current one
         }
 
+        //Otherwise, if current is the tail, simply disconnect the tail and make current->prev the new tail to disconnect oldNode from the list
+        else if(oldNode== pList->tail){
+            oldNode->prev->next = 0;
+            pList->tail = oldNode->prev;
+            pList->current = pList->tail->child;    //Make the new last item the current one
+        }
+
         //Otherwise, take the old node out of the pList normally
         else{
             oldNode->prev->next = oldNode->next;
@@ -331,7 +334,19 @@ void* List_remove(List* pList){
 
 // Return last item and take it out of pList. Make the new last item the current one.
 // Return NULL if pList is initially empty.
-void* List_trim(List* pList);
+void* List_trim(List* pList){
+
+    //If the pList is empty, return NULL
+    if(pList->head == 0 && pList->tail == 0){
+        return(0);
+    }
+
+    //Otherwise, set current to the tail, pass control off to List_remove()
+    else{
+        pList->current = pList->tail->child;
+        return(List_remove(pList));
+    }
+}
 
 // Adds pList2 to the end of pList1. The current pointer is set to the current pointer of pList1. 
 // pList2 no longer exists after the operation; its head is available
