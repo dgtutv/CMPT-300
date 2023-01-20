@@ -1,6 +1,7 @@
 #include "list.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
@@ -8,7 +9,7 @@
 // HINT: Use assert(pList != NULL); just to add a nice check, but not required.
 
 //Our manager for our list
-Manager manager;
+static Manager manager;
 
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
@@ -403,4 +404,23 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
 // If the current pointer is before the start of the pList, then start searching from
 // the first node in the list (if any).
 typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
-void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg);
+void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
+
+    //If the current pointer is before the start of the pList, set the current pointer to the head of pList
+    if(pList->current == manager.outOfBoundsStart){
+        pList->current = pList->head->child;
+    }
+
+    //While the current node is not NULL, test for the item in the current Node's position 
+    while(pList->current->parent != 0){   
+
+        //If a match is found, return a pointer to the current item 
+        if((*pComparator)(pList->current->item, pComparisonArg) == 1){
+            return(pList->current->item);
+        }
+        pList->current = pList->current->parent->next->child;   //Iterate our current node
+    }
+    //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
+    pList->current = manager.outOfBoundsEnds;
+    return(0);
+}
