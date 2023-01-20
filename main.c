@@ -8,6 +8,16 @@ void freeItem(void* item){
     return;     //I will test with static memory for simplicity
 }
 
+//My implementation of COMPARATOR_FN (I interpret a match as the items having the same address)
+int compareItem(void* item, void* reference){
+    //If there is a match, return 1
+    if(item == reference){
+        return(1);
+    }
+    //Otherwise, return 0
+    return(0);
+}
+
 int main(){
     extern Manager manager; //our manager from list.c
     //Tests for List_create()
