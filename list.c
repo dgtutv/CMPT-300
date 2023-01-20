@@ -277,7 +277,57 @@ int List_prepend(List* pList, void* pItem){
 // Return current item and take it out of pList. Make the next item the current one.
 // If the current pointer is before the start of the pList, or beyond the end of the pList,
 // then do not change the pList and return NULL.
-void* List_remove(List* pList);
+void* List_remove(List* pList){
+
+    //If the pList is empty, return NULL
+    if(pList->head == 0 && pList->tail == 0){
+        return(0);
+    }
+    
+    //If current is the tail, call List_trim to take over the function
+    else if(pList->current->parent == pList->tail){
+        return(List_trim(pList));
+    }
+    //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
+    else if(pList->current == manager.outOfBoundsStart || pList->current == manager.outOfBoundsEnds){
+        return(0);
+    }
+    else{
+        void* returnVal = pList->current->item;     //Get the current item to be returned
+        pList->current->item = 0;   //Reset the current item to NULL       
+
+        Node* oldNode = pList->current->parent;
+
+        //If current is head and tail (the list is of size 1), simply set head and tail to NULL to disconnect oldNode from the list
+        if(oldNode == pList->head && oldNode == pList->tail){
+            pList->head = 0;
+            pList->tail = 0;
+            pList->current = 0;     //Make the current item set to NULL
+        }
+
+        //Otherwise, if current is head simply disconnect the head and make current->next the new head to diconnect oldNode from the list
+        else if(oldNode == pList->head){      
+            oldNode->next->prev = 0;
+            pList->head = oldNode->next;
+            pList->current = pList->current->parent->next->child;       //Make the next item the current one
+        }
+
+        //Otherwise, take the old node out of the pList normally
+        else{
+            oldNode->prev->next = oldNode->next;
+            oldNode->next->prev = oldNode->prev;
+            pList->current = pList->current->parent->next->child;       //Make the next item the current one
+        }     
+        
+        //Move the old node into freeNodes
+        manager.freeNodes->prev = oldNode;
+        oldNode->prev = 0;
+        oldNode->next = manager.freeNodes;
+        manager.freeNodes = oldNode;
+        
+        return(returnVal);
+    }
+}
 
 // Return last item and take it out of pList. Make the new last item the current one.
 // Return NULL if pList is initially empty.
