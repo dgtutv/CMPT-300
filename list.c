@@ -94,7 +94,7 @@ void* List_first(List* pList){
         return(0);  //Return NULL
     }
     void* returnVal = pList->head->child->item;  //Pointer to first item in pList
-    pList->head->child->item = pList->current->item;   //Make the first item = current item (should it be the inverse?)
+    pList->current = pList->head->child;   //Make the current item the first item
     return(returnVal);
 }
 
@@ -106,7 +106,7 @@ void* List_last(List* pList){
         return(0);  //Return NULL
     }
     void* returnVal = pList->tail->child->item;  //Pointer to last item in pList
-    pList->tail->child->item = pList->current->item;   //Make the last item = current item (should it be the inverse?)
+    pList->current = pList->tail->child;   //Make the current item the last item
     return(returnVal);
 }
 
