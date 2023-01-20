@@ -1,4 +1,6 @@
 #include "list.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
@@ -81,7 +83,7 @@ List* List_create(){
 int List_count(List* pList){
     int lastIndex = pList->tail->index;
     int firstIndex = pList->head->index;
-    return(lastIndex-firstIndex+1);
+    return(abs(lastIndex-firstIndex+1));
 }
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
