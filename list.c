@@ -143,7 +143,7 @@ void* List_curr(List* pList){
     if(pList->head == 0 && pList->tail == 0){return(0);}
     return(pList->current->item);
 }
-//TODO: if the list is empty when adding, make the item the head, tail, and current
+
 // Adds the new item to pList directly after the current item, and makes item the current item. 
 // If the current pointer is before the start of the pList, the item is added at the start. If 
 // the current pointer is beyond the end of the pList, the item is added at the end. 
@@ -175,6 +175,13 @@ int List_insert_after(List* pList, void* pItem){
             pList->tail = newNode;
         }
 
+        //If the list is empty, make the item the head, tail, and current
+        else if(pList->head == 0 && pList->tail == 0){
+            pList->tail = newNode;
+            pList->head = newNode;
+            pList->current = newNode->child;
+        }
+
         else{
             //Add the new item directly after the current item
             pList->current->parent->next->prev=newNode;
@@ -186,7 +193,7 @@ int List_insert_after(List* pList, void* pItem){
         return(0);
     } 
 }
-//TODO: if the list is empty when adding, make the item the head, tail, and current
+
 // Adds item to pList directly before the current item, and makes the new item the current one. 
 // If the current pointer is before the start of the pList, the item is added at the start. 
 // If the current pointer is beyond the end of the pList, the item is added at the end. 
@@ -218,6 +225,13 @@ int List_insert_before(List* pList, void* pItem){
             pList->tail = newNode;
         }
 
+        //If the list is empty, make the item the head, tail, and current
+        else if(pList->head == 0 && pList->tail == 0){
+            pList->tail = newNode;
+            pList->head = newNode;
+            pList->current = newNode->child;
+        }
+
         else{
             //Add the new item directly before the current item
             pList->current->parent->prev->next=newNode;
@@ -229,7 +243,7 @@ int List_insert_before(List* pList, void* pItem){
         return(0);
     } 
 }
-//TODO: if the list is empty when adding, make the item the head, tail, and current
+
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
@@ -245,6 +259,14 @@ int List_append(List* pList, void* pItem){
 
         newNode->child->item = pItem;      //Make the newNode's item the item provided
 
+        //If the list is empty, make the item the head, tail, and current
+        if(pList->head == 0 && pList->tail == 0){
+            pList->tail = newNode;
+            pList->head = newNode;
+            pList->current = newNode->child;
+            return(0);
+        }
+
         //Add the newNode (with the new item) to the end of pList
         pList->tail->next = newNode;
         newNode->prev = pList->tail;
@@ -254,7 +276,7 @@ int List_append(List* pList, void* pItem){
         return(0);
     }
 }
-//TODO: if the list is empty when adding, make the item the head, tail, and current
+
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
@@ -269,6 +291,14 @@ int List_prepend(List* pList, void* pItem){
         manager.freeNodes = manager.freeNodes->next;
 
         newNode->child->item = pItem;      //Make the newNode's item the item provided
+
+        //If the list is empty, make the item the head, tail, and current
+        if(pList->head == 0 && pList->tail == 0){
+            pList->tail = newNode;
+            pList->head = newNode;
+            pList->current = newNode->child;
+            return(0);
+        }
 
         //Add the newNode (with the new item) to the end of pList
         pList->head->prev = newNode;
@@ -326,14 +356,22 @@ void* List_remove(List* pList){
             oldNode->prev->next = oldNode->next;
             oldNode->next->prev = oldNode->prev;
             pList->current = pList->current->parent->next->child;       //Make the next item the current one
-        }     
-        
-        //Move the old node into freeNodes
-        manager.freeNodes->prev = oldNode;
+        }   
+
         oldNode->prev = 0;
-        oldNode->next = manager.freeNodes;
-        manager.freeNodes = oldNode;
-        
+        //If the freeNodes list is empty, make the oldNode the head of the freeNodes list
+        if(manager.freeNodes == 0){
+            
+            oldNode->next = 0;
+            manager.freeNodes = oldNode;
+        }
+
+        //Otherwise, ove the old node into freeNodes
+        else{
+            manager.freeNodes->prev = oldNode;
+            oldNode->next = manager.freeNodes;
+            manager.freeNodes = oldNode;
+        }
         return(returnVal);
     }
 }
@@ -388,13 +426,19 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
         pList->current = pList->tail->child;
         (*pItemFreeFn)(pList->current);
     }
-    //Free the pList itself
     pList->head = 0;
     pList->tail = 0;
     pList->current = 0;
-    pList->next = manager.freeHeads;
-    manager.freeHeads->prev = pList;
 
+    //If the freeHeads list is empty, make the freed list the head of freeHeads
+    if(manager.freeHeads == 0){
+        manager.freeHeads = pList;
+    }
+    //Otherwise, free the pList itself
+    else{
+        pList->next = manager.freeHeads;
+        manager.freeHeads->prev = pList;
+    }
 }
 // Search pList, starting at the current item, until the end is reached or a match is found. 
 // In this context, a match is determined by the comparator parameter. This parameter is a
