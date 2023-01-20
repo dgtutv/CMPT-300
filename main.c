@@ -10,5 +10,7 @@ int main(){
     List* nullList = 0;
     assert(newList != nullList);    //Test our list is not undefined
 
-    //Tests for 
+    //TODO: Create tests for each function
+    //TODO: Implement FREE_FN
+    //TODO: Implement COMPARATOR_FN
 }
