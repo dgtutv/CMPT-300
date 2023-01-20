@@ -352,12 +352,22 @@ void* List_trim(List* pList){
 // pList2 no longer exists after the operation; its head is available
 // for future operations.
 void List_concat(List* pList1, List* pList2){
-    //If pList2 is not empty, add pList2 to the end of pList1
+    //If pList2 is not empty
     if(pList2->head != 0 && pList2->tail != 0){
-        pList1->tail->next = pList2->head;
-        pList2->head->prev = pList1->tail;
-        pList1->tail = pList2->tail;
+        //If pList1 is empty, move pList2 to pList1
+        if(pList1->head == 0 && pList1->tail == 0){
+            pList1->tail = pList2->tail;
+            pList1->head = pList2->head;
+            pList1->current = pList2->current;
+        }
+        //Otherwise, add pList2 to the end of pList1
+        else{
+            pList1->tail->next = pList2->head;
+            pList2->head->prev = pList1->tail;
+            pList1->tail = pList2->tail;
+        }
     }
+
     List_free(pList2, List_remove);     //Delete pList2
 }
 
@@ -366,7 +376,10 @@ void List_concat(List* pList1, List* pList2){
 // pList and all its nodes no longer exists after the operation; its head and nodes are 
 // available for future operations.
 typedef void (*FREE_FN)(void* pItem);
-void List_free(List* pList, FREE_FN pItemFreeFn);
+void List_free(List* pList, FREE_FN pItemFreeFn){
+    //If pList is not empty, free all of it's nodes
+    if(pList)
+}
 
 // Search pList, starting at the current item, until the end is reached or a match is found. 
 // In this context, a match is determined by the comparator parameter. This parameter is a
