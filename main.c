@@ -18,14 +18,25 @@ int compareItem(void* item, void* reference){
     return(0);
 }
 
+//TODO: Create tests for each function
 int main(){
     extern Manager manager; //our manager from list.c
-    //Tests for List_create()
-    List* newList = List_create();
-    List* nullList = 0;
-    assert(newList != nullList);    //Test our list is not undefined
 
-    //TODO: Create tests for each function
-    //TODO: Implement FREE_FN
-    //TODO: Implement COMPARATOR_FN
+//--------Tests for List_create()---------//
+    List* nullList = 0;
+
+    //Create 10 lists, should all be defined, and unique
+    List* newList = List_create();
+    assert(newList != nullList);    //Test our list is not undefined
+    List* prevList = newList;
+    for(int i=1; i<10; i++){
+        newList = List_create();
+        assert(newList != nullList);    //Test our list is not undefined
+        assert(newList != prevList);    //Test our list is also not the same as the previously passed list 
+        prevList = newList;
+    }
+
+    //Attempting to create more than 10 lists will return a NULL pointer
+    newList = List_create();
+    assert(newList == nullList);
 }
