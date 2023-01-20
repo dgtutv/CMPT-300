@@ -13,6 +13,7 @@ static Manager manager;
 
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
+
 List* List_create(){
     if(manager.nodes == 0){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
@@ -84,7 +85,7 @@ List* List_create(){
 int List_count(List* pList){
     int lastIndex = pList->tail->index;
     int firstIndex = pList->head->index;
-    return(abs(lastIndex-firstIndex+1));
+    return(abs(lastIndex-firstIndex));
 }
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
@@ -110,14 +111,14 @@ void* List_last(List* pList){
     pList->current = pList->tail->child;   //Make the current item the last item
     return(returnVal);
 }
-
 // Advances pList's current item by one, and returns a pointer to the new current item.
 // If this operation advances the current item beyond the end of the pList, a NULL pointer 
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
-    if(pList->current->parent == pList->tail){    //If operation advances current item beyond the end of the pList
-        pList->current = manager.outOfBoundsEnds;   //Set current item to be beyond end of pList
-        return(0);  //Return a NULL pointer
+    //If operation advances current item beyond the end of the pList, or the pList is empty, set current item to be beyond end of pList, and Return a NULL pointer
+    if(pList->current->parent == pList->tail || (pList->head == 0 && pList->tail == 0)){    
+        pList->current = manager.outOfBoundsEnds;
+        return(0);
     }
     pList->current = pList->current->parent->next->child; //Advance pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
@@ -127,9 +128,10 @@ void* List_next(List* pList){
 // If this operation backs up the current item beyond the start of the pList, a NULL pointer 
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
-    if(pList->current->parent == pList->head){    //If operation backs up the current item beyond the start of the pList
-        pList->current = manager.outOfBoundsStart;   //Set current item to be before the start of pList
-        return(0);  //Return a NULL pointer
+    //If operation backs up the current item beyond the start of the pList, set current item to be before the start of pList, and return a NULL pointer
+    if(pList->current->parent == pList->head || (pList->head == 0 && pList->tail == 0)){       
+        pList->current = manager.outOfBoundsStart;   
+        return(0);
     }
     pList->current = pList->current->parent->prev->child; //Backs up pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
@@ -137,9 +139,11 @@ void* List_prev(List* pList){
 
 // Returns a pointer to the current item in pList.
 void* List_curr(List* pList){
+    //If the pList is empty, return NULL
+    if(pList->head == 0 && pList->tail == 0){return(0);}
     return(pList->current->item);
 }
-
+//TODO: if the list is empty when adding, make the item the head, tail, and current
 // Adds the new item to pList directly after the current item, and makes item the current item. 
 // If the current pointer is before the start of the pList, the item is added at the start. If 
 // the current pointer is beyond the end of the pList, the item is added at the end. 
@@ -182,7 +186,7 @@ int List_insert_after(List* pList, void* pItem){
         return(0);
     } 
 }
-
+//TODO: if the list is empty when adding, make the item the head, tail, and current
 // Adds item to pList directly before the current item, and makes the new item the current one. 
 // If the current pointer is before the start of the pList, the item is added at the start. 
 // If the current pointer is beyond the end of the pList, the item is added at the end. 
@@ -225,6 +229,7 @@ int List_insert_before(List* pList, void* pItem){
         return(0);
     } 
 }
+//TODO: if the list is empty when adding, make the item the head, tail, and current
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
@@ -249,7 +254,7 @@ int List_append(List* pList, void* pItem){
         return(0);
     }
 }
-
+//TODO: if the list is empty when adding, make the item the head, tail, and current
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
