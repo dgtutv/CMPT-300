@@ -241,6 +241,9 @@ int List_append(List* pList, void* pItem){
         pList->tail->next = newNode;
         newNode->prev = pList->tail;
         pList->tail = newNode;
+
+        pList->current = newNode->child;    //Make the new item the current one
+        return(0);
     }
 }
 
@@ -263,6 +266,9 @@ int List_prepend(List* pList, void* pItem){
         pList->head->prev = newNode;
         newNode->next = pList->head;
         pList->head = newNode;
+
+        pList->current = newNode->child;    //Make the new item the current one
+        return(0);
     }
 }
 
