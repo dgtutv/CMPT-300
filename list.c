@@ -466,7 +466,8 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
     //While pList remains non-empty, free its tail
     while(pList->head!=0 && pList->tail!=0){
         pList->current = pList->tail->child;
-        (*pItemFreeFn)(pList->current);
+        (*pItemFreeFn)(pList->current);     //Free the memory of the item
+        List_remove(pList);     //Free the Node itself
     }
     pList->head = 0;
     pList->tail = 0;
