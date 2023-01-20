@@ -377,10 +377,19 @@ void List_concat(List* pList1, List* pList2){
 // available for future operations.
 typedef void (*FREE_FN)(void* pItem);
 void List_free(List* pList, FREE_FN pItemFreeFn){
-    //If pList is not empty, free all of it's nodes
-    if(pList)
-}
+    //While pList remains non-empty, free its tail
+    while(pList->head!=0 && pList->tail!=0){
+        pList->current = pList->tail->child;
+        (*pItemFreeFn)(pList->current);
+    }
+    //Free the pList itself
+    pList->head = 0;
+    pList->tail = 0;
+    pList->current = 0;
+    pList->next = manager.freeHeads;
+    manager.freeHeads->prev = pList;
 
+}
 // Search pList, starting at the current item, until the end is reached or a match is found. 
 // In this context, a match is determined by the comparator parameter. This parameter is a
 // pointer to a routine that takes as its first argument an item pointer, and as its second 

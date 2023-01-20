@@ -21,7 +21,7 @@ struct Manager_s {
     List* heads;    //Array of all our heads
     List* freeHeads;    //Linked list of all our free heads
     Item* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
-    Item* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of the
+    Item* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
 };
 //Structure for a node of a list
 struct Node_s {
@@ -47,7 +47,7 @@ struct List_s {
     Node* tail;  //Last node in list (NULL if this list is not in use)
     Item* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
-    List* prev;  //The previous list in the freeHeads array (this is NULL if this list is in use)
+    List* prev;  //The previous list in the freeHeads array
     int index;  //The permanent index of the node (where it actually is in our list array)
 };
 
