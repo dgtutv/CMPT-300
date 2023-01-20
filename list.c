@@ -147,24 +147,28 @@ int List_insert_after(List* pList, void* pItem){
     }
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
-        manager.freeNodes->next->prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+
+        //Make the next available node (after the one we are taking) the head of freeNodes list
+        manager.freeNodes->next->prev = 0;            
+        manager.freeNodes = manager.freeNodes->next;
+
         newNode->child->item = pItem;      //Make the newNode's item the item provided
+
+        //If the current pointer is before the start of the pList, insert the newNode at the start of the list
         if(pList->current == manager.outOfBoundsStart){
-            
-            //If the current pointer is before the start of the pList, insert the newNode at the start of the list
             newNode->next = pList->head;
             pList->head->prev = newNode;
             pList->head = newNode;
         }
+
+        //If the current pointer is beyond the end of the pList OR current is the end of the list, insert the newNode at the end of the list
         else if(pList->current == manager.outOfBoundsEnds || pList->current->parent == pList->tail){
-            
-            //If the current pointer is beyond the end of the pList OR current is the end of the list, insert the newNode at the end of the list
             newNode->prev = pList->tail;
             pList->tail->next = newNode;
             pList->tail = newNode;
         }
-        else{
 
+        else{
             //Add the new item directly after the current item
             pList->current->parent->next->prev=newNode;
             newNode->next = pList->current->parent->next;
@@ -186,24 +190,28 @@ int List_insert_before(List* pList, void* pItem){
     }
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
-        manager.freeNodes->next->prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+
+        //Make the next available node (after the one we are taking) the head of freeNodes list
+        manager.freeNodes->next->prev = 0;            
+        manager.freeNodes = manager.freeNodes->next;
+
         newNode->child->item = pItem;      //Make the newNode's item the item provided
+
+        //If the current pointer is before the start of the pList OR current is the start of the list, insert the newNode at the start of the list
         if(pList->current == manager.outOfBoundsStart || pList->current->parent == pList->head){
-            
-            //If the current pointer is before the start of the pList OR current is the start of the list, insert the newNode at the start of the list
             newNode->next = pList->head;
             pList->head->prev = newNode;
             pList->head = newNode;
         }
-        else if(pList->current == manager.outOfBoundsEnds){
-            
-            //If the current pointer is beyond the end of the pList, insert the newNode at the end of the list
+
+        //If the current pointer is beyond the end of the pList, insert the newNode at the end of the list
+        else if(pList->current == manager.outOfBoundsEnds){     
             newNode->prev = pList->tail;
             pList->tail->next = newNode;
             pList->tail = newNode;
         }
-        else{
 
+        else{
             //Add the new item directly before the current item
             pList->current->parent->prev->next=newNode;
             newNode->next = pList->current->parent;
@@ -216,11 +224,47 @@ int List_insert_before(List* pList, void* pItem){
 }
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
-int List_append(List* pList, void* pItem);
+int List_append(List* pList, void* pItem){
+    if(manager.freeNodes==0){    //If there are no free nodes left to use
+        return(-1);
+    }
+    else{
+        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+
+        //Make the next available node (after the one we are taking) the head of freeNodes list
+        manager.freeNodes->next->prev = 0;            
+        manager.freeNodes = manager.freeNodes->next;
+
+        newNode->child->item = pItem;      //Make the newNode's item the item provided
+
+        //Add the newNode (with the new item) to the end of pList
+        pList->tail->next = newNode;
+        newNode->prev = pList->tail;
+        pList->tail = newNode;
+    }
+}
 
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
-int List_prepend(List* pList, void* pItem);
+int List_prepend(List* pList, void* pItem){
+    if(manager.freeNodes==0){    //If there are no free nodes left to use
+        return(-1);
+    }
+    else{
+        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+
+        //Make the next available node (after the one we are taking) the head of freeNodes list
+        manager.freeNodes->next->prev = 0;            
+        manager.freeNodes = manager.freeNodes->next;
+
+        newNode->child->item = pItem;      //Make the newNode's item the item provided
+
+        //Add the newNode (with the new item) to the end of pList
+        pList->head->prev = newNode;
+        newNode->next = pList->head;
+        pList->head = newNode;
+    }
+}
 
 // Return current item and take it out of pList. Make the next item the current one.
 // If the current pointer is before the start of the pList, or beyond the end of the pList,
