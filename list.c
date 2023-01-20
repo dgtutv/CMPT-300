@@ -31,7 +31,7 @@ List* List_create(){
         manager.freeNodes->index = 0;
         Node* curr = &manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            Item currentItem;
+            Item currentItem;   //Create a new item to be linked with each Node
             curr=curr->next;
             curr->index=i;
             curr->next = &manager.nodes[i+1];
@@ -180,8 +180,40 @@ int List_insert_after(List* pList, void* pItem){
 // If the current pointer is before the start of the pList, the item is added at the start. 
 // If the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
-int List_insert_before(List* pList, void* pItem);
+int List_insert_before(List* pList, void* pItem){
+    if(manager.freeNodes==0){    //If there are no free nodes left to use
+        return(-1);
+    }
+    else{
+        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        manager.freeNodes->next->prev = 0;            //Make the next available node (after the one we are taking) the head of freeNodes list
+        newNode->child->item = pItem;      //Make the newNode's item the item provided
+        if(pList->current == manager.outOfBoundsStart || pList->current->parent == pList->head){
+            
+            //If the current pointer is before the start of the pList OR current is the start of the list, insert the newNode at the start of the list
+            newNode->next = pList->head;
+            pList->head->prev = newNode;
+            pList->head = newNode;
+        }
+        else if(pList->current == manager.outOfBoundsEnds){
+            
+            //If the current pointer is beyond the end of the pList, insert the newNode at the end of the list
+            newNode->prev = pList->tail;
+            pList->tail->next = newNode;
+            pList->tail = newNode;
+        }
+        else{
 
+            //Add the new item directly before the current item
+            pList->current->parent->prev->next=newNode;
+            newNode->next = pList->current->parent;
+            newNode->prev = pList->current->parent->prev;
+            pList->current->parent->prev = newNode;     
+        }
+        pList->current = newNode->child;    //Make item the current item
+        return(0);
+    } 
+}
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem);
