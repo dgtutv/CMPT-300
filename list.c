@@ -351,7 +351,15 @@ void* List_trim(List* pList){
 // Adds pList2 to the end of pList1. The current pointer is set to the current pointer of pList1. 
 // pList2 no longer exists after the operation; its head is available
 // for future operations.
-void List_concat(List* pList1, List* pList2);
+void List_concat(List* pList1, List* pList2){
+    //If pList2 is not empty, add pList2 to the end of pList1
+    if(pList2->head != 0 && pList2->tail != 0){
+        pList1->tail->next = pList2->head;
+        pList2->head->prev = pList1->tail;
+        pList1->tail = pList2->tail;
+    }
+    List_free(pList2, List_remove);     //Delete pList2
+}
 
 // Delete pList. pItemFreeFn is a pointer to a routine that frees an item. 
 // It should be invoked (within List_free) as: (*pItemFreeFn)(itemToBeFreedFromNode);
