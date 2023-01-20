@@ -70,10 +70,20 @@ List* List_create(){
         List* head = manager.freeHeads;  
 
         //Fully disconnect head from freeHeads list
-        head->next->prev = 0;  
+        //If the freeHeads list is of size 1, set the freeHeads list to NULL
+        if(head->next == 0){
+            manager.freeHeads = 0;
+        }
+        //Otherwise, disconnect just the head of the freeHeads
+        else{
+            head->next->prev = 0;  
+            manager.freeHeads = head->next;
+        }
+        //Reset the head's values
         head->next = 0;
         head->prev = 0;
-        return head;
+        head->size = 0;
+        return(head);
     }
 
     else{
@@ -83,9 +93,7 @@ List* List_create(){
 
 // Returns the number of items in pList.
 int List_count(List* pList){
-    int lastIndex = pList->tail->index;
-    int firstIndex = pList->head->index;
-    return(abs(lastIndex-firstIndex));
+    return(pList->size);
 }
 
 // Returns a pointer to the first item in pList and makes the first item the current item.
@@ -153,11 +161,19 @@ int List_insert_after(List* pList, void* pItem){
         return(-1);
     }
     else{
+        pList->size++;      //Increment the size of pList
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
 
-        //Make the next available node (after the one we are taking) the head of freeNodes list
-        manager.freeNodes->next->prev = 0;            
-        manager.freeNodes = manager.freeNodes->next;
+        //If the freeNodes list is singleton, take the head
+        if(manager.freeNodes->next == 0){
+            manager.freeNodes = 0;
+        }
+
+        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
+        else{
+            manager.freeNodes->next->prev = 0;            
+            manager.freeNodes = manager.freeNodes->next;
+        }
 
         newNode->child->item = pItem;      //Make the newNode's item the item provided
 
@@ -203,11 +219,19 @@ int List_insert_before(List* pList, void* pItem){
         return(-1);
     }
     else{
+        pList->size++;      //Increment the size of pList
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
 
-        //Make the next available node (after the one we are taking) the head of freeNodes list
-        manager.freeNodes->next->prev = 0;            
-        manager.freeNodes = manager.freeNodes->next;
+        //If the freeNodes list is singleton, take the head
+        if(manager.freeNodes->next == 0){
+            manager.freeNodes = 0;
+        }
+
+        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
+        else{
+            manager.freeNodes->next->prev = 0;            
+            manager.freeNodes = manager.freeNodes->next;
+        }
 
         newNode->child->item = pItem;      //Make the newNode's item the item provided
 
@@ -251,11 +275,19 @@ int List_append(List* pList, void* pItem){
         return(-1);
     }
     else{
+        pList->size++;      //Increment the size of pList
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
 
-        //Make the next available node (after the one we are taking) the head of freeNodes list
-        manager.freeNodes->next->prev = 0;            
-        manager.freeNodes = manager.freeNodes->next;
+        //If the freeNodes list is singleton, take the head
+        if(manager.freeNodes->next == 0){
+            manager.freeNodes = 0;
+        }
+
+        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
+        else{
+            manager.freeNodes->next->prev = 0;            
+            manager.freeNodes = manager.freeNodes->next;
+        }
 
         newNode->child->item = pItem;      //Make the newNode's item the item provided
 
@@ -284,12 +316,20 @@ int List_prepend(List* pList, void* pItem){
         return(-1);
     }
     else{
+        pList->size++;      //Increment the size of pList
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
 
-        //Make the next available node (after the one we are taking) the head of freeNodes list
-        manager.freeNodes->next->prev = 0;            
-        manager.freeNodes = manager.freeNodes->next;
+        //If the freeNodes list is singleton, take the head
+        if(manager.freeNodes->next == 0){
+            manager.freeNodes = 0;
+        }
 
+        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
+        else{
+            manager.freeNodes->next->prev = 0;            
+            manager.freeNodes = manager.freeNodes->next;
+        }
+        
         newNode->child->item = pItem;      //Make the newNode's item the item provided
 
         //If the list is empty, make the item the head, tail, and current
@@ -325,6 +365,7 @@ void* List_remove(List* pList){
         return(0);
     }
     else{
+        pList->size--;      //Decrement the size of pList
         void* returnVal = pList->current->item;     //Get the current item to be returned
         pList->current->item = 0;   //Reset the current item to NULL       
 
@@ -359,9 +400,9 @@ void* List_remove(List* pList){
         }   
 
         oldNode->prev = 0;
+
         //If the freeNodes list is empty, make the oldNode the head of the freeNodes list
-        if(manager.freeNodes == 0){
-            
+        if(manager.freeNodes == 0){       
             oldNode->next = 0;
             manager.freeNodes = oldNode;
         }
@@ -398,6 +439,7 @@ void* List_trim(List* pList){
 void List_concat(List* pList1, List* pList2){
     //If pList2 is not empty
     if(pList2->head != 0 && pList2->tail != 0){
+        pList1->size += pList2->size;       //Update the size of pList1
         //If pList1 is empty, move pList2 to pList1
         if(pList1->head == 0 && pList1->tail == 0){
             pList1->tail = pList2->tail;
@@ -429,6 +471,7 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
     pList->head = 0;
     pList->tail = 0;
     pList->current = 0;
+    pList->size = 0;    //Reset the size of pList
 
     //If the freeHeads list is empty, make the freed list the head of freeHeads
     if(manager.freeHeads == 0){

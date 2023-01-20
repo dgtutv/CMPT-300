@@ -49,6 +49,7 @@ struct List_s {
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array
     int index;  //The permanent index of the node (where it actually is in our list array)
+    int size;   //The size of the list
 };
 
 // Maximum number of unique lists the system can support
