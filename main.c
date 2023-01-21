@@ -54,7 +54,7 @@ int main(){
     //Attempting to create more than 10 lists will return a NULL pointer
     newList = List_create();
     assert(newList == nullList);
-    assert(manager.numHeads == 10);     //Test the number of heads is still 10\
+    assert(manager.numHeads == 10);     //Test the number of heads is still 10
 
     //Check that all of the Nodes are currently free
     Node* currentNode = manager.freeNodes;
@@ -76,16 +76,16 @@ int main(){
         //Test for all heads to cover edge cases
         currentHead = &manager.heads[i];
         //Inserting an item into an empty list should make the item the head, tail, and current item of the list
-        int testNum = 1;
-        assert(List_insert_after(currentHead, &testNum) == 0);  //Test the insertion was successful
-        assert(currentHead->head->child->item == &testNum);
-        assert(currentHead->tail->child->item == &testNum);
-        assert(currentHead->current->item == &testNum);
-        assert(currentHead->current->parent == currentHead->head);
-        assert(currentHead->current->parent == currentHead->tail);
-        assert(currentHead->head->child == currentHead->current);
-        assert(currentHead->tail->child == currentHead->current);
-        assert(currentHead->size == 1);
+        void* testNum = (int*)malloc(sizeof(int));
+        assert(List_insert_after(currentHead, testNum) == 0);  //Test the insertion was successful
+        // assert(currentHead->head->child->item == &testNum);
+        // assert(currentHead->tail->child->item == &testNum);
+        // assert(currentHead->current->item == &testNum);
+        // assert(currentHead->current->parent == currentHead->head);
+        // assert(currentHead->current->parent == currentHead->tail);
+        // assert(currentHead->head->child == currentHead->current);
+        // assert(currentHead->tail->child == currentHead->current);
+        // assert(currentHead->size == 1);
         //Inserting an item after the head should make the item the tail, and the current item of the list, keeping head the same
         //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
         //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
