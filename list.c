@@ -79,9 +79,8 @@ List* List_create(){
             head->next->prev = 0;  
             manager.freeHeads = head->next;
         }
-        //Reset the head's values
-        head->next = 0;
-        head->prev = 0;
+        manager.heads[manager.numHeads-1] = *head;   //Add the head to the heads array
+        manager.numHeads++;         //Increment our numHeads counter
         head->size = 0;
         return(head);
     }
