@@ -174,7 +174,7 @@ int List_insert_after(List* pList, void* pItem){
             manager.freeNodes = manager.freeNodes->next;
         }
 
-        newNode->child->item = pItem;      //Make the newNode's item the item provided
+        newNode->child->item = pItem;      //Make the newNode's item the item provided //TODO: seg fault here?
 
         //If the current pointer is before the start of the pList, insert the newNode at the start of the list
         if(pList->current == manager.outOfBoundsStart){
