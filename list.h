@@ -18,9 +18,9 @@ typedef struct Item_s Item;
 struct Manager_s {
     Node* nodes;    //An array of all of our nodes
     Node* freeNodes;    //Linked list of free nodes
-    List* heads;    //Array of all our heads
+    List** heads;    //Array of all our heads
     int numHeads;       //Count of heads currently in use
-    List* freeHeads;    //Linked list of all our free heads
+    List** freeHeads;    //Linked list of all our free heads
     void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
     void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
 };
@@ -42,8 +42,6 @@ struct List_s {
     Node* tail;  //Last node in list (NULL if this list is not in use)
     Node* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
     void* currentItem;      //Always the same as Node->item unless list is empty or out of bounds
-    List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
-    List* prev;  //The previous list in the freeHeads array
     int index;  //The permanent index of the node (where it actually is in our list array)
     int size;   //The size of the list
 };

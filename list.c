@@ -40,10 +40,10 @@ List* List_create(){
         curr->next->prev = curr;
         
         //Setup our heads
-        List listArr[LIST_MAX_NUM_HEADS];
+        List* listArr[LIST_MAX_NUM_HEADS];
         manager.heads = listArr;
         manager.freeHeads = manager.heads;
-        manager.freeHeads->next = &manager.heads[1];
+        manager.freeHeads->next = manager.heads[1];
         manager.freeHeads->index = 0;
         List* currL = &manager.heads[0];
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
@@ -59,7 +59,7 @@ List* List_create(){
     if(manager.freeHeads != 0){   //If possible, return a new head pointer (not possible when heads are all in use)
 
         //Set head to next available head (the start of our freeHeads list)
-        List* head = manager.freeHeads;  
+        List* head = manager.freeHeads[0];  
 
         //Fully disconnect head from freeHeads list
         //If the freeHeads list is of size 1, set the freeHeads list to NULL
@@ -69,9 +69,9 @@ List* List_create(){
         //Otherwise, disconnect just the head of the freeHeads
         else{
             head->next->prev = 0;  
-            manager.freeHeads = head->next;
+            manager.freeHeads[0] = head->next;
         }
-        manager.heads[manager.numHeads-1] = *head;   //Add the head to the heads array
+        manager.heads[manager.numHeads-1] = head;   //Add the head to the heads array
         manager.numHeads++;         //Increment our numHeads counter
         head->size = 0;
         return(head);
