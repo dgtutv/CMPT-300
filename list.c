@@ -18,8 +18,10 @@ List* List_create(){
     if(manager.nodes == 0){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
         //Setup our out of bounds variables
-        manager.outOfBoundsStart = LIST_OOB_START;
-        manager.outOfBoundsEnds = LIST_OOB_ENDS;
+        enum ListOutOfBounds start = LIST_OOB_START;
+        enum ListOutOfBounds end = LIST_OOB_ENDS;
+        manager.outOfBoundsStart = &start;
+        manager.outOfBoundsEnds = &end;
 
         //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
@@ -117,8 +119,8 @@ void* List_last(List* pList){
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
     //If operation advances current item beyond the end of the pList, or the pList is empty, set current item to be beyond end of pList, and Return a NULL pointer
-    if(pList->current == pList->tail || (pList->head == 0 && pList->tail == 0) || pList->currentItem == &manager.outOfBoundsEnds){    
-        pList->currentItem = &manager.outOfBoundsEnds;
+    if(pList->current == pList->tail || (pList->head == 0 && pList->tail == 0) || pList->currentItem == manager.outOfBoundsEnds){    
+        pList->currentItem = manager.outOfBoundsEnds;
         return(0);
     }
     pList->current = pList->current->next; //Advance pList's current Node by one
@@ -131,8 +133,8 @@ void* List_next(List* pList){
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
     //If operation backs up the current item beyond the start of the pList, set current item to be before the start of pList, and return a NULL pointer
-    if(pList->current == pList->head || (pList->head == 0 && pList->tail == 0) || pList->currentItem == &manager.outOfBoundsStart){       
-        pList->currentItem = &manager.outOfBoundsStart;   
+    if(pList->current == pList->head || (pList->head == 0 && pList->tail == 0) || pList->currentItem == manager.outOfBoundsStart){       
+        pList->currentItem = manager.outOfBoundsStart;   
         return(0);
     }
     pList->current = pList->current->prev; //Backs up pList's current Node by one
@@ -173,14 +175,14 @@ int List_insert_after(List* pList, void* pItem){
         newNode->item = pItem;      //Make the newNode's item the item provided
 
         //If the current pointer is before the start of the pList, insert the newNode at the start of the list
-        if(pList->currentItem == &manager.outOfBoundsStart){
+        if(pList->currentItem == manager.outOfBoundsStart){
             newNode->next = pList->head;
             pList->head->prev = newNode;
             pList->head = newNode;
         }
 
         //If the current pointer is beyond the end of the pList OR current is the end of the list, insert the newNode at the end of the list
-        else if(pList->currentItem == &manager.outOfBoundsEnds || pList->current == pList->tail){
+        else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
             newNode->prev = pList->tail;
             pList->tail->next = newNode;
             pList->tail = newNode;
@@ -231,14 +233,14 @@ int List_insert_before(List* pList, void* pItem){
         newNode->item = pItem;      //Make the newNode's item the item provided
 
         //If the current pointer is before the start of the pList OR current is the start of the list, insert the newNode at the start of the list
-        if(pList->currentItem == &manager.outOfBoundsStart || pList->current == pList->head){
+        if(pList->currentItem == manager.outOfBoundsStart || pList->current == pList->head){
             newNode->next = pList->head;
             pList->head->prev = newNode;
             pList->head = newNode;
         }
 
         //If the current pointer is beyond the end of the pList, insert the newNode at the end of the list
-        else if(pList->currentItem == &manager.outOfBoundsEnds){     
+        else if(pList->currentItem == manager.outOfBoundsEnds){     
             newNode->prev = pList->tail;
             pList->tail->next = newNode;
             pList->tail = newNode;
@@ -358,7 +360,7 @@ void* List_remove(List* pList){
     }
 
     //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
-    else if(pList->currentItem == &manager.outOfBoundsStart || pList->currentItem == &manager.outOfBoundsEnds){
+    else if(pList->currentItem == manager.outOfBoundsStart || pList->currentItem == manager.outOfBoundsEnds){
         return(0);
     }
     else{
@@ -407,7 +409,7 @@ void* List_remove(List* pList){
             manager.freeNodes = oldNode;
         }
 
-        //Otherwise, ove the old node into freeNodes
+        //Otherwise, move the old node into freeNodes
         else{
             manager.freeNodes->prev = oldNode;
             oldNode->next = manager.freeNodes;
@@ -502,7 +504,7 @@ typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
 void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
 
     //If the current pointer is before the start of the pList, set the current pointer to the head of pList
-    if(pList->current->item == &manager.outOfBoundsStart){
+    if(pList->current->item == manager.outOfBoundsStart){
         pList->current = pList->head;
         pList->currentItem = pList->current->item;
     }
@@ -518,6 +520,6 @@ void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
         pList->currentItem = pList->current->item;   //Iterate our current item
     }
     //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
-    pList->currentItem = &manager.outOfBoundsEnds;
+    pList->currentItem = manager.outOfBoundsEnds;
     return(0);
 }

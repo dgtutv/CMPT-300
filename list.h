@@ -21,8 +21,8 @@ struct Manager_s {
     List* heads;    //Array of all our heads
     int numHeads;       //Count of heads currently in use
     List* freeHeads;    //Linked list of all our free heads
-    enum ListOutOfBounds outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
-    enum ListOutOfBounds outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
+    void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
+    void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
 };
 //Structure for a node of a list
 struct Node_s {
