@@ -17,15 +17,9 @@ static Manager manager;
 List* List_create(){
     if(manager.nodes == 0){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
-        //Setup our outOfBounds Items
-        Item outOfBoundsStart;
-        Item outOfBoundsEnds;
-        enum ListOutOfBounds start = LIST_OOB_START;
-        enum ListOutOfBounds end = LIST_OOB_ENDS;
-        outOfBoundsStart.item = &start;
-        outOfBoundsEnds.item = &end;
-        manager.outOfBoundsStart = &outOfBoundsStart;
-        manager.outOfBoundsEnds = &outOfBoundsEnds;
+        //Setup our out of bounds variables
+        manager.outOfBoundsStart = LIST_OOB_START;
+        manager.outOfBoundsEnds = LIST_OOB_ENDS;
 
         //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
@@ -35,14 +29,10 @@ List* List_create(){
         manager.freeNodes->index = 0;
         Node* curr = &manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            Item currentItem;   //Create a new item to be linked with each Node
             curr=curr->next;
             curr->index=i;
             curr->next = &manager.nodes[i+1];
             curr->prev = &manager.nodes[i-1];
-            currentItem.parent = curr;
-            curr->child = &currentItem;
-
         }
         curr->next->index = LIST_MAX_NUM_NODES-1;
         curr->next->prev = curr;
@@ -99,11 +89,13 @@ int List_count(List* pList){
 // Returns NULL and sets current item to NULL if list is empty.
 void* List_first(List* pList){
     if(pList->head == 0){    //If the list is empty
-        pList->current->item = 0; //Set the current item to NULL
+        pList->current = 0; //Set the current Node to NULL
+        pList->currentItem = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList->head->child->item;  //Pointer to first item in pList
-    pList->current = pList->head->child;   //Make the current item the first item
+    void* returnVal = pList->head->item;  //Pointer to first item in pList
+    pList->currentItem = pList->head->item;   //Make the current item the first item
+    pList->current = pList->head;       //Make the current Node the first Node
     return(returnVal);
 }
 
@@ -111,11 +103,13 @@ void* List_first(List* pList){
 // Returns NULL and sets current item to NULL if list is empty.
 void* List_last(List* pList){
     if(pList->head == 0){    //If the list is empty
-        pList->current->item = 0; //Set the current item to NULL
+        pList->current = 0; //Set the current Node to NULL
+        pList->currentItem = 0; //Set the current item to NULL
         return(0);  //Return NULL
     }
-    void* returnVal = pList->tail->child->item;  //Pointer to last item in pList
-    pList->current = pList->tail->child;   //Make the current item the last item
+    void* returnVal = pList->tail->item;  //Pointer to last item in pList
+    pList->current = pList->tail;   //Make the current Node the last Node
+    pList->currentItem = pList->current->item;  //Make the current item the last item
     return(returnVal);
 }
 // Advances pList's current item by one, and returns a pointer to the new current item.
@@ -123,11 +117,12 @@ void* List_last(List* pList){
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
     //If operation advances current item beyond the end of the pList, or the pList is empty, set current item to be beyond end of pList, and Return a NULL pointer
-    if(pList->current->parent == pList->tail || (pList->head == 0 && pList->tail == 0)){    
-        pList->current = manager.outOfBoundsEnds;
+    if(pList->current == pList->tail || (pList->head == 0 && pList->tail == 0) || pList->currentItem == &manager.outOfBoundsEnds){    
+        pList->currentItem = &manager.outOfBoundsEnds;
         return(0);
     }
-    pList->current = pList->current->parent->next->child; //Advance pList's current item by one
+    pList->current = pList->current->next; //Advance pList's current Node by one
+     pList->currentItem = pList->current->item; //Advance pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
 }
 
@@ -136,11 +131,12 @@ void* List_next(List* pList){
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
     //If operation backs up the current item beyond the start of the pList, set current item to be before the start of pList, and return a NULL pointer
-    if(pList->current->parent == pList->head || (pList->head == 0 && pList->tail == 0)){       
-        pList->current = manager.outOfBoundsStart;   
+    if(pList->current == pList->head || (pList->head == 0 && pList->tail == 0) || pList->currentItem == &manager.outOfBoundsStart){       
+        pList->currentItem = &manager.outOfBoundsStart;   
         return(0);
     }
-    pList->current = pList->current->parent->prev->child; //Backs up pList's current item by one
+    pList->current = pList->current->prev; //Backs up pList's current Node by one
+    pList->currentItem = pList->current->item; //Backs up pList's current item by one
     return(pList->current->item);  //Return a pointer to the new current item
 }
 

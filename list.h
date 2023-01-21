@@ -21,20 +21,14 @@ struct Manager_s {
     List* heads;    //Array of all our heads
     int numHeads;       //Count of heads currently in use
     List* freeHeads;    //Linked list of all our free heads
-    Item* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
-    Item* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
+    enum ListOutOfBounds outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
+    enum ListOutOfBounds outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
 };
 //Structure for a node of a list
 struct Node_s {
-    Item* child;    //The item for the node is 
     Node* next;
     Node* prev;
     int index;  //The permanent index of the node (where it actually is in our array)
-};
-
-//Structure for an item stored in a Node
-struct Item_s{
-    Node* parent;   //The Node that owns this item, this is NULL if item is before start of list
     void* item;
 };
 
@@ -46,7 +40,8 @@ enum ListOutOfBounds {
 struct List_s {
     Node* head;  //First node in list (NULL if this list is not in use)
     Node* tail;  //Last node in list (NULL if this list is not in use)
-    Item* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
+    Node* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
+    void* currentItem;      //Always the same as Node->item unless list is empty or out of bounds
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array
     int index;  //The permanent index of the node (where it actually is in our list array)
