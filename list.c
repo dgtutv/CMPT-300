@@ -284,22 +284,23 @@ int List_append(List* pList, void* pItem){
             manager.freeNodes = manager.freeNodes->next;
         }
 
-        newNode->child->item = pItem;      //Make the newNode's item the item provided
+        newNode->item = pItem;      //Make the newNode's item the item provided
 
         //If the list is empty, make the item the head, tail, and current
         if(pList->head == 0 && pList->tail == 0){
             pList->tail = newNode;
             pList->head = newNode;
-            pList->current = newNode->child;
-            return(0);
         }
 
-        //Add the newNode (with the new item) to the end of pList
-        pList->tail->next = newNode;
-        newNode->prev = pList->tail;
-        pList->tail = newNode;
+        //Otherwise, add the newNode (with the new item) to the end of pList
+        else{
+            pList->tail->next = newNode;
+            newNode->prev = pList->tail;
+            pList->tail = newNode;
+        }
 
-        pList->current = newNode->child;    //Make the new item the current one
+        pList->current = newNode;    //Make newNode the current Node
+        pList->currentItem = pList->current->item;    //Update current item
         return(0);
     }
 }
@@ -325,22 +326,23 @@ int List_prepend(List* pList, void* pItem){
             manager.freeNodes = manager.freeNodes->next;
         }
         
-        newNode->child->item = pItem;      //Make the newNode's item the item provided
+        newNode->item = pItem;      //Make the newNode's item the item provided
 
         //If the list is empty, make the item the head, tail, and current
         if(pList->head == 0 && pList->tail == 0){
             pList->tail = newNode;
             pList->head = newNode;
-            pList->current = newNode->child;
-            return(0);
         }
 
-        //Add the newNode (with the new item) to the end of pList
-        pList->head->prev = newNode;
-        newNode->next = pList->head;
-        pList->head = newNode;
+        //Otherwise, add the newNode (with the new item) to the end of pList
+        else{
+            pList->head->prev = newNode;
+            newNode->next = pList->head;
+            pList->head = newNode;
+        }
 
-        pList->current = newNode->child;    //Make the new item the current one
+        pList->current = newNode;    //Make newNode the current Node
+        pList->currentItem = pList->current->item;    //Update current item
         return(0);
     }
 }
@@ -356,7 +358,7 @@ void* List_remove(List* pList){
     }
 
     //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
-    else if(pList->current == manager.outOfBoundsStart || pList->current == manager.outOfBoundsEnds){
+    else if(pList->currentItem == &manager.outOfBoundsStart || pList->currentItem == &manager.outOfBoundsEnds){
         return(0);
     }
     else{
@@ -364,7 +366,7 @@ void* List_remove(List* pList){
         void* returnVal = pList->current->item;     //Get the current item to be returned
         pList->current->item = 0;   //Reset the current item to NULL       
 
-        Node* oldNode = pList->current->parent;
+        Node* oldNode = pList->current;
 
         //If current is head and tail (the list is of size 1), simply set head and tail to NULL to disconnect oldNode from the list
         if(oldNode == pList->head && oldNode == pList->tail){
@@ -377,21 +379,24 @@ void* List_remove(List* pList){
         else if(oldNode == pList->head){      
             oldNode->next->prev = 0;
             pList->head = oldNode->next;
-            pList->current = pList->current->parent->next->child;       //Make the next item the current one
+            pList->current = pList->current->next;       //Make the next Node the current one
+            pList->currentItem = pList->current->next->item;       //Make the next item the current one
         }
 
         //Otherwise, if current is the tail, simply disconnect the tail and make current->prev the new tail to disconnect oldNode from the list
         else if(oldNode== pList->tail){
             oldNode->prev->next = 0;
             pList->tail = oldNode->prev;
-            pList->current = pList->tail->child;    //Make the new last item the current one
+            pList->current = pList->tail;    //Make the new last Node the current one
+            pList->currentItem = pList->tail->item;    //Make the new last item the current one
         }
 
         //Otherwise, take the old node out of the pList normally
         else{
             oldNode->prev->next = oldNode->next;
             oldNode->next->prev = oldNode->prev;
-            pList->current = pList->current->parent->next->child;       //Make the next item the current one
+            pList->current = pList->current->next;       //Make the next Node the current one
+            pList->current->item = pList->current->next->item;       //Make the next item the current one
         }   
 
         oldNode->prev = 0;
@@ -423,7 +428,8 @@ void* List_trim(List* pList){
 
     //Otherwise, set current to the tail, pass control off to List_remove()
     else{
-        pList->current = pList->tail->child;
+        pList->current = pList->tail;
+        pList->currentItem = pList->current->item;
         return(List_remove(pList));
     }
 }
@@ -460,7 +466,8 @@ typedef void (*FREE_FN)(void* pItem);
 void List_free(List* pList, FREE_FN pItemFreeFn){
     //While pList remains non-empty, free its tail
     while(pList->head!=0 && pList->tail!=0){
-        pList->current = pList->tail->child;
+        pList->current = pList->tail;
+        pList->current->item = pList->tail->item;
         (*pItemFreeFn)(pList->current);     //Free the memory of the item
         List_remove(pList);     //Free the Node itself
     }
@@ -495,20 +502,22 @@ typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
 void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
 
     //If the current pointer is before the start of the pList, set the current pointer to the head of pList
-    if(pList->current == manager.outOfBoundsStart){
-        pList->current = pList->head->child;
+    if(pList->current->item == &manager.outOfBoundsStart){
+        pList->current = pList->head;
+        pList->currentItem = pList->current->item;
     }
 
     //While the current node is not NULL, test for the item in the current Node's position 
-    while(pList->current->parent != 0){   
+    while(pList->current != 0){   
 
         //If a match is found, return a pointer to the current item 
         if((*pComparator)(pList->current->item, pComparisonArg) == 1){
             return(pList->current->item);
         }
-        pList->current = pList->current->parent->next->child;   //Iterate our current node
+        pList->current = pList->current->next;   //Iterate our current Node
+        pList->currentItem = pList->current->item;   //Iterate our current item
     }
     //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
-    pList->current = manager.outOfBoundsEnds;
+    pList->currentItem = &manager.outOfBoundsEnds;
     return(0);
 }
