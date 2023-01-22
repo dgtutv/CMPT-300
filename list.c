@@ -45,6 +45,7 @@ List* List_create(){
         manager.freeHeads = manager.heads;
         manager.freeHeads->next = manager.heads[1];
         manager.freeHeads->index = 0;
+        
         List* currL = &manager.heads[0];
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
             currL=currL->next;
