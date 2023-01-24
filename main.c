@@ -95,7 +95,7 @@ int main(){
         assert(currentHead->head->item == &testInt);
         assert(currentHead->tail->item == &testInt);
         assert(currentHead->current->item == &testInt);
-        assert(currentHead->currentItem = testInt);
+        assert(currentHead->currentItem == &testInt);
         assert(currentHead->size == 1);     //Size should be 1
         //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
@@ -112,11 +112,86 @@ int main(){
         assert(currentHead->current == currentHead->tail);
         assert(currentHead->head != currentHead->current);
         assert(currentHead->size == 2);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testFloat);
+        assert(currentHead->current->item == &testFloat);
 
     //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
+        char* testString = "TEST";
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_insert_after(currentHead, &testString) == 0);
+        assert(currentHead->size == 3);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testString);
+        assert(currentHead->current->item == &testString);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail != currentHead->current);
+
+        assert(currentHead->head->next == currentHead->current);
+        assert(currentHead->current->prev == currentHead->head);
+        assert(currentHead->current->next == currentHead->tail);
+        assert(currentHead->tail->prev == currentHead->current);
+
     //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
-    //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item keeping tail the same
+        char testChar = 'T';
+        currentHead->current = currentHead->tail;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_insert_after(currentHead, &testChar) == 0);
+        assert(currentHead->size == 4);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testChar);
+        assert(currentHead->current->item == &testChar);
+        assert(currentHead->tail == currentHead->current);
+        assert(currentHead->head != currentHead->current);
+
+    //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item, keeping tail the same
+        int testInt2 = 2;
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_insert_after(currentHead, &testInt2) == 0);
+        assert(currentHead->size == 5);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt2);
+        assert(currentHead->current->item == &testInt2);
+        assert(currentHead->head == currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail != currentHead->current);
+
+    //Inserting an item at the head (current pointer is at head) should make both the head, and the current pointer the item, keeping tail the same
+        int testInt3 = 3;
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_insert_after(currentHead, &testInt3) == 0);
+        assert(currentHead->size == 6);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt3);
+        assert(currentHead->current->item == &testInt3);
+        assert(currentHead->head == currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail != currentHead->current);
+
     //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
+        int testInt4 = 4;
+        currentHead->current = currentHead->tail;
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_insert_after(currentHead, &testInt4) == 0);
+        assert(currentHead->size == 7);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt4);
+        assert(currentHead->current->item == &testInt4);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->tail == currentHead->head);
+        assert(currentHead->tail != currentHead->current);
+    
+    //Inserting an item after the tail (current pointer is at Ltail) should make the item both the tail and current item of the list, keeping head the same
     //Inserting an item when there are no more Nodes available should return NULL
     }
     
