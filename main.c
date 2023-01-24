@@ -155,10 +155,11 @@ int main(){
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
-        // assert(currentHead->head->item == currentHead->currentItem);
-        // //List_next() test
-        // assert(List_next(currentHead) == &testFloat);
-        // assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        assert(currentHead->head->item == currentHead->currentItem);
+        //List_next() test
+        assert(List_next(currentHead) == &testFloat);
+        assert(currentHead->currentItem == currentHead->head->item);
+        assert(currentHead->currentItem = &testFloat);
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
         assert(currentHead->tail == currentHead->current);
