@@ -93,6 +93,8 @@ int main(){
         assert(List_count(currentHead) == 0);
         assert(List_first(currentHead) == NULL);
         assert(List_last(currentHead) == NULL);
+        assert(List_next(currentHead) == NULL);
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
 
     //Inserting an item into an empty list 
         //The head, tail, and current Nodes should all be the address of the item
@@ -107,6 +109,11 @@ int main(){
         //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
         assert(currentHead->head == currentHead->current);
+        //List_next() test
+        assert(List_next(currentHead) == NULL);
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->current = manager.outOfBoundsStart;
+        assert(List_next(currentHead) == &testInt);     
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
@@ -136,6 +143,9 @@ int main(){
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+        //List_next() test
+        assert(List_next(currentHead) == &testFloat);
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
         assert(currentHead->tail == currentHead->current);
