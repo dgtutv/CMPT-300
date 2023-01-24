@@ -390,7 +390,7 @@ int List_prepend(List* pList, void* pItem){
         }
 
         //If the list is empty, make the item the head and tail
-        if(pList->head == NULL && pList->tail == NULL){
+        if(pList->size == 0){
             pList->tail = newNode;
             pList->head = newNode;
         }
@@ -404,7 +404,7 @@ int List_prepend(List* pList, void* pItem){
         pList->current = newNode;    
         pList->currentItem = newNode->item;
         pList->size++;      //Increment the size of pListx
-        return(0);
+        return(0);  //Report success
     }
 }
 
