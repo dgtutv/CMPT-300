@@ -211,7 +211,7 @@ void* List_prev(List* pList){
     else if(pList->currentItem == manager.outOfBoundsEnds){
         //Set the new current item to tail
         pList->current = pList->tail;
-        pList->currentItem = pList->tail->empty;
+        pList->currentItem = pList->tail->item;
         return(pList->currentItem);  //Return a pointer to the new current item
 
     }
