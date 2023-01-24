@@ -412,9 +412,8 @@ int List_prepend(List* pList, void* pItem){
 // If the current pointer is before the start of the pList, or beyond the end of the pList,
 // then do not change the pList and return NULL.
 void* List_remove(List* pList){
-
     //If the pList is empty, return NULL
-    if(pList->head == NULL && pList->tail == NULL){
+    if(pList->size == 0){
         return(NULL);
     }
 
@@ -424,54 +423,58 @@ void* List_remove(List* pList){
     }
     else{
         pList->size--;      //Decrement the size of pList
-        void* returnVal = pList->current->item;     //Get the current item to be returned
-        pList->current->item = NULL;   //Reset the current item to NULL       
-
-        Node* oldNode = pList->current->parent;
-
-        //If current is head and tail (the list is of size 1), simply set head and tail to NULL to disconnect oldNode from the list
+        void* returnValue = pList->currentItem;     //Get the current item to be returned
+        Node* oldNode = pList->current;     //Get the current Node to be deleted
+        
+        //If current is head and tail (the list is of size 1)
         if(oldNode == pList->head && oldNode == pList->tail){
+            //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
             pList->head = NULL;
             pList->tail = NULL;
-            pList->current = NULL;     //Make the current item set to NULL
+            pList->current = NULL;
         }
 
-        //Otherwise, if current is head simply disconnect the head and make current->next the new head to diconnect oldNode from the list
-        else if(oldNode == pList->head){      
+        //Otherwise, if current is head 
+        else if(oldNode == pList->head){   
+            //Disconnect the head and make the next item our new head
             oldNode->next->prev = NULL;
             pList->head = oldNode->next;
-            pList->current = pList->current->parent->next->child;       //Make the next item the current one
+            pList->current = pList->head;       //Make the new head our current node
         }
 
-        //Otherwise, if current is the tail, simply disconnect the tail and make current->prev the new tail to disconnect oldNode from the list
+        //Otherwise, if current is the tail
         else if(oldNode== pList->tail){
+            //Disconnect the tail and make the previous item our old tail
             oldNode->prev->next = NULL;
             pList->tail = oldNode->prev;
-            pList->current = pList->tail->child;    //Make the new last item the current one
+            pList->current = pList->tail;    //Make the new tail our current node
         }
 
-        //Otherwise, take the old node out of the pList normally
+        //Otherwise
         else{
+            //Take the node out of the list in the standard way for any doubly-linked list
             oldNode->prev->next = oldNode->next;
             oldNode->next->prev = oldNode->prev;
-            pList->current = pList->current->parent->next->child;       //Make the next item the current one
-        }   
+            pList->current = oldNode->next;       //Make the next item the current one
+        }
 
         oldNode->prev = NULL;
-
-        //If the freeNodes list is empty, make the oldNode the head of the freeNodes list
-        if(manager.freeNodes == NULL){       
+        oldNode->item = NULL;
+        //If the freeNodes list is empty
+        if(manager.freeNodes == NULL){   
+            //Make the old node the head of the freeNodes list    
             oldNode->next = NULL;
             manager.freeNodes = oldNode;
         }
-
-        //Otherwise, ove the old node into freeNodes
+        //Otherwise
         else{
+            //Move the old node into the current freeNodes list
             manager.freeNodes->prev = oldNode;
             oldNode->next = manager.freeNodes;
             manager.freeNodes = oldNode;
         }
-        return(returnVal);
+        pList->currentItem = pList->current->item;       //Make the new item the current node's item   
+        return(returnValue);    //Return the item contained in the deleted node
     }
 }
 
