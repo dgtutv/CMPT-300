@@ -88,7 +88,6 @@ List* List_create(){
     }
 
     if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
-
         //Set head to next available head (the start of our freeHeads list)
         List* head = manager.freeHeads;  
 
@@ -97,14 +96,20 @@ List* List_create(){
         if(head->next == NULL){
             manager.freeHeads = NULL;
         }
-        //Otherwise, disconnect just the head of the freeHeads
+        //Otherwise, disconnect just the head of the freeHeads (from the list side)
         else{
             head->next->prev = NULL;  
             manager.freeHeads = head->next;
         }
-        manager.heads[manager.numHeads-1] = *head;   //Add the head to the heads array
-        manager.numHeads++;         //Increment our numHeads counter
+        //Disconnect the head from the head's side
+        head->next = NULL;
+        head->prev = NULL;
         head->size = 0;
+        head->current = NULL;
+        head->currentItem = NULL;
+        head->head = NULL;
+        head->tail = NULL;
+        manager.numHeads++;         //Increment our numHeads counter
         return(head);
     }
 
