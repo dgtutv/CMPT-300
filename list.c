@@ -11,65 +11,69 @@
 // HINT: Use assert(pList != NULL); just to add a nice check, but not required.
 
 //Our manager for our list
-static Manager manager;
+Manager* manager;
 
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
 List* List_create(){
-    if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
+    Manager newManager;
+    manager = &newManager;
+    if(manager->nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
         //Setup our outOfBounds Items
         enum ListOutOfBounds start = LIST_OOB_START;
         enum ListOutOfBounds end = LIST_OOB_ENDS;
-        manager.outOfBoundsStart = &start;
-        manager.outOfBoundsEnds = &end;
+        manager->outOfBoundsStart = &start;
+        manager->outOfBoundsEnds = &end;
 
     //Setup our nodes
+        Node nodeArr[LIST_MAX_NUM_NODES];
+        manager->nodes = nodeArr;
         //Assign freeNodes to the head of nodes, as all nodes are initially free
-        manager.freeNodes = manager.nodes[0];
+        manager->freeNodes = manager->nodes;
         //Setting up our first node
-        manager.nodes[0].next = &manager.nodes[1];
-        manager.nodes[0].index = 0;
-        manager.nodes[0].prev = NULL;
-        manager.nodes[0].item = NULL;
+        manager->nodes->next = &nodeArr[1];
+        manager->nodes->index = 0;
+        manager->nodes->prev = NULL;
+        manager->nodes->item = NULL;
         Node* currentNode;
         //Setting up all nodes between the first and last
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            int index = i;
-            currentNode=&manager.nodes[i];
-            currentNode->index=index;
-            currentNode->next = &manager.nodes[i+1];
-            currentNode->prev = &manager.nodes[i-1];
+            currentNode=&nodeArr[i];
+            currentNode->index=i;
+            currentNode->next = &nodeArr[i+1];
+            currentNode->prev = &nodeArr[i-1];
             currentNode->item = NULL;
         }
         //Setting up our last node
-        manager.nodes[LIST_MAX_NUM_NODES-1].index = LIST_MAX_NUM_NODES-1;
-        manager.nodes[LIST_MAX_NUM_NODES-1].prev = currentNode;
-        manager.nodes[LIST_MAX_NUM_NODES-1].next = NULL;
-        manager.nodes[LIST_MAX_NUM_NODES-1].item = NULL;
+        currentNode = currentNode->next;
+        currentNode->index = LIST_MAX_NUM_NODES-1;
+        currentNode->prev = &nodeArr[LIST_MAX_NUM_NODES-2];
+        currentNode->next = NULL;
+        currentNode->item = NULL;
         
     //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
-        manager.heads = listArr;
-        //Assign freeHeads to heads, as all heads are initially free
-        manager.freeHeads = &manager.heads[0];
+        //Assign freeHeads to the head of heads list, as all heads are initially free
+        manager->heads = listArr;
+        manager->freeHeads = manager->heads;
         //Setup our first head
-        manager.heads[0].next = &manager.heads[1];
-        manager.heads[0].index = 0;
-        manager.heads[0].prev = NULL;
-        manager.heads[0].current = NULL;
-        manager.heads[0].currentItem = NULL;
-        manager.heads[0].head = NULL;
-        manager.heads[0].tail = NULL;
-        manager.heads[0].size = 0;
+        listArr[0].next = &listArr[1];
+        listArr[0].index = 0;
+        listArr[0].prev = NULL;
+        listArr[0].current = NULL;
+        listArr[0].currentItem = NULL;
+        listArr[0].head = NULL;
+        listArr[0].tail = NULL;
+        listArr[0].size = 0;
         List* currentList;
         //Setting up all heads between the first and last
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
-            currentList = &manager.heads[i];
-            currentList->next = &manager.heads[i+1];
+            currentList = &listArr[i];
+            currentList->next = &listArr[i+1];
             currentList->index = i;
-            currentList->prev = &manager.heads[i-1];
+            currentList->prev = &listArr[i-1];
             currentList->current = NULL;
             currentList->currentItem = NULL;
             currentList->head = NULL;
@@ -77,29 +81,29 @@ List* List_create(){
             currentList->size = 0;
         }
         //Setting up our last head
-        manager.heads[LIST_MAX_NUM_HEADS-1].next = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].index = LIST_MAX_NUM_HEADS-1;
-        manager.heads[LIST_MAX_NUM_HEADS-1].prev = currentList;
-        manager.heads[LIST_MAX_NUM_HEADS-1].current = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].currentItem = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].head = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].tail = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].size = 0;
+        listArr[LIST_MAX_NUM_HEADS-1].next = NULL;
+        listArr[LIST_MAX_NUM_HEADS-1].index = LIST_MAX_NUM_HEADS-1;
+        listArr[LIST_MAX_NUM_HEADS-1].prev = currentList;
+        listArr[LIST_MAX_NUM_HEADS-1].current = NULL;
+        listArr[LIST_MAX_NUM_HEADS-1].currentItem = NULL;
+        listArr[LIST_MAX_NUM_HEADS-1].head = NULL;
+        listArr[LIST_MAX_NUM_HEADS-1].tail = NULL;
+        listArr[LIST_MAX_NUM_HEADS-1].size = 0;
     }
 
-    if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
+    if(manager->freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
         //Set head to next available head (the start of our freeHeads list)
-        List* head = manager.freeHeads;  
+        List* head = manager->freeHeads;  
 
         //Fully disconnect head from freeHeads list
         //If the freeHeads list is of size 1, set the freeHeads list to NULL
         if(head->next == NULL){
-            manager.freeHeads = NULL;
+            manager->freeHeads = NULL;
         }
         //Otherwise, disconnect just the head of the freeHeads (from the list side)
         else{
             head->next->prev = NULL;  
-            manager.freeHeads = head->next;
+            manager->freeHeads = head->next;
         }
         //Disconnect the head from the head's side
         head->next = NULL;
@@ -109,7 +113,7 @@ List* List_create(){
         head->currentItem = NULL;
         head->head = NULL;
         head->tail = NULL;
-        manager.numHeads++;         //Increment our numHeads counter
+        manager->numHeads++;         //Increment our numHeads counter
         return(head);
     }
 
@@ -162,13 +166,13 @@ void* List_last(List* pList){
 void* List_next(List* pList){
     //If the pList is empty
     if(pList->size == 0){  
-        pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
+        pList->currentItem = manager->outOfBoundsEnds;       //Set current item to be beyond end of pList
         pList->current = NULL;
         return(NULL);       //Return a NULL pointer
     }
 
     //Otherwise, if current is before start of list
-    else if(pList->currentItem == manager.outOfBoundsStart){
+    else if(pList->currentItem == manager->outOfBoundsStart){
         //Set the new current item to head
         pList->current = pList->head;   
         pList->currentItem = pList->head->item;
@@ -177,13 +181,13 @@ void* List_next(List* pList){
 
     //Otherwise, if the operation advances current item beyond the end of the pList
     else if(pList->current == pList->tail){  
-        pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
+        pList->currentItem = manager->outOfBoundsEnds;       //Set current item to be beyond end of pList
         pList->current = pList->tail;
         return(NULL);       //Return a NULL pointer
     }
 
     //Otherwise, if the current item is already beyond the end of the pList, do nothing to the pList and return NULL
-    else if(pList->currentItem == manager.outOfBoundsEnds){ 
+    else if(pList->currentItem == manager->outOfBoundsEnds){ 
         return(NULL);
     }
 
@@ -201,13 +205,13 @@ void* List_next(List* pList){
 void* List_prev(List* pList){
     //If the pList is empty
     if(pList->size == 0){     
-        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->currentItem = manager->outOfBoundsStart;      //Set current item to be before the start of pList
         pList->current = NULL;
         return(NULL);   //Return a NULL pointer
     }
 
     //Otherwise, if current is after the end of the list
-    else if(pList->currentItem == manager.outOfBoundsEnds){
+    else if(pList->currentItem == manager->outOfBoundsEnds){
         //Set the new current item to tail
         pList->current = pList->tail;
         pList->currentItem = pList->tail->item;
@@ -217,13 +221,13 @@ void* List_prev(List* pList){
 
     //Otherwise, if the operation backs up the current item beyond the start of the pList
     else if(pList->current == pList->head){     
-        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->currentItem = manager->outOfBoundsStart;      //Set current item to be before the start of pList
         pList->current = pList->head;
         return(NULL);   //Return a NULL pointer
     }
 
     //Otherwise, if the current item is already before the start of the pList, do nothing to the pList and return NULL
-    else if(pList->currentItem == manager.outOfBoundsStart){     
+    else if(pList->currentItem == manager->outOfBoundsStart){     
         return(NULL);   //Return a NULL pointer
     }
 
@@ -246,22 +250,22 @@ void* List_curr(List* pList){
 // the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
 int List_insert_after(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager->freeNodes==NULL){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{   
-        Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
+        Node* newNode = manager->freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
         newNode->item = pItem;      //Set the item of our new node
 
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
+        if(manager->freeNodes->next == NULL){
+            manager->freeNodes = NULL;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
+            manager->freeNodes->next->prev = NULL;            
+            manager->freeNodes = manager->freeNodes->next;
         }
 
         //If the list is empty
@@ -275,7 +279,7 @@ int List_insert_after(List* pList, void* pItem){
         }
 
         //Otherwise, if the current item pointer is before the start of the pList
-        else if(pList->currentItem == manager.outOfBoundsStart){
+        else if(pList->currentItem == manager->outOfBoundsStart){
             //Insert the new node at the start of the list
             newNode->next = pList->head;
             newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
@@ -284,7 +288,7 @@ int List_insert_after(List* pList, void* pItem){
         }
 
         //Otherwise if the current item pointer is beyond the end of the pList OR current is the end of the list
-        else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
+        else if(pList->currentItem == manager->outOfBoundsEnds || pList->current == pList->tail){
             //Insert the newNode at the end of the list
             newNode->prev = pList->tail;
             newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
@@ -314,22 +318,22 @@ int List_insert_after(List* pList, void* pItem){
 // If the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
 int List_insert_before(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager->freeNodes==NULL){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
-        Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
+        Node* newNode = manager->freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
         newNode->item = pItem;      //Set the item of our new node
 
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
+        if(manager->freeNodes->next == NULL){
+            manager->freeNodes = NULL;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
+            manager->freeNodes->next->prev = NULL;            
+            manager->freeNodes = manager->freeNodes->next;
         }
 
         //If the list is empty
@@ -343,7 +347,7 @@ int List_insert_before(List* pList, void* pItem){
         }
 
         //Otherwise, if the current pointer is before the start of the pList OR current is the start of the list
-        if(pList->current == manager.outOfBoundsStart || pList->current == pList->head){
+        if(pList->current == manager->outOfBoundsStart || pList->current == pList->head){
             //Insert the newNode at the start of the list
             newNode->next = pList->head;
             pList->head->prev = newNode;
@@ -352,7 +356,7 @@ int List_insert_before(List* pList, void* pItem){
         }
 
         //Otherwise, if the current item pointer is beyond the end of the pList
-        else if(pList->currentItem == manager.outOfBoundsEnds){
+        else if(pList->currentItem == manager->outOfBoundsEnds){
             //Insert the newNode at the end of the list
             newNode->prev = pList->tail;
             newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
@@ -380,22 +384,22 @@ int List_insert_before(List* pList, void* pItem){
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager->freeNodes==NULL){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
-        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        Node* newNode = manager->freeNodes;        //Access a new Node to be added into our list
         newNode->item = pItem;      //Make the newNode's item the item provided
 
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
+        if(manager->freeNodes->next == NULL){
+            manager->freeNodes = NULL;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
+            manager->freeNodes->next->prev = NULL;            
+            manager->freeNodes = manager->freeNodes->next;
         }
 
         //If the list is empty, make the item the head and tail
@@ -420,22 +424,22 @@ int List_append(List* pList, void* pItem){
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager->freeNodes==NULL){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
-        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        Node* newNode = manager->freeNodes;        //Access a new Node to be added into our list
         newNode->item = pItem;      //Make the new Node's item the item provided
 
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
+        if(manager->freeNodes->next == NULL){
+            manager->freeNodes = NULL;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
+            manager->freeNodes->next->prev = NULL;            
+            manager->freeNodes = manager->freeNodes->next;
         }
 
         //If the list is empty, make the item the head and tail
@@ -467,7 +471,7 @@ void* List_remove(List* pList){
     }
 
     //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
-    else if(pList->currentItem == manager.outOfBoundsStart || pList->currentItem == manager.outOfBoundsEnds){
+    else if(pList->currentItem == manager->outOfBoundsStart || pList->currentItem == manager->outOfBoundsEnds){
         return(NULL);
     }
     else{
@@ -481,7 +485,7 @@ void* List_remove(List* pList){
             pList->head = NULL;
             pList->tail = NULL;
             pList->current = NULL;
-            pList->currentItem = manager.outOfBoundsStart;
+            pList->currentItem = manager->outOfBoundsStart;
             pList->size = 0;    //Ensure the size of pList is 0
         }
 
@@ -518,17 +522,17 @@ void* List_remove(List* pList){
         oldNode->prev = NULL;
         oldNode->item = NULL;
         //If the freeNodes list is empty
-        if(manager.freeNodes == NULL){   
+        if(manager->freeNodes == NULL){   
             //Make the old node the head of the freeNodes list    
             oldNode->next = NULL;
-            manager.freeNodes = oldNode;
+            manager->freeNodes = oldNode;
         }
         //Otherwise
         else{
             //Move the old node into the current freeNodes list
-            manager.freeNodes->prev = oldNode;
-            oldNode->next = manager.freeNodes;
-            manager.freeNodes = oldNode;
+            manager->freeNodes->prev = oldNode;
+            oldNode->next = manager->freeNodes;
+            manager->freeNodes = oldNode;
         }
         return(returnValue);    //Return the item contained in the deleted node
     }
@@ -609,16 +613,16 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
     pList->size = 0;    //Ensure the size of pList is 0
 
     //If the freeHeads list is empty, make the freed list the head of freeHeads
-    if(manager.freeHeads == NULL){
-        manager.freeHeads = pList;  
+    if(manager->freeHeads == NULL){
+        manager->freeHeads = pList;  
     }
 
     //Otherwise,
     else{
         //Add pList to the freeHeads list
-        pList->next = manager.freeHeads;
-        manager.freeHeads->prev = pList;
-        manager.freeHeads = pList;
+        pList->next = manager->freeHeads;
+        manager->freeHeads->prev = pList;
+        manager->freeHeads = pList;
     }
 }
 // Search pList, starting at the current item, until the end is reached or a match is found. 
@@ -636,12 +640,12 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
 typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
 void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
     //If pList is empty, or beyond the end of pList return NULL
-    if(pList->size == 0 || pList->currentItem == manager.outOfBoundsEnds){
+    if(pList->size == 0 || pList->currentItem == manager->outOfBoundsEnds){
         return(NULL);
     }
 
     //Otherwise, if the current pointer is before the start of pList
-    else if(pList->currentItem == manager.outOfBoundsStart){
+    else if(pList->currentItem == manager->outOfBoundsStart){
         //Set the current item to the head of pList
         pList->current = pList->head;
         pList->currentItem = pList->current->item;
@@ -660,6 +664,6 @@ void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
     }
 
     //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
-    pList->currentItem = manager.outOfBoundsEnds;
+    pList->currentItem = manager->outOfBoundsEnds;
     return(NULL);
 }

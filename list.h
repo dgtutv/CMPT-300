@@ -49,9 +49,9 @@ struct List_s {
 
 //Structure to manage our nodes and lists
 struct Manager_s {
-    Node* nodes[LIST_MAX_NUM_NODES];    //An array of all of our nodes
+    Node* nodes;    //An array of all of our nodes
     Node* freeNodes;    //Linked list of free nodes
-    List* heads[LIST_MAX_NUM_HEADS];    //Array of all our heads
+    List* heads;    //Array of all our heads
     int numHeads;       //Count of heads currently in use
     List* freeHeads;    //Linked list of all our free heads
     void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
