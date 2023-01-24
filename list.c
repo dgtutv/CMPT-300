@@ -143,13 +143,18 @@ void* List_first(List* pList){
 // Returns a pointer to the last item in pList and makes the last item the current item.
 // Returns NULL and sets current item to NULL if list is empty.
 void* List_last(List* pList){
-    if(pList->head == NULL){    //If the list is empty
-        pList->current->item = NULL; //Set the current item to NULL
+    if(pList->tail == NULL){    //If the list is empty
+        //Set the current item to NULL
+        pList->current->item = NULL; 
+        pList->currentItem = NULL;
         return(NULL);  //Return NULL
     }
-    void* returnVal = pList->tail->child->item;  //Pointer to last item in pList
-    pList->current = pList->tail->child;   //Make the current item the last item
-    return(returnVal);
+    void* returnValue = pList->tail->item;  //Pointer to last item in pList
+    //Make the current item the last item
+    pList->current = pList->tail;   
+    pList->currentItem = pList->current->item;
+    //Return a pointer to the last item
+    return(returnValue);
 }
 // Advances pList's current item by one, and returns a pointer to the new current item.
 // If this operation advances the current item beyond the end of the pList, a NULL pointer 
