@@ -30,11 +30,6 @@ struct Node_s {
     Node* next;
     Node* prev;
     int index;  //The permanent index of the node (where it actually is in our array)
-};
-
-//Structure for an item stored in a Node
-struct Item_s{
-    Node* parent;   //The Node that owns this item, this is NULL if item is before start of list
     void* item;
 };
 
@@ -47,6 +42,7 @@ struct List_s {
     Node* head;  //First node in list (NULL if this list is not in use)
     Node* tail;  //Last node in list (NULL if this list is not in use)
     Item* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
+    void* currentItem;      //Stores the current item of the List, will be the same as Node current item, if not out of bounds
     List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
     List* prev;  //The previous list in the freeHeads array
     int index;  //The permanent index of the node (where it actually is in our list array)
