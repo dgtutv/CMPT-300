@@ -42,7 +42,6 @@ List* List_create(){
             curr->prev = &manager.nodes[i-1];
             currentItem.parent = curr;
             curr->child = &currentItem;
-
         }
         curr->next->index = LIST_MAX_NUM_NODES-1;
         curr->next->prev = curr;
