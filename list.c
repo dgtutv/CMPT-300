@@ -26,10 +26,8 @@ List* List_create(){
         manager.outOfBoundsEnds = &end;
 
     //Setup our nodes
-        Node nodeArr[LIST_MAX_NUM_NODES];
-        manager.nodes = nodeArr;
-        //Assign freeNodes to nodes, as all nodes are initially free
-        *manager.freeNodes = nodeArr[0];
+        //Assign freeNodes to the head of nodes, as all nodes are initially free
+        manager.freeNodes = manager.nodes[0];
         //Setting up our first node
         manager.nodes[0].next = &manager.nodes[1];
         manager.nodes[0].index = 0;
