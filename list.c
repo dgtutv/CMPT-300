@@ -247,7 +247,7 @@ void* List_curr(List* pList){
 // the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
 int List_insert_after(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager.freeNodes == NULL){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{   
@@ -306,6 +306,7 @@ int List_insert_after(List* pList, void* pItem){
         pList->current = newNode;   
         pList->currentItem = newNode->item; 
         pList->size++;      //Increment the size of pList 
+
         return(0);  //Report success
     } 
 }
