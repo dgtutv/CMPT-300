@@ -164,10 +164,20 @@ void* List_next(List* pList){
     //If operation advances current item beyond the end of the pList, or the pList is empty, or the current item is already beyond the end of the pList
     if(pList->current == pList->tail || (pList->size == 0) || pList->currentItem == &manager.outOfBoundsEnds){  
         pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
+        pList->current = pList->tail;
         return(NULL);       //Return a NULL pointer
     }
-    //Advance pList's current item by one
-    pList->current = pList->current->next;
+
+    //If current is before start of list, set the new current item to head
+    else if (pList->currentItem == &manager.outOfBoundsStart){
+        pList->current = pList->head;
+    }
+
+    //Otherwise, advance pList's current item by one
+    else{
+        pList->current = pList->current->next;
+    }
+
     pList->currentItem = pList->current->item; 
     return(pList->currentItem);  //Return a pointer to the new current item
 }
@@ -179,10 +189,20 @@ void* List_prev(List* pList){
     //If operation backs up the current item beyond the start of the pList, or the pList is empty, or the current item is already before the start of the pList
     if(pList->current == pList->head || (pList->size == 0) || pList->currentItem == &manager.outOfBoundsStart){     
         pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->current = pList->head;
         return(NULL);   //Return a NULL pointer
     }
-    //Back up pList's current item by one
-    pList->current = pList->current->prev;
+
+    //If current is after the end of the list, set the new current item to tail
+    else if(pList->currentItem == &manager.outOfBoundsEnds){
+        pList->current = pList->tail;
+    }
+
+    //Otherwise, back up pList's current item by one
+    else{
+        pList->current = pList->current->prev;
+    }
+    
     pList->currentItem = pList->current->item;
     return(pList->currentItem);  //Return a pointer to the new current item
 }
