@@ -25,24 +25,43 @@ int main(){
     extern Manager manager; //our manager from list.c
 
 //----------------------------------------------Tests for List_create()---------------------------------------------------------------------------//
-
-    //Create 10 lists, should all be defined, and unique
     List* newList = List_create();
-    assert(newList != NULL);    //Test our list is not undefined
-    assert(manager.numHeads == 1);      //Test our numHeads integer is correct
+    //Define pointers to iterate over the node lists in manager
+    Node* currentFreeNode = manager.freeNodes;
+    Node* prevFreeNode;
+    //Check the initial conditions of our node lists
+    for(int i=0; i<100; i++){
+        assert(&manager.nodes[i] == currentFreeNode);
+        assert(currentFreeNode->item == NULL);
+        assert(currentFreeNode->index == i);
+        prevFreeNode = currentFreeNode;
+        if(i<99){
+            currentFreeNode = currentFreeNode->next;
+            assert(currentFreeNode->prev == prevFreeNode);
+        }
+    }
+    //Test the conditions of our first list
+    assert(newList != NULL);  
+    assert(manager.numHeads == 1);
     List* currentHead = &manager.heads[0];
-    assert(newList == currentHead);       //Test our newly defined list is the same list present in our heads linked list
+    assert(newList == currentHead); 
+    //Define pointers to iterate over the head lists in manager 
     List* prevList = newList;
     List* prevHead;
+    //Check the initial conditions of our head lists
     for(int i=1; i<10; i++){
         newList = List_create();
-        assert(manager.numHeads == i+1);    //Test our numHeads integer is correct
+        assert(manager.numHeads == i+1);    
         prevHead = currentHead;
         currentHead = &manager.heads[i];
-        assert(newList == currentHead);       //Test our newly defined list is the same list present in our heads linked list
-        assert(prevList == prevHead);      //Test our previously defined list is still present in our heads linked list
-        assert(newList != NULL);    //Test our list is not undefined
-        assert(newList != prevList);    //Test our list is also not the same as the previously passed list 
+        assert(newList == currentHead);       
+        assert(prevList == prevHead);     
+        assert(newList != NULL);    
+        assert(newList != prevList);    
+        assert(newList->next == NULL);
+        assert(newList->prev == NULL);
+        assert(newList->size == 0);
+        assert(newList->index == i);
         prevList = newList;
     }
 
@@ -55,28 +74,20 @@ int main(){
     //Attempting to create more than 10 lists will return a NULL pointer
     newList = List_create();
     assert(newList == NULL);
-    assert(manager.numHeads == 10);     //Test the number of heads is still 10\
+    assert(manager.numHeads == 10);     //Test the number of heads is still 10
 
-    //Check that all of the Nodes are currently free
-    Node* currentNode = manager.freeNodes;
-    Node* prevNode;
-    for(int i=0; i<100; i++){
-        assert(currentNode == &manager.nodes[i]);
-        prevNode = currentNode;
-        currentNode = currentNode->next;
-        if(i==99){
-            assert(currentNode == 0);        //Check that there are only 100 free Nodes
-        }
-        else{
-            assert(currentNode->prev == prevNode);   //Check for correct double linking of Nodes in freeHeads list
-        }
-    }
+    //Test that our out of bounds variables have been defined
+    enum ListOutOfBounds start = LIST_OOB_START;
+    enum ListOutOfBounds end = LIST_OOB_ENDS;
+    assert(*(int*)manager.outOfBoundsStart == start);
+    assert(*(int*)manager.outOfBoundsEnds == end);
 
     //---------------------------------------------Tests for List_insert_after()---------------------------------------------------------------------------//
 
     //Test for all heads to cover edge cases
     for(int i=0; i<10; i++){
         currentHead = &manager.heads[i];
+
     //Inserting an item into an empty list 
         //The head, tail, and current Nodes should all be the address of the item
         int testInt = 1;
@@ -92,13 +103,21 @@ int main(){
         //The head, tail, and current Nodes should have no connections (i.e. next, and prev should be NULL)
         assert(currentHead->current->prev == NULL);
         assert(currentHead->current->next == NULL);
+
     //Inserting an item after the head should make the item the tail, and the current item of the list, keeping head the same
         float testFloat = 3.14;
-        //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
-        //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
-        //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item keeping tail the same
-        //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
-        //Inserting an item when there are no more Nodes available should return NULL
+        assert(List_insert_after(currentHead, &testFloat) == 0);
+        assert(currentHead->currentItem == &testFloat);
+        assert(currentHead->current->item == &testFloat);
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->size == 2);
+
+    //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
+    //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
+    //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item keeping tail the same
+    //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
+    //Inserting an item when there are no more Nodes available should return NULL
     }
     
 
