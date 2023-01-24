@@ -152,14 +152,17 @@ int main(){
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testFloat);
         assert(currentHead->current->item == &testFloat);
+
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
-        //List_next() test
-        assert(List_next(currentHead) == &testFloat);
+
+        //List_next() test 
+        assert(List_next(currentHead) == &testFloat);   //Should be the node after head, which is the float
         assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem = &testFloat);
+
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
         assert(currentHead->tail == currentHead->current);
@@ -179,15 +182,26 @@ int main(){
         assert(currentHead->head != currentHead->current);
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail != currentHead->current);
-
         assert(currentHead->head->next == currentHead->current);
         assert(currentHead->current->prev == currentHead->head);
         assert(currentHead->current->next == currentHead->tail);
         assert(currentHead->tail->prev == currentHead->current);
+
+        //List_next() test 
+        assert(List_next(currentHead) == currentHead->tail->item);  //Should be the node after this, the tail
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->current == currentHead->tail);
+        currentHead->current = currentHead->current->prev->prev;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_next(currentHead) == &testString);   //Should be the node after float, which is the string
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem = &testString);
+
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
         assert(currentHead->tail == currentHead->current);
@@ -206,10 +220,12 @@ int main(){
         assert(currentHead->current->item == &testChar);
         assert(currentHead->tail == currentHead->current);
         assert(currentHead->head != currentHead->current);
+
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+
         //List_last() test
         assert(List_last(currentHead) == &testChar);
         assert(currentHead->tail == currentHead->current);
