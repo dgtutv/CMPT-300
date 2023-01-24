@@ -188,9 +188,8 @@ void* List_prev(List* pList){
 
 // Returns a pointer to the current item in pList.
 void* List_curr(List* pList){
-    //If the pList is empty, return NULL
-    if(pList->head == NULL && pList->tail == NULL){return(NULL);}
-    return(pList->current->item);
+    if(pList->size == 0){return(NULL);}     //If the pList is empty, return NULL
+    return(pList->currentItem);     //Otherwise, return the current item in pList
 }
 
 // Adds the new item to pList directly after the current item, and makes item the current item. 
