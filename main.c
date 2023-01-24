@@ -112,7 +112,7 @@ int main(){
         //List_next() test
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
-        currentHead->current = manager.outOfBoundsStart;
+        currentHead->currentItem = manager.outOfBoundsStart;
         assert(List_next(currentHead) == &testInt);     
         //List_first() test
         assert(List_first(currentHead) == &testInt);

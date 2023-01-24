@@ -171,14 +171,16 @@ void* List_next(List* pList){
     //If current is before start of list, set the new current item to head
     else if (pList->currentItem == &manager.outOfBoundsStart){
         pList->current = pList->head;
+        pList->currentItem = pList->current->item;
     }
 
     //Otherwise, advance pList's current item by one
     else{
         pList->current = pList->current->next;
+        pList->currentItem = pList->current->item;
     }
 
-    pList->currentItem = pList->current->item; 
+     
     return(pList->currentItem);  //Return a pointer to the new current item
 }
 
