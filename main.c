@@ -79,13 +79,12 @@ int main(){
         currentHead = &manager.heads[i];
     //Inserting an item into an empty list 
         //The head, tail, and current Nodes should all be the address of the item
-        int* testNum = (int*)malloc(sizeof(int));
-        *testNum = 1;
-        assert(List_insert_after(currentHead, testNum) == 0);  
-        assert(currentHead->head->item == testNum);
-        assert(currentHead->tail->item == testNum);
-        assert(currentHead->current->item == testNum);
-        assert(currentHead->currentItem = testNum);
+        int testInt = 1;
+        assert(List_insert_after(currentHead, &testInt) == 0);  
+        assert(currentHead->head->item == &testInt);
+        assert(currentHead->tail->item == &testInt);
+        assert(currentHead->current->item == &testInt);
+        assert(currentHead->currentItem = testInt);
         assert(currentHead->size == 1);     //Size should be 1
         //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
@@ -94,6 +93,7 @@ int main(){
         assert(currentHead->current->prev == NULL);
         assert(currentHead->current->next == NULL);
     //Inserting an item after the head should make the item the tail, and the current item of the list, keeping head the same
+        float testFloat = 3.14;
         //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
         //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
         //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item keeping tail the same
