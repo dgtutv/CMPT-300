@@ -372,11 +372,11 @@ int List_append(List* pList, void* pItem){
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
     if(manager.freeNodes==NULL){    //If there are no free nodes left to use
-        return(-1);
+        return(-1);     //Report failure
     }
     else{
-        pList->size++;      //Increment the size of pList
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        newNode->item = pItem;      //Make the new Node's item the item provided
 
         //If the freeNodes list is singleton, take the head
         if(manager.freeNodes->next == NULL){
@@ -388,15 +388,11 @@ int List_prepend(List* pList, void* pItem){
             manager.freeNodes->next->prev = NULL;            
             manager.freeNodes = manager.freeNodes->next;
         }
-        
-        newNode->child->item = pItem;      //Make the newNode's item the item provided
 
-        //If the list is empty, make the item the head, tail, and current
+        //If the list is empty, make the item the head and tail
         if(pList->head == NULL && pList->tail == NULL){
             pList->tail = newNode;
             pList->head = newNode;
-            pList->current = newNode->child;
-            return(0);
         }
 
         //Add the newNode (with the new item) to the end of pList
@@ -404,7 +400,10 @@ int List_prepend(List* pList, void* pItem){
         newNode->next = pList->head;
         pList->head = newNode;
 
-        pList->current = newNode->child;    //Make the new item the current one
+        //Make the new item the current one
+        pList->current = newNode;    
+        pList->currentItem = newNode->item;
+        pList->size++;      //Increment the size of pListx
         return(0);
     }
 }
