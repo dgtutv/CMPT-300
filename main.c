@@ -189,7 +189,7 @@ int main(){
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail != currentHead->current);
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
@@ -208,7 +208,7 @@ int main(){
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail == currentHead->current);
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
     
@@ -227,7 +227,7 @@ int main(){
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail == currentHead->current);
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
     
@@ -240,14 +240,14 @@ int main(){
         assert(List_count(currentHead) == 7);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
-        assert(currentHead->currentItem == &testInt4);
-        assert(currentHead->current->item == &testInt4);
-        assert(currentHead->head != currentHead->current);
+        assert(currentHead->currentItem == &testInt2);
+        assert(currentHead->current->item == &testInt2);
+        assert(currentHead->head == currentHead->current);
         assert(currentHead->tail != currentHead->head);
-        assert(currentHead->tail == currentHead->current);
+        assert(currentHead->tail != currentHead->current);
         manager.freeNodes = freeNodes;
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
@@ -265,11 +265,11 @@ int main(){
         assert(currentHead->current->item == &testInt6);
         assert(currentHead->head != currentHead->current);
         assert(currentHead->tail != currentHead->head);
-        assert(currentHead->tail == currentHead->current);
+        assert(currentHead->tail != currentHead->current);
         assert(manager.freeNodes == NULL);
         manager.freeNodes = freeNodesNext;
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
@@ -285,11 +285,11 @@ int main(){
         assert(currentHead->current->item == &testInt7);
         assert(currentHead->head != currentHead->current);
         assert(currentHead->tail != currentHead->head);
-        assert(currentHead->tail == currentHead->current);
+        assert(currentHead->tail != currentHead->current);
         assert(manager.freeNodes == freeNodesNext);
         assert(manager.freeNodes->prev == NULL);
         //List_first() test
-        assert(List_first(currentHead) == &testInt);
+        assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
     }
