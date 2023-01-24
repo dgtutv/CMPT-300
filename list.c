@@ -304,7 +304,7 @@ int List_insert_before(List* pList, void* pItem){
         }
 
         //If the current item pointer is beyond the end of the pList
-        else if(pList->currentItem == manager.outOfBoundsEnd){
+        else if(pList->currentItem == manager.outOfBoundsEnds){
             //Insert the newNode at the end of the list
             newNode->prev = pList->tail;
             newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
