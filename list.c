@@ -29,7 +29,7 @@ List* List_create(){
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
         //Assign freeNodes to nodes, as all nodes are initially free
-        manager.freeNodes = &nodeArr[0];
+        *manager.freeNodes = nodeArr[0];
         //Setting up our first node
         manager.nodes[0].next = &manager.nodes[1];
         manager.nodes[0].index = 0;
@@ -38,8 +38,9 @@ List* List_create(){
         Node* currentNode;
         //Setting up all nodes between the first and last
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
+            int index = i;
             currentNode=&manager.nodes[i];
-            currentNode->index=i;
+            currentNode->index=index;
             currentNode->next = &manager.nodes[i+1];
             currentNode->prev = &manager.nodes[i-1];
             currentNode->item = NULL;

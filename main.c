@@ -36,6 +36,7 @@ int main(){
         assert(&manager.nodes[i] == currentFreeNode);
         assert(currentFreeNode->item == NULL);
         assert(currentFreeNode->index == i);
+        printf("%d\n", currentFreeNode->index);
         prevFreeNode = currentFreeNode;
         if(i<99){
             currentFreeNode = currentFreeNode->next;
