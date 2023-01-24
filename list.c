@@ -160,13 +160,15 @@ void* List_last(List* pList){
 // If this operation advances the current item beyond the end of the pList, a NULL pointer 
 // is returned and the current item is set to be beyond end of pList.
 void* List_next(List* pList){
-    //If operation advances current item beyond the end of the pList, or the pList is empty, set current item to be beyond end of pList, and Return a NULL pointer
-    if(pList->current->parent == pList->tail || (pList->head == NULL && pList->tail == NULL)){    
-        pList->current = manager.outOfBoundsEnds;
-        return(NULL);
+    //If operation advances current item beyond the end of the pList, or the pList is empty
+    if(pList->current == pList->tail || (pList->head == NULL && pList->tail == NULL)){  
+        pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
+        return(NULL);       //Return a NULL pointer
     }
-    pList->current = pList->current->parent->next->child; //Advance pList's current item by one
-    return(pList->current->item);  //Return a pointer to the new current item
+    //Advance pList's current item by one
+    pList->current = pList->current->next;
+    pList->currentItem = pList->current->item; 
+    return(pList->currentItem);  //Return a pointer to the new current item
 }
 
 // Backs up pList's current item by one, and returns a pointer to the new current item. 
