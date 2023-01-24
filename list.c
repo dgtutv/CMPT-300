@@ -164,7 +164,7 @@ void* List_next(List* pList){
     //If the pList is empty
     if(pList->size == 0){  
         pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
-        pList->current = pList->tail;
+        pList->current = NULL;
         return(NULL);       //Return a NULL pointer
     }
 
@@ -203,7 +203,7 @@ void* List_prev(List* pList){
     //If the pList is empty
     if(pList->size == 0){     
         pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
-        pList->current = pList->head;
+        pList->current = NULL;
         return(NULL);   //Return a NULL pointer
     }
 
@@ -265,17 +265,8 @@ int List_insert_after(List* pList, void* pItem){
             manager.freeNodes = manager.freeNodes->next;
         }
 
-        //If the current item pointer is before the start of the pList
-        if(pList->currentItem == manager.outOfBoundsStart){
-            //Insert the new node at the start of the list
-            newNode->next = pList->head;
-            newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
-            pList->head->prev = newNode;
-            pList->head = newNode;
-        }
-
         //If the list is empty
-        else if(pList->size == 0){
+        if(pList->size == 0){
             //Make the item the head and tail
             pList->tail = newNode;
             pList->head = newNode;
@@ -284,7 +275,16 @@ int List_insert_after(List* pList, void* pItem){
             newNode->prev = NULL;
         }
 
-        //If the current item pointer is beyond the end of the pList OR current is the end of the list
+        //Otherwise, if the current item pointer is before the start of the pList
+        else if(pList->currentItem == manager.outOfBoundsStart){
+            //Insert the new node at the start of the list
+            newNode->next = pList->head;
+            newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
+            pList->head->prev = newNode;
+            pList->head = newNode;
+        }
+
+        //Otherwise if the current item pointer is beyond the end of the pList OR current is the end of the list
         else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
             //Insert the newNode at the end of the list
             newNode->prev = pList->tail;

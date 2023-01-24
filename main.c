@@ -95,6 +95,8 @@ int main(){
         assert(List_last(currentHead) == NULL);     //Size of list is 0
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        assert(List_prev(currentHead) == NULL);
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
 
     //Inserting an item into an empty list 
         //The head, tail, and current Nodes should all be the address of the item
@@ -123,6 +125,22 @@ int main(){
         currentHead->size = 0;
         assert(List_next(currentHead) == NULL);     //List size is 0
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->size = headSize;
+
+        //List_prev() tests
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_prev(currentHead) == NULL);     //Current == head condition
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_prev(currentHead) == NULL);   //Item is before the start of the list
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_prev(currentHead) == currentHead->tail->item);     //Item is beyond the end of the list
+        assert(currentHead->currentItem == currentHead->tail->item);
+        headSize = currentHead->size;
+        currentHead->size = 0;
+        assert(List_prev(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
         currentHead->size = headSize;
 
         //List_first() test
@@ -172,7 +190,6 @@ int main(){
         assert(List_next(currentHead) == NULL);     //List size is 0
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->size = headSize;
-        
 
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
