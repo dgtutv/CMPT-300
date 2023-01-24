@@ -587,22 +587,31 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
 // the first node in the list (if any).
 typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
 void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
+    //If pList is empty, or beyond the end of pList return NULL
+    if(pList->size == 0 || pList->currentItem == manager.outOfBoundsEnds){
+        return(NULL);
+    }
 
-    //If the current pointer is before the start of the pList, set the current pointer to the head of pList
-    if(pList->current == manager.outOfBoundsStart){
-        pList->current = pList->head->child;
+    //Otherwise, if the current pointer is before the start of pList
+    else if(pList->currentItem == manager.outOfBoundsStart){
+        //Set the current item to the head of pList
+        pList->current = pList->head;
+        pList->currentItem = pList->current->item;
     }
 
     //While the current node is not NULL, test for the item in the current Node's position 
-    while(pList->current->parent != NULL){   
-
+    while(pList->current != NULL){   
+        pList->currentItem = pList->current->item;
         //If a match is found, return a pointer to the current item 
-        if((*pComparator)(pList->current->item, pComparisonArg) == 1){
-            return(pList->current->item);
+        if((*pComparator)(pList->currentItem, pComparisonArg) == 1){
+            return(pList->currentItem);
         }
-        pList->current = pList->current->parent->next->child;   //Iterate our current node
+
+        //If not, iterate our current node and continue
+        pList->current = pList->current->next;
     }
+
     //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
-    pList->current = manager.outOfBoundsEnds;
+    pList->currentItem = manager.outOfBoundsEnds;
     return(NULL);
 }
