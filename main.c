@@ -378,7 +378,7 @@ int main(){
         assert(currentHead->head->item == currentHead->currentItem);
         
 
-    //If the freeNodes list is singleton when inserting an item, the freeNodes list should sieze to exist after the operation
+    //If the freeNodes list is singleton when inserting an item, the freeNodes list should sieze to exist after the operation (inserting after the head)
         Node* freeNodesNext = manager.freeNodes->next;
         freeNodesNext->prev = NULL;
         manager.freeNodes->next = NULL;
@@ -404,7 +404,7 @@ int main(){
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
-    //If the freeNodes list is not singleton when inserting an item, the next free node should become the new head of the freeNodes list
+    //If the freeNodes list is not singleton when inserting an item, the next free node should become the new head of the freeNodes list (inserting after head)
         freeNodesNext = manager.freeNodes->next;
         int testInt7 = 7;
         assert(List_insert_after(currentHead, &testInt7) == 0);
@@ -427,7 +427,32 @@ int main(){
         assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+    //Insert item to exhaust nodes list (when we are on our last list), ensure behaviour is as predicted above, (insert at node)
+        currentHead->currentItem = manager.outOfBoundsStart;
+        int testInt8 = 8;
+        assert(List_insert_after(currentHead, &testInt8) == 0);
+        assert(currentHead->size == 10);
+        assert(List_count(currentHead) == 10);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt8);
+        assert(currentHead->current->item == &testInt8);
+        assert(currentHead->head == currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail != currentHead->current);
+        if(currentHead->index == 9){
+            assert(manager.freeNodes == NULL);
+        }
+        //List_last() test
+        assert(List_last(currentHead) == &testInt4);
+        assert(currentHead->tail == currentHead->current);
+        assert(currentHead->tail->item == currentHead->currentItem);
+        //List_first() test
+        assert(List_first(currentHead) == &testInt8);
+        assert(currentHead->head == currentHead->current);
+        assert(currentHead->head->item == currentHead->currentItem);
     }
+
     //TODO: Use List_first(), List_last(), List_next(), List_prev(), List_size(), etc functions to test other functions from here on
 //---------------------------------------------Tests for List_insert_after()---------------------------------------------------------------------------//
 
