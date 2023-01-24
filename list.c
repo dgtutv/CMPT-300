@@ -296,7 +296,7 @@ int List_insert_after(List* pList, void* pItem){
         //Otherwise
         else{
             //Add the new item directly after the current item
-            pList->current->next->prev = newNode;
+            pList->current->next->prev = newNode;       //Seg fault here
             newNode->next = pList->current->next;
             newNode->prev = pList->current;
             pList->current->next = newNode;

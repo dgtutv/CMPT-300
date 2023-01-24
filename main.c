@@ -395,6 +395,7 @@ int main(){
         assert(currentHead->tail != currentHead->current);
         assert(manager.freeNodes == NULL);
         manager.freeNodes = freeNodesNext;
+        manager.freeNodes->prev = NULL;
         //List_last() test
         assert(List_last(currentHead) == &testInt4);
         assert(currentHead->tail == currentHead->current);
@@ -429,12 +430,12 @@ int main(){
         assert(currentHead->head->item == currentHead->currentItem);
 
     //Insert item to exhaust nodes list (when we are on our last list), ensure behaviour is as predicted above, (insert at node)
-        if(i!=9){
+        if(i!=10){
             currentHead->currentItem = manager.outOfBoundsStart;
             currentHead->current == currentHead->tail;
             int testInt8 = 8;
-            assert(List_insert_after(currentHead, &testInt8) == 0);
-            assert(currentHead->size == 10);
+            assert(List_insert_after(currentHead, &testInt8) == 0);     //Remove the messing with manager nodes, 
+            assert(currentHead->size == 10);                        //replace with 2 more funcitons at last list to mimic behaviour without ruining the structure
             assert(List_count(currentHead) == 10);
             assert(currentHead->head->prev == NULL);
             assert(currentHead->tail->next == NULL);
