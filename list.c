@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
 // bad List pointer. If it does, any behaviour is permitted (such as crashing).
@@ -18,30 +19,24 @@ List* List_create(){
     if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
         //Setup our outOfBounds Items
-        Item outOfBoundsStart;
-        Item outOfBoundsEnds;
         enum ListOutOfBounds start = LIST_OOB_START;
         enum ListOutOfBounds end = LIST_OOB_ENDS;
-        outOfBoundsStart.item = &start;
-        outOfBoundsEnds.item = &end;
-        manager.outOfBoundsStart = &outOfBoundsStart;
-        manager.outOfBoundsEnds = &outOfBoundsEnds;
+        manager.outOfBoundsStart = &start;
+        manager.outOfBoundsEnds = &end;
 
         //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
-        manager.freeNodes = manager.nodes;
+        manager.freeNodes = &nodeArr[0];
         manager.freeNodes->next = &nodeArr[1];
         manager.freeNodes->index = 0;
         Node* curr = &manager.nodes[0];
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            Item currentItem;   //Create a new item to be linked with each Node
             curr=curr->next;
             curr->index=i;
             curr->next = &manager.nodes[i+1];
             curr->prev = &manager.nodes[i-1];
-            currentItem.parent = curr;
-            curr->child = &currentItem;
+            curr->item = NULL;
         }
         curr->next->index = LIST_MAX_NUM_NODES-1;
         curr->next->prev = curr;
