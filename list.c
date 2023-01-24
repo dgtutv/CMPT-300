@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+//TODO: Remove unecessary code to improve efficiency
 
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
@@ -418,7 +419,7 @@ void* List_remove(List* pList){
     }
 
     //If the current pointer is before the start of pList, or beyond the end of pList, return NULL
-    else if(pList->current == manager.outOfBoundsStart || pList->current == manager.outOfBoundsEnds){
+    else if(pList->currentItem == manager.outOfBoundsStart || pList->currentItem == manager.outOfBoundsEnds){
         return(NULL);
     }
     else{
@@ -447,7 +448,7 @@ void* List_remove(List* pList){
         }
 
         //Otherwise, if current is the tail
-        else if(oldNode== pList->tail){
+        else if(oldNode == pList->tail){
             //Disconnect the tail and make the previous item our old tail
             oldNode->prev->next = NULL;
             pList->tail = oldNode->prev;
@@ -540,25 +541,36 @@ void List_concat(List* pList1, List* pList2){
 // available for future operations.
 typedef void (*FREE_FN)(void* pItem);
 void List_free(List* pList, FREE_FN pItemFreeFn){
-    //While pList remains non-empty, free its tail
-    while(pList->head!=NULL && pList->tail!=NULL){
-        pList->current = pList->tail->child;
-        (*pItemFreeFn)(pList->current);     //Free the memory of the item
-        List_remove(pList);     //Free the Node itself
+    void* itemToBeDeleted;
+    //While pList remains non-empty
+    while(pList->size != 0){
+        //Set the current item to the tail
+        pList->current = pList->tail;   
+        pList->currentItem = pList->current->item;
+
+        itemToBeDeleted = pList->currentItem;   //Store a pointer to the item to be deleted
+        List_remove(pList);     //Free the Node
+        (*pItemFreeFn)(itemToBeDeleted);     //Free the item in memory   
     }
+
+    //Reset the list to its standard values
     pList->head = NULL;
     pList->tail = NULL;
     pList->current = NULL;
-    pList->size = 0;    //Reset the size of pList
+    pList->currentItem = NULL;
+    pList->size = 0;    //Ensure the size of pList is 0
 
     //If the freeHeads list is empty, make the freed list the head of freeHeads
     if(manager.freeHeads == NULL){
-        manager.freeHeads = pList;
+        manager.freeHeads = pList;  
     }
-    //Otherwise, free the pList itself
+
+    //Otherwise,
     else{
+        //Add pList to the freeHeads list
         pList->next = manager.freeHeads;
         manager.freeHeads->prev = pList;
+        manager.freeHeads = pList;
     }
 }
 // Search pList, starting at the current item, until the end is reached or a match is found. 
