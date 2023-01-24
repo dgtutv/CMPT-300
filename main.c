@@ -163,24 +163,24 @@ int main(){
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail != currentHead->current);
 
-    //Inserting an item at the head (current pointer is at head) should make both the head, and the current pointer the item, keeping tail the same
+    //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
         int testInt3 = 3;
-        currentHead->current = currentHead->head;
-        currentHead->currentItem = currentHead->current->item;
+        currentHead->current = currentHead->tail;
+        currentHead->currentItem = manager.outOfBoundsEnds;
         assert(List_insert_after(currentHead, &testInt3) == 0);
         assert(currentHead->size == 6);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt3);
         assert(currentHead->current->item == &testInt3);
-        assert(currentHead->head == currentHead->current);
+        assert(currentHead->head != currentHead->current);
         assert(currentHead->tail != currentHead->head);
-        assert(currentHead->tail != currentHead->current);
-
-    //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
+        assert(currentHead->tail == currentHead->current);
+    
+    //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
         int testInt4 = 4;
         currentHead->current = currentHead->tail;
-        currentHead->currentItem = manager.outOfBoundsEnds;
+        currentHead->currentItem = currentHead->current->item;
         assert(List_insert_after(currentHead, &testInt4) == 0);
         assert(currentHead->size == 7);
         assert(currentHead->head->prev == NULL);
@@ -188,13 +188,55 @@ int main(){
         assert(currentHead->currentItem == &testInt4);
         assert(currentHead->current->item == &testInt4);
         assert(currentHead->head != currentHead->current);
-        assert(currentHead->tail == currentHead->head);
-        assert(currentHead->tail != currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail == currentHead->current);
     
-    //Inserting an item after the tail (current pointer is at Ltail) should make the item both the tail and current item of the list, keeping head the same
-    //Inserting an item when there are no more Nodes available should return NULL
-    }
-    
+    //Inserting an item when there are no more Nodes available should return -1
+        Node* freeNodes = manager.freeNodes;
+        manager.freeNodes = NULL;
+        int testInt5 = 5;
+        assert(List_insert_after(currentHead, &testInt5) == -1);
+        assert(currentHead->size == 7);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt4);
+        assert(currentHead->current->item == &testInt4);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail == currentHead->current);
+        manager.freeNodes = freeNodes;
 
+    //If the freeNodes list is singleton when inserting an item, the freeNodes list should sieze to exist after the operation
+        Node* freeNodesNext = manager.freeNodes->next;
+        freeNodesNext->prev = NULL;
+        manager.freeNodes->next = NULL;
+        int testInt6 = 6;
+        assert(List_insert_after(currentHead, &testInt6) == 0);
+        assert(currentHead->size == 8);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt6);
+        assert(currentHead->current->item == &testInt6);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail == currentHead->current);
+        assert(manager.freeNodes == NULL);
+        manager.freeNodes = freeNodesNext;
+
+    //If the freeNodes list is not singleton when inserting an item, the next free node should become the new head of the freeNodes list
+        freeNodesNext = manager.freeNodes->next;
+        int testInt7 = 7;
+        assert(List_insert_after(currentHead, &testInt7) == 0);
+        assert(currentHead->size == 9);
+        assert(currentHead->head->prev == NULL);
+        assert(currentHead->tail->next == NULL);
+        assert(currentHead->currentItem == &testInt7);
+        assert(currentHead->current->item == &testInt7);
+        assert(currentHead->head != currentHead->current);
+        assert(currentHead->tail != currentHead->head);
+        assert(currentHead->tail == currentHead->current);
+        assert(manager.freeNodes == freeNodesNext);
+        assert(manager.freeNodes->prev == NULL);
+    }
     
 }
