@@ -32,16 +32,20 @@ int main(){
     Node* currentFreeNode = manager.freeNodes;
     Node* prevFreeNode;
     //Check the initial conditions of our node lists
-    for(int i=0; i<100; i++){
+    int i=0;
+    while(currentFreeNode->next != NULL){
+        if(i>0){
+            assert(prevFreeNode == currentFreeNode->prev);
+        }
         assert(&manager.nodes[i] == currentFreeNode);
         assert(currentFreeNode->item == NULL);
         assert(currentFreeNode->index == i);
         prevFreeNode = currentFreeNode;
-        if(i<99){
-            currentFreeNode = currentFreeNode->next;
-            assert(currentFreeNode->prev == prevFreeNode);
-        }
+        i++;
+        prevFreeNode = currentFreeNode;
+        currentFreeNode = currentFreeNode->next;
     }
+    assert(currentFreeNode->index == 99);
     //Test the conditions of our first list
     assert(newList != NULL);  
     assert(manager.numHeads == 1);
