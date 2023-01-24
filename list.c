@@ -34,36 +34,57 @@ List* List_create(){
         manager.nodes[0].index = 0;
         manager.nodes[0].prev = NULL;
         manager.nodes[0].item = NULL;
-        Node* curr;
+        Node* currentNode;
         //Setting up all nodes between the first and last
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            curr=&manager.nodes[i];
-            curr->index=i;
-            curr->next = &manager.nodes[i+1];
-            curr->prev = &manager.nodes[i-1];
-            curr->item = NULL;
+            currentNode=&manager.nodes[i];
+            currentNode->index=i;
+            currentNode->next = &manager.nodes[i+1];
+            currentNode->prev = &manager.nodes[i-1];
+            currentNode->item = NULL;
         }
         //Setting up our last node
         manager.nodes[LIST_MAX_NUM_NODES-1].index = LIST_MAX_NUM_NODES-1;
-        manager.nodes[LIST_MAX_NUM_NODES-1].prev = curr;
+        manager.nodes[LIST_MAX_NUM_NODES-1].prev = currentNode;
         manager.nodes[LIST_MAX_NUM_NODES-1].next = NULL;
         manager.nodes[LIST_MAX_NUM_NODES-1].item = NULL;
         
     //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
         manager.heads = listArr;
-        manager.freeHeads = manager.heads;
-        manager.freeHeads->next = &manager.heads[1];
-        manager.freeHeads->index = 0;
-        List* currL = &manager.heads[0];
+        //Assign freeHeads to heads, as all heads are initially free
+        manager.freeHeads = &manager.heads[0];
+        //Setup our first head
+        manager.heads[0].next = &manager.heads[1];
+        manager.heads[0].index = 0;
+        manager.heads[0].prev = NULL;
+        manager.heads[0].current = NULL;
+        manager.heads[0].currentItem = NULL;
+        manager.heads[0].head = NULL;
+        manager.heads[0].tail = NULL;
+        manager.heads[0].size = 0;
+        List* currentList;
+        //Setting up all heads between the first and last
         for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
-            currL=currL->next;
-            currL->index=i;
-            currL->next = &manager.heads[i+1];
-            currL->prev = &manager.heads[i-1];
+            currentList = &manager.heads[i];
+            currentList->next = &manager.heads[i+1];
+            currentList->index = i;
+            currentList->prev = &manager.heads[i-1];
+            currentList->current = NULL;
+            currentList->currentItem = NULL;
+            currentList->head = NULL;
+            currentList->tail = NULL;
+            currentList->size = 0;
         }
-        currL->next->index = LIST_MAX_NUM_HEADS-1;
-        currL->next->prev = currL;
+        //Setting up our last head
+        manager.heads[LIST_MAX_NUM_HEADS-1].next = NULL;
+        manager.heads[LIST_MAX_NUM_HEADS-1].index = LIST_MAX_NUM_HEADS-1;
+        manager.heads[LIST_MAX_NUM_HEADS-1].prev = currentList;
+        manager.heads[LIST_MAX_NUM_HEADS-1].current = NULL;
+        manager.heads[LIST_MAX_NUM_HEADS-1].currentItem = NULL;
+        manager.heads[LIST_MAX_NUM_HEADS-1].head = NULL;
+        manager.heads[LIST_MAX_NUM_HEADS-1].tail = NULL;
+        manager.heads[LIST_MAX_NUM_HEADS-1].size = 0;
     }
 
     if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
