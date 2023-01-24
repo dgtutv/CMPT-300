@@ -82,11 +82,13 @@ int main(){
     assert(*(int*)manager.outOfBoundsStart == start);
     assert(*(int*)manager.outOfBoundsEnds == end);
 
-    //---------------------------------------------Tests for List_insert_after()---------------------------------------------------------------------------//
+    //-----------------------------------------Tests for List_insert_after() & List_count()---------------------------------------------------------------------------//
+    
 
     //Test for all heads to cover edge cases
     for(int i=0; i<10; i++){
         currentHead = &manager.heads[i];
+        assert(List_count(currentHead) == 0);
 
     //Inserting an item into an empty list 
         //The head, tail, and current Nodes should all be the address of the item
@@ -97,6 +99,7 @@ int main(){
         assert(currentHead->current->item == &testInt);
         assert(currentHead->currentItem == &testInt);
         assert(currentHead->size == 1);     //Size should be 1
+        assert(List_count(currentHead) == 1);
         //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
         assert(currentHead->head == currentHead->current);
@@ -112,6 +115,7 @@ int main(){
         assert(currentHead->current == currentHead->tail);
         assert(currentHead->head != currentHead->current);
         assert(currentHead->size == 2);
+        assert(List_count(currentHead) == 2);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testFloat);
@@ -123,6 +127,7 @@ int main(){
         currentHead->currentItem = currentHead->current->item;
         assert(List_insert_after(currentHead, &testString) == 0);
         assert(currentHead->size == 3);
+        assert(List_count(currentHead) == 3);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testString);
@@ -142,6 +147,7 @@ int main(){
         currentHead->currentItem = currentHead->current->item;
         assert(List_insert_after(currentHead, &testChar) == 0);
         assert(currentHead->size == 4);
+        assert(List_count(currentHead) == 4);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testChar);
@@ -155,6 +161,7 @@ int main(){
         currentHead->currentItem = manager.outOfBoundsStart;
         assert(List_insert_after(currentHead, &testInt2) == 0);
         assert(currentHead->size == 5);
+        assert(List_count(currentHead) == 5);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt2);
@@ -169,6 +176,7 @@ int main(){
         currentHead->currentItem = manager.outOfBoundsEnds;
         assert(List_insert_after(currentHead, &testInt3) == 0);
         assert(currentHead->size == 6);
+        assert(List_count(currentHead) == 6);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt3);
@@ -183,6 +191,7 @@ int main(){
         currentHead->currentItem = currentHead->current->item;
         assert(List_insert_after(currentHead, &testInt4) == 0);
         assert(currentHead->size == 7);
+        assert(List_count(currentHead) == 7);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt4);
@@ -197,6 +206,7 @@ int main(){
         int testInt5 = 5;
         assert(List_insert_after(currentHead, &testInt5) == -1);
         assert(currentHead->size == 7);
+        assert(List_count(currentHead) == 7);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt4);
@@ -213,6 +223,7 @@ int main(){
         int testInt6 = 6;
         assert(List_insert_after(currentHead, &testInt6) == 0);
         assert(currentHead->size == 8);
+        assert(List_count(currentHead) == 8);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt6);
@@ -228,6 +239,7 @@ int main(){
         int testInt7 = 7;
         assert(List_insert_after(currentHead, &testInt7) == 0);
         assert(currentHead->size == 9);
+        assert(List_count(currentHead) == 9);
         assert(currentHead->head->prev == NULL);
         assert(currentHead->tail->next == NULL);
         assert(currentHead->currentItem == &testInt7);
@@ -238,5 +250,6 @@ int main(){
         assert(manager.freeNodes == freeNodesNext);
         assert(manager.freeNodes->prev == NULL);
     }
-    
+//---------------------------------------------Tests for List_insert_after()---------------------------------------------------------------------------//
+
 }
