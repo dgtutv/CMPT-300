@@ -162,6 +162,17 @@ int main(){
         assert(List_next(currentHead) == &testFloat);   //Should be the node after head, which is the float
         assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem = &testFloat);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_next(currentHead) == &testInt);   //Item is before the start of the list
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_next(currentHead) == NULL);     //Item is beyond the end of the list
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        headSize = currentHead->size;
+        currentHead->size = 0;
+        assert(List_next(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->size = headSize;
+        
 
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
