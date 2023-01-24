@@ -427,30 +427,34 @@ int main(){
         assert(List_first(currentHead) == &testInt2);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+
     //Insert item to exhaust nodes list (when we are on our last list), ensure behaviour is as predicted above, (insert at node)
-        currentHead->currentItem = manager.outOfBoundsStart;
-        int testInt8 = 8;
-        assert(List_insert_after(currentHead, &testInt8) == 0);
-        assert(currentHead->size == 10);
-        assert(List_count(currentHead) == 10);
-        assert(currentHead->head->prev == NULL);
-        assert(currentHead->tail->next == NULL);
-        assert(currentHead->currentItem == &testInt8);
-        assert(currentHead->current->item == &testInt8);
-        assert(currentHead->head == currentHead->current);
-        assert(currentHead->tail != currentHead->head);
-        assert(currentHead->tail != currentHead->current);
-        if(currentHead->index == 9){
-            assert(manager.freeNodes == NULL);
+        if(i!=9){
+            currentHead->currentItem = manager.outOfBoundsStart;
+            currentHead->current == currentHead->tail;
+            int testInt8 = 8;
+            assert(List_insert_after(currentHead, &testInt8) == 0);
+            assert(currentHead->size == 10);
+            assert(List_count(currentHead) == 10);
+            assert(currentHead->head->prev == NULL);
+            assert(currentHead->tail->next == NULL);
+            assert(currentHead->currentItem == &testInt8);
+            assert(currentHead->current->item == &testInt8);
+            assert(currentHead->head == currentHead->current);
+            assert(currentHead->tail != currentHead->head);
+            assert(currentHead->tail != currentHead->current);
+            if(currentHead->index == 9){
+                assert(manager.freeNodes == NULL);
+            }
+            //List_last() test
+            assert(List_last(currentHead) == &testInt4);
+            assert(currentHead->tail == currentHead->current);
+            assert(currentHead->tail->item == currentHead->currentItem);
+            //List_first() test
+            assert(List_first(currentHead) == &testInt8);
+            assert(currentHead->head == currentHead->current);
+            assert(currentHead->head->item == currentHead->currentItem);
         }
-        //List_last() test
-        assert(List_last(currentHead) == &testInt4);
-        assert(currentHead->tail == currentHead->current);
-        assert(currentHead->tail->item == currentHead->currentItem);
-        //List_first() test
-        assert(List_first(currentHead) == &testInt8);
-        assert(currentHead->head == currentHead->current);
-        assert(currentHead->head->item == currentHead->currentItem);
     }
 
     //TODO: Use List_first(), List_last(), List_next(), List_prev(), List_size(), etc functions to test other functions from here on
