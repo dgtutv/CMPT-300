@@ -198,11 +198,12 @@ void* List_curr(List* pList){
 // Returns 0 on success, -1 on failure.
 int List_insert_after(List* pList, void* pItem){
     if(manager.freeNodes==NULL){    //If there are no free nodes left to use
-        return(-1);
+        return(-1);     //Report failure
     }
     else{
-        pList->size++;      //Increment the size of pList
-        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
+        pList->size++;      //Increment the size of pList    
+        Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
+        newNode->item = pItem;      //Set the item of our new node
 
         //If the freeNodes list is singleton, take the head
         if(manager.freeNodes->next == NULL){
@@ -215,38 +216,46 @@ int List_insert_after(List* pList, void* pItem){
             manager.freeNodes = manager.freeNodes->next;
         }
 
-        newNode->child->item = pItem;      //Make the newNode's item the item provided
-
-        //If the current pointer is before the start of the pList, insert the newNode at the start of the list
-        if(pList->current == manager.outOfBoundsStart){
+        //If the current item pointer is before the start of the pList
+        if(pList->currentItem == manager.outOfBoundsStart){
+            //Insert the new node at the start of the list
             newNode->next = pList->head;
+            newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
             pList->head->prev = newNode;
             pList->head = newNode;
         }
 
-        //If the current pointer is beyond the end of the pList OR current is the end of the list, insert the newNode at the end of the list
-        else if(pList->current == manager.outOfBoundsEnds || pList->current->parent == pList->tail){
+        //If the current item pointer is beyond the end of the pList OR current is the end of the list
+        else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
+            //Insert the newNode at the end of the list
             newNode->prev = pList->tail;
+            newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
             pList->tail->next = newNode;
             pList->tail = newNode;
         }
 
-        //If the list is empty, make the item the head, tail, and current
+        //If the list is empty
         else if(pList->head == NULL && pList->tail == NULL){
+            //Make the item the head and tail
             pList->tail = newNode;
             pList->head = newNode;
-            pList->current = newNode->child;
+            //Ensure that the new head/tail (our new node is not somehow still linked to another node)
+            newNode->next = NULL;
+            newNode->prev = NULL;
         }
-
+        //Otherwise
         else{
             //Add the new item directly after the current item
-            pList->current->parent->next->prev=newNode;
-            newNode->next = pList->current->parent->next;
-            newNode->prev = pList->current->parent;
-            pList->current->parent->next = newNode;     
+            pList->current->next->prev = newNode;
+            newNode->next = pList->current->next;
+            newNode->prev = pList->current;
+            pList->current->next = newNode;
+            
         }
-        pList->current = newNode->child;    //Make item the current item
-        return(0);
+        //Make item the current item
+        pList->current = newNode;   
+        pList->currentItem = newNode->item; 
+        return(0);  //Report success
     } 
 }
 
