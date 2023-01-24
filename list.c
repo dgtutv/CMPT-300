@@ -168,21 +168,22 @@ void* List_next(List* pList){
         return(NULL);       //Return a NULL pointer
     }
 
-    //Otherwise, if current is before start of list, set the new current item to head
+    //Otherwise, if current is before start of list
     else if(pList->currentItem == manager.outOfBoundsStart){
+        //Set the new current item to head
         pList->current = pList->head;   
         pList->currentItem = pList->head->item;
         return(pList->head->item);  //Return a pointer to the new current item     
     }
 
-    //Otherwise, if operation advances current item beyond the end of the pList
+    //Otherwise, if the operation advances current item beyond the end of the pList
     else if(pList->current == pList->tail){  
         pList->currentItem = manager.outOfBoundsEnds;       //Set current item to be beyond end of pList
         pList->current = pList->tail;
         return(NULL);       //Return a NULL pointer
     }
 
-    //Otherwise, if the current item is already beyond the end of the pList, do nothing
+    //Otherwise, if the current item is already beyond the end of the pList, do nothing to the pList and return NULL
     else if(pList->currentItem == manager.outOfBoundsEnds){ 
         return(NULL);
     }
@@ -199,25 +200,40 @@ void* List_next(List* pList){
 // If this operation backs up the current item beyond the start of the pList, a NULL pointer 
 // is returned and the current item is set to be before the start of pList.
 void* List_prev(List* pList){
-    //If operation backs up the current item beyond the start of the pList, or the pList is empty, or the current item is already before the start of the pList
-    if(pList->current == pList->head || (pList->size == 0) || pList->currentItem == manager.outOfBoundsStart){     
+    //If the pList is empty
+    if(pList->size == 0){     
         pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
         pList->current = pList->head;
         return(NULL);   //Return a NULL pointer
     }
 
-    //If current is after the end of the list, set the new current item to tail
+    //Otherwise, if current is after the end of the list
     else if(pList->currentItem == manager.outOfBoundsEnds){
+        //Set the new current item to tail
         pList->current = pList->tail;
+        pList->currentItem = pList->tail->empty;
+        return(pList->currentItem);  //Return a pointer to the new current item
+
+    }
+
+    //Otherwise, if the operation backs up the current item beyond the start of the pList
+    else if(pList->current == pList->head){     
+        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->current = pList->head;
+        return(NULL);   //Return a NULL pointer
+    }
+
+    //Otherwise, if the current item is already before the start of the pList, do nothing to the pList and return NULL
+    else if(pList->currentItem == manager.outOfBoundsStart){     
+        return(NULL);   //Return a NULL pointer
     }
 
     //Otherwise, back up pList's current item by one
     else{
         pList->current = pList->current->prev;
-    }
-    
-    pList->currentItem = pList->current->item;
-    return(pList->currentItem);  //Return a pointer to the new current item
+        pList->currentItem = pList->current->item;
+        return(pList->currentItem);  //Return a pointer to the new current item
+    } 
 }
 
 // Returns a pointer to the current item in pList.

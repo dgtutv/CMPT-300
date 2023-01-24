@@ -91,8 +91,8 @@ int main(){
     for(int i=0; i<10; i++){
         currentHead = &manager.heads[i];
         assert(List_count(currentHead) == 0);
-        assert(List_first(currentHead) == NULL);
-        assert(List_last(currentHead) == NULL);
+        assert(List_first(currentHead) == NULL);    //Size of list is 0
+        assert(List_last(currentHead) == NULL);     //Size of list is 0
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
 
@@ -106,22 +106,35 @@ int main(){
         assert(currentHead->currentItem == &testInt);
         assert(currentHead->size == 1);     //Size should be 1
         assert(List_count(currentHead) == 1);
+
         //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
         assert(currentHead->head == currentHead->current);
-        //List_next() test
-        assert(List_next(currentHead) == NULL);
+
+        //List_next() tests
+        assert(List_next(currentHead) == NULL);     //Current == tail condition
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->currentItem = manager.outOfBoundsStart;
-        assert(List_next(currentHead) == &testInt);     
+        assert(List_next(currentHead) == &testInt);   //Item is before the start of the list
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_next(currentHead) == NULL);     //Item is beyond the end of the list
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        int headSize = currentHead->size;
+        currentHead->size = 0;
+        assert(List_next(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->size = headSize;
+
         //List_first() test
         assert(List_first(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+
         //List_last() test
         assert(List_last(currentHead) == &testInt);
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
+
         //The head, tail, and current Nodes should have no connections (i.e. next, and prev should be NULL)
         assert(currentHead->current->prev == NULL);
         assert(currentHead->current->next == NULL);
