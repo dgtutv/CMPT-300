@@ -507,22 +507,30 @@ void* List_trim(List* pList){
 // for future operations.
 void List_concat(List* pList1, List* pList2){
     //If pList2 is not empty
-    if(pList2->head != NULL && pList2->tail != NULL){
-        pList1->size += pList2->size;       //Update the size of pList1
+    if(pList2->size != 0){ 
         //If pList1 is empty, move pList2 to pList1
-        if(pList1->head == NULL && pList1->tail == NULL){
-            pList1->tail = pList2->tail;
+        if(pList1->size == 0){
             pList1->head = pList2->head;
+            pList1->tail = pList2->tail;
             pList1->current = pList2->current;
+            pList1->currentItem = pList2->currentItem;
         }
+
         //Otherwise, add pList2 to the end of pList1
         else{
             pList1->tail->next = pList2->head;
             pList2->head->prev = pList1->tail;
             pList1->tail = pList2->tail;
         }
-    }
+        pList1->size += pList2->size;       //Update the size of pList1
 
+        //Empty pList2
+        pList2->head = NULL;
+        pList2->tail = NULL;
+        pList2->current = NULL;
+        pList2->currentItem = NULL;
+        pList2->size = 0;
+    }
     List_free(pList2, List_remove);     //Delete pList2
 }
 
