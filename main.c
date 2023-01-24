@@ -45,7 +45,7 @@ int main(){
         prevFreeNode = currentFreeNode;
         currentFreeNode = currentFreeNode->next;
     }
-    assert(currentFreeNode->index ==)
+    assert(currentFreeNode->index == 99);
     //Test the conditions of our first list
     assert(newList != NULL);  
     assert(manager.numHeads == 1);
