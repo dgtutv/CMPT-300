@@ -30,12 +30,13 @@ int main(){
     List* newList = List_create();
     //Define pointers to iterate over the node lists in manager
     Node* currentFreeNode = manager.freeNodes;
-    Node* prevFreeNode;
+    Node* prevFreeNode = NULL;
     //Check the initial conditions of our node lists
     int i=0;
     while(currentFreeNode->next != NULL){
+        assert(prevFreeNode == currentFreeNode->prev);
         if(i>0){
-            assert(prevFreeNode == currentFreeNode->prev);
+            assert(currentFreeNode == prevFreeNode->next);
         }
         assert(&manager.nodes[i] == currentFreeNode);
         assert(currentFreeNode->item == NULL);
@@ -46,6 +47,24 @@ int main(){
         currentFreeNode = currentFreeNode->next;
     }
     assert(currentFreeNode->index == 99);
+    assert(i==99);
+
+    //Check our freeHeads list does not run out of bounds
+    List* currentFreeHead = &manager.freeHeads[0];
+    List* prevFreeHead = NULL;
+    i = 0;
+    while(currentFreeHead->next != NULL){
+        assert(prevFreeHead == currentFreeHead->prev);
+        if(i>0){
+            assert(currentFreeHead == prevFreeHead->next);
+        }
+        prevFreeHead = currentFreeHead;
+        currentFreeHead = currentFreeHead->next;
+        i++;
+    }
+    assert(currentFreeHead->index == 9);    //Index will be 1 higher than the list size, since we take from the front
+    assert(i==8);
+
     //Test the conditions of our first list
     assert(newList != NULL);  
     assert(manager.numHeads == 1);
@@ -70,6 +89,7 @@ int main(){
         assert(newList->index == i);
         prevList = newList;
     }
+    
 
     //There should be no more free heads
     assert(manager.freeHeads == 0);
