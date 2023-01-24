@@ -225,15 +225,6 @@ int List_insert_after(List* pList, void* pItem){
             pList->head = newNode;
         }
 
-        //If the current item pointer is beyond the end of the pList OR current is the end of the list
-        else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
-            //Insert the newNode at the end of the list
-            newNode->prev = pList->tail;
-            newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
-            pList->tail->next = newNode;
-            pList->tail = newNode;
-        }
-
         //If the list is empty
         else if(pList->head == NULL && pList->tail == NULL){
             //Make the item the head and tail
@@ -243,6 +234,16 @@ int List_insert_after(List* pList, void* pItem){
             newNode->next = NULL;
             newNode->prev = NULL;
         }
+
+        //If the current item pointer is beyond the end of the pList OR current is the end of the list
+        else if(pList->currentItem == manager.outOfBoundsEnds || pList->current == pList->tail){
+            //Insert the newNode at the end of the list
+            newNode->prev = pList->tail;
+            newNode->next = NULL;       //Ensure that the new tail (our new node) is not somehow still linked to another node
+            pList->tail->next = newNode;
+            pList->tail = newNode;
+        }
+
         //Otherwise
         else{
             //Add the new item directly after the current item

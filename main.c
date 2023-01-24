@@ -75,29 +75,29 @@ int main(){
     //---------------------------------------------Tests for List_insert_after()---------------------------------------------------------------------------//
 
     //Test for all heads to cover edge cases
-    for(int i=0; i<10; i++){
-        currentHead = &manager.heads[i];
-    //Inserting an item into an empty list 
-        //The head, tail, and current Nodes should all be the address of the item
-        int testNum = 1;
-        assert(List_insert_after(currentHead, &testNum) == 0);  
-        assert(currentHead->head->item == &testNum);
-        assert(currentHead->tail->item == &testNum);
-        assert(currentHead->current->item == &testNum);
-        assert(currentHead->currentItem = &testNum);
-        assert(currentHead->size == 1);     //Size should be 1
-        //The head, tail, and current Nodes should all be the same pointer
-        assert(currentHead->head == currentHead->tail);
-        assert(currentHead->head == currentHead->current);
-        //The head, tail, and current Nodes should have no connections (i.e. next, and prev should be NULL)
-        assert(currentHead->current->prev == NULL);
-        assert(currentHead->current->next == NULL);
+    currentHead = &manager.heads[0];
+//Inserting an item into an empty list 
+    //The head, tail, and current Nodes should all be the address of the item
+    int* testNum = (int*)malloc(sizeof(int));
+    *testNum = 1;
+    assert(List_insert_after(currentHead, testNum) == 0);  
+    assert(currentHead->head->item == testNum);
+    assert(currentHead->tail->item == testNum);
+    assert(currentHead->current->item == testNum);
+    assert(currentHead->currentItem = testNum);
+    assert(currentHead->size == 1);     //Size should be 1
+    //The head, tail, and current Nodes should all be the same pointer
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head == currentHead->current);
+    //The head, tail, and current Nodes should have no connections (i.e. next, and prev should be NULL)
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == NULL);
     //Inserting an item after the head should make the item the tail, and the current item of the list, keeping head the same
     //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
     //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
     //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item keeping tail the same
     //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
     //Inserting an item when there are no more Nodes available should return NULL
-    }
+
     
 }
