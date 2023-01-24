@@ -432,6 +432,8 @@ void* List_remove(List* pList){
             pList->head = NULL;
             pList->tail = NULL;
             pList->current = NULL;
+            pList->currentItem = NULL;
+            pList->size = 0;    //Ensure the size of pList is 0
         }
 
         //Otherwise, if current is head 
@@ -439,7 +441,9 @@ void* List_remove(List* pList){
             //Disconnect the head and make the next item our new head
             oldNode->next->prev = NULL;
             pList->head = oldNode->next;
-            pList->current = pList->head;       //Make the new head our current node
+            //Make the new head our current item
+            pList->current = pList->head;  
+            pList->currentItem = pList->current->item;      
         }
 
         //Otherwise, if current is the tail
@@ -447,7 +451,9 @@ void* List_remove(List* pList){
             //Disconnect the tail and make the previous item our old tail
             oldNode->prev->next = NULL;
             pList->tail = oldNode->prev;
-            pList->current = pList->tail;    //Make the new tail our current node
+            //Make the new tail our current item
+            pList->current = pList->tail;   
+            pList->currentItem = pList->current->item;  
         }
 
         //Otherwise
@@ -455,7 +461,9 @@ void* List_remove(List* pList){
             //Take the node out of the list in the standard way for any doubly-linked list
             oldNode->prev->next = oldNode->next;
             oldNode->next->prev = oldNode->prev;
-            pList->current = oldNode->next;       //Make the next item the current one
+            //Make the next item the current item
+            pList->current = oldNode->next;    
+            pList->currentItem = pList->current->item;   
         }
 
         oldNode->prev = NULL;
@@ -473,7 +481,6 @@ void* List_remove(List* pList){
             oldNode->next = manager.freeNodes;
             manager.freeNodes = oldNode;
         }
-        pList->currentItem = pList->current->item;       //Make the new item the current node's item   
         return(returnValue);    //Return the item contained in the deleted node
     }
 }
@@ -481,15 +488,16 @@ void* List_remove(List* pList){
 // Return last item and take it out of pList. Make the new last item the current one.
 // Return NULL if pList is initially empty.
 void* List_trim(List* pList){
-
     //If the pList is empty, return NULL
-    if(pList->head == NULL && pList->tail == NULL){
+    if(pList->size == 0){
         return(NULL);
     }
 
-    //Otherwise, set current to the tail, pass control off to List_remove()
+    //Otherwise
     else{
-        pList->current = pList->tail->child;
+        //Set current to the tail, pass control off to List_remove()
+        pList->current = pList->tail;
+        pList->currentItem = pList->current->item;
         return(List_remove(pList));
     }
 }
