@@ -24,24 +24,32 @@ List* List_create(){
         manager.outOfBoundsStart = &start;
         manager.outOfBoundsEnds = &end;
 
-        //Setup our nodes
+    //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
+        //Assign freeNodes to nodes, as all nodes are initially free
         manager.freeNodes = &nodeArr[0];
-        manager.freeNodes->next = &nodeArr[1];
-        manager.freeNodes->index = 0;
-        Node* curr = &manager.nodes[0];
+        //Setting up our first node
+        manager.nodes[0].next = &manager.nodes[1];
+        manager.nodes[0].index = 0;
+        manager.nodes[0].prev = NULL;
+        manager.nodes[0].item = NULL;
+        Node* curr;
+        //Setting up all nodes between the first and last
         for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
-            curr=curr->next;
+            curr=&manager.nodes[i];
             curr->index=i;
             curr->next = &manager.nodes[i+1];
             curr->prev = &manager.nodes[i-1];
             curr->item = NULL;
         }
-        curr->next->index = LIST_MAX_NUM_NODES-1;
-        curr->next->prev = curr;
+        //Setting up our last node
+        manager.nodes[LIST_MAX_NUM_NODES-1].index = LIST_MAX_NUM_NODES-1;
+        manager.nodes[LIST_MAX_NUM_NODES-1].prev = curr;
+        manager.nodes[LIST_MAX_NUM_NODES-1].next = NULL;
+        manager.nodes[LIST_MAX_NUM_NODES-1].item = NULL;
         
-        //Setup our heads
+    //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
         manager.heads = listArr;
         manager.freeHeads = manager.heads;
