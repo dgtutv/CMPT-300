@@ -1,5 +1,7 @@
 #include "list.c"
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include <assert.h>
 
 
@@ -23,11 +25,10 @@ int main(){
     extern Manager manager; //our manager from list.c
 
 //----------------------------------------------Tests for List_create()---------------------------------------------------------------------------//
-    List* nullList = 0;
 
     //Create 10 lists, should all be defined, and unique
     List* newList = List_create();
-    assert(newList != nullList);    //Test our list is not undefined
+    assert(newList != NULL);    //Test our list is not undefined
     assert(manager.numHeads == 1);      //Test our numHeads integer is correct
     List* currentHead = &manager.heads[0];
     assert(newList == currentHead);       //Test our newly defined list is the same list present in our heads linked list
@@ -40,7 +41,7 @@ int main(){
         currentHead = &manager.heads[i];
         assert(newList == currentHead);       //Test our newly defined list is the same list present in our heads linked list
         assert(prevList == prevHead);      //Test our previously defined list is still present in our heads linked list
-        assert(newList != nullList);    //Test our list is not undefined
+        assert(newList != NULL);    //Test our list is not undefined
         assert(newList != prevList);    //Test our list is also not the same as the previously passed list 
         prevList = newList;
     }
@@ -53,7 +54,7 @@ int main(){
 
     //Attempting to create more than 10 lists will return a NULL pointer
     newList = List_create();
-    assert(newList == nullList);
+    assert(newList == NULL);
     assert(manager.numHeads == 10);     //Test the number of heads is still 10\
 
     //Check that all of the Nodes are currently free
