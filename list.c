@@ -146,7 +146,7 @@ void* List_first(List* pList){
 void* List_last(List* pList){
     if(pList->size == 0){    //If the list is empty
         //Set the current item to NULL
-        pList->current->item = NULL; 
+        pList->current = NULL; 
         pList->currentItem = NULL;
         return(NULL);  //Return NULL
     }
