@@ -158,7 +158,7 @@ int main(){
         assert(currentHead->head->item == currentHead->currentItem);
         //List_next() test
         assert(List_next(currentHead) == &testFloat);
-        assert(currentHead->currentItem == currentHead->head->item);
+        assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem = &testFloat);
         //List_last() test
         assert(List_last(currentHead) == &testFloat);
