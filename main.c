@@ -28,6 +28,11 @@ int main(){
 
 //----------------------------------------------Tests for List_create()---------------------------------------------------------------------------//
     List* newList = List_create();
+    Node* currentNode = manager.freeNodes;
+    while(currentNode->next != NULL){
+        printf("%d\n", manager.freeNodes->index);
+        currentNode = currentNode->next;
+    }
     //Define pointers to iterate over the node lists in manager
     Node* currentFreeNode = manager.freeNodes;
     Node* prevFreeNode;
