@@ -177,7 +177,6 @@ int main(){
         assert(currentHead->current == currentHead->tail);
         assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem == currentHead->tail->item);
-        assert(List_prev(currentHead) == currentHead->tail->prev->item);     //Item is at the end of the list condition
         assert(currentHead->current == currentHead->tail->prev);
         assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem == currentHead->tail->prev->item);

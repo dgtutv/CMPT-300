@@ -16,6 +16,7 @@ static Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
+//Helper functions to add and remove Nodes
 Node* takeNode(void* item){
     if(manager.numFreeNodes == 0){
         return(NULL);
@@ -25,7 +26,7 @@ Node* takeNode(void* item){
         manager.freeNodes = NULL;
         manager.numFreeNodes=0;
         nodePointer->item = item;
-        return nodePointer;
+        return(nodePointer);
     }
     else{
         Node* nodePointer = manager.freeNodes;
@@ -34,7 +35,7 @@ Node* takeNode(void* item){
         manager.freeNodes->prev = NULL;
         manager.numFreeNodes--;
         nodePointer->item = item;
-        return nodePointer;
+        return(nodePointer);
     }
 }
 void addNode(Node* node){
@@ -59,11 +60,24 @@ void addNode(Node* node){
     }
 }
 
+//Helper function to ensure the integrity of the list stays in tact
+void integrityEnsurance(List* pList){
+    if(pList->current->next == NULL){
+        pList->tail = pList->current;
+        pList->tail->item = pList->currentItem;
+    }
+    if(pList->current->prev == NULL){
+        pList->head = pList->current;
+        pList->head->item = pList->currentItem;
+    }
+}
+
 List* List_create(){
     if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
     
         manager.nodes = nodeArr;
         manager.heads = headArr;
+        manager.freeNodes = &nodeArr[0];
 
         //Setup our outOfBounds Items
         enum ListOutOfBounds start = LIST_OOB_START;
@@ -234,6 +248,13 @@ void* List_prev(List* pList){
         return(NULL);   //Return a NULL pointer
     }
 
+    //Otherwise, if current is the head and tail(i.e. backs up the current item beyond the start of pList)
+    else if(pList->current == pList->head && pList->current == pList->tail){
+        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->current = pList->head;
+        return(NULL);   //Return a NULL pointer
+    }
+
     //Otherwise, if current is after the end of the list
     else if(pList->currentItem == manager.outOfBoundsEnds){
         //Set the new current item to tail
@@ -320,7 +341,7 @@ int List_insert_after(List* pList, void* pItem){
         //Otherwise
         else{
             //Add the new item directly after the current item
-            pList->current->next->prev = newNode;       //Seg fault here
+            pList->current->next->prev = newNode;    
             newNode->next = pList->current->next;
             newNode->prev = pList->current;
             pList->current->next = newNode;   
