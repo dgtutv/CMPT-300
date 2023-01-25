@@ -165,20 +165,23 @@ int main(){
         assert(List_prev(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsStart);
 
-    //Inserting an item into an empty list 
-        //The head, tail, and current Nodes should all be the address of the item
+    //Inserting an item into an empty list, the head, tail, and current Nodes should all be the address of the item
         int testInt1 = 1;
+
+        //List_insert_after() tests
         assert(List_insert_after(currentHead, &testInt1) == 0);  
         assert(currentHead->head->item == &testInt1);
         assert(currentHead->tail->item == &testInt1);
         assert(currentHead->current->item == &testInt1);
         assert(currentHead->currentItem == &testInt1);
-        assert(currentHead->size == 1);     //Size should be 1
-        assert(List_count(currentHead) == 1);
-
-        //The head, tail, and current Nodes should all be the same pointer
         assert(currentHead->head == currentHead->tail);
         assert(currentHead->head == currentHead->current);
+        assert(currentHead->current->prev == NULL);
+        assert(currentHead->current->next == NULL);
+
+        //List_count() tests
+        assert(currentHead->size == 1);     
+        assert(List_count(currentHead) == 1);
 
         //List_next() tests
         assert(List_next(currentHead) == NULL);     //Current == tail condition
@@ -198,8 +201,6 @@ int main(){
         assert(List_next(currentHead) == NULL);     //List size is 0
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->size = headSize;
-
-        //TODO: test traversal of list with List_next() and List_prev()
 
         //List_prev() tests
         currentHead->current = currentHead->head;
@@ -231,9 +232,12 @@ int main(){
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
-        //The head, tail, and current Nodes should have no connections (i.e. next, and prev should be NULL)
-        assert(currentHead->current->prev == NULL);
-        assert(currentHead->current->next == NULL);
+        //List traversal test forward
+        currentHead->currentItem = manager.outOfBoundsStart;
+        
+
+        //List traversal test backwards
+        currentHead->currentItem = manager.outOfBoundsEnds;
 
     //Inserting an item after the head should make the item the tail, and the current item of the list, keeping head the same
         float testFloat = 3.14;
