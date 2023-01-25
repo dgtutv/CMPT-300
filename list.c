@@ -427,85 +427,17 @@ int List_insert_before(List* pList, void* pItem){
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
-    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
-        return(-1);     //Report failure
-    }
-    else{
-        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
-        newNode->item = pItem;      //Make the newNode's item the item provided
-
-        //If the freeNodes list is singleton, take the head
-        if(manager.numFreeNodes == 1){
-            manager.freeNodes = NULL;
-            manager.numFreeNodes = 0;
-        }
-
-        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
-        else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
-            manager.numFreeNodes--;
-        }
-
-        //If the list is empty, make the item the head and tail
-        if(pList->size == 0){
-            pList->tail = newNode;
-            pList->head = newNode;
-        }
-
-        //Add the newNode (with the new item) to the end of pList
-        pList->tail->next = newNode;
-        newNode->prev = pList->tail;
-        pList->tail = newNode;
-
-        //Make the new item the current one
-        pList->current = newNode;
-        pList->currentItem = newNode->item;
-        pList->size++;      //Increment the size of pList
-        return(0);  //Report success
-    }
+    pList->current = pList->tail;
+    pList->currentItem = pList->current->item;
+    return(List_insert_after(pList, pItem));
 }
 
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
-    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
-        return(-1);     //Report failure
-    }
-    else{
-        Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
-        newNode->item = pItem;      //Make the new Node's item the item provided
-
-        //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
-            manager.numFreeNodes = 0;
-        }
-
-        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
-        else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
-            manager.numFreeNodes--;
-        }
-
-        //If the list is empty, make the item the head and tail
-        if(pList->size == 0){
-            pList->tail = newNode;
-            pList->head = newNode;
-        }
-
-        //Add the newNode (with the new item) to the end of pList
-        pList->head->prev = newNode;
-        newNode->next = pList->head;
-        pList->head = newNode;
-
-        //Make the new item the current one
-        pList->current = newNode;    
-        pList->currentItem = newNode->item;
-        pList->size++;      //Increment the size of pListx
-        return(0);  //Report success
-    }
+    pList->current = pList->head;
+    pList->currentItem = pList->current->item;
+    return(List_insert_before(pList, pItem));
 }
 
 // Return current item and take it out of pList. Make the next item the current one.
