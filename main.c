@@ -728,12 +728,13 @@ int main(){
     //If the freeNodes list is singleton when inserting an item, the freeNodes list should sieze to exist after the operation (inserting after the head)
         currentHead->current = currentHead->head;
         currentHead->currentItem = currentHead->current->item;
+        sizeReference = 8;
         if(i==9){
             while(manager.numFreeNodes != 0){
                 sizeReference++;
                 assert(List_insert_after(currentHead, &testInt6)==0);
                 assert(List_count(currentHead) == currentHead->size);
-                //assert(currentHead->size == sizeReference);
+                assert(currentHead->size == sizeReference);
                 //TODO: test traversal of list with List_next() and List_prev()
 
                 //TODO: adapt to this scenario
@@ -783,7 +784,7 @@ int main(){
         if(i==9){
             assert(List_insert_after(currentHead, &testInt7) == -1);
             assert(List_count(currentHead) == currentHead->size);
-            //assert(currentHead->size == sizeReference);
+            assert(currentHead->size == sizeReference);
             //TODO: test traversal of list with List_next() and List_prev()
 
             //TODO: adapt to this scenario
