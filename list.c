@@ -16,9 +16,11 @@ static Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
-//Helper functions to add and remove Nodes
-//TODO: make helper functions for any code segments that are repetative
-Node* takeNode(void* item){
+//TODO: make helper functions for any code segments that are repetative 
+//TODO: make sure all helper functions are static
+
+//Helper function to take a node from freeNodes list, if possible
+static Node* takeNode(void* item){
     if(manager.numFreeNodes == 0){
         return(NULL);
     }
@@ -39,7 +41,9 @@ Node* takeNode(void* item){
         return(nodePointer);
     }
 }
-void addNode(Node* node){
+
+//Helper function to give a node back to freeNodes list
+static void addNode(Node* node){
     node->item = NULL;
     node->next = NULL;
     node->prev = NULL;
@@ -62,7 +66,7 @@ void addNode(Node* node){
 }
 
 //Helper function to ensure the integrity of the list stays in tact
-void integrityEnsurance(List* pList){
+static void integrityEnsurance(List* pList){
     if(pList->current->next == NULL){
         pList->tail = pList->current;
         pList->tail->item = pList->currentItem;
