@@ -396,10 +396,10 @@ int main(){
         currentHead->currentItem = currentHead->current->item;
         int testInt6 = 6;
         if(i==9){
-            while(manager.numFreeNodes > 1){
+            while(manager.numFreeNodes != 0){
                 assert(List_insert_after(currentHead, &testInt6)==0);
             }
-            assert(manager.numFreeNodes == 1);
+            assert(manager.numFreeNodes == 0);
         }
     
     //Inserting an item when there are no more Nodes available should return -1
