@@ -16,7 +16,7 @@ static Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
-//Helper functions to add and remove Nodes
+//Helper functions to add and remove Nodes  //TODO: create similar functions for heads to be used in List_free() and List_concat()
 Node* takeNode(void* item){
     if(manager.numFreeNodes == 0){
         return(NULL);
@@ -557,6 +557,7 @@ void List_concat(List* pList1, List* pList2){
         pList2->currentItem = NULL;
         pList2->size = 0;
     }
+
     List_free(pList2, List_remove);     //Delete pList2
 }
 
