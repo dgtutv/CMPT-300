@@ -1075,9 +1075,16 @@ int main(){
 
     //TODO: kill two birds with one stone by testing List_remove() to setup next tests
 
+    //TODO: essentially copy/paste List_insert_after(), for List_insert_before()
+
+    //TODO: kill two birds with one stone by testing List_free() to setup next tests
+
     //TODO: Use previously tested functions to test other functions from here on
 
-    //TODO: Test List_append() and List_prepend() on empty and full lists, before start and after end items, head and tail items, normal items ()
+    //TODO: Test List_append() and List_prepend() on empty and non-empty lists, before start and after end items, head and tail items, normal items
+    //with more free nodes, and without
 
     //TODO: test List_trim()
+
+    //TODO: test List_concat()
 }

@@ -451,19 +451,16 @@ void* List_remove(List* pList){
         return(NULL);
     }
     else{
-        pList->size--;      //Decrement the size of pList
         void* returnValue = pList->currentItem;     //Get the current item to be returned
         Node* oldNode = pList->current;     //Get the current Node to be deleted
         
-        manager.numFreeNodes++;
-
-        //If current is head and tail (the list is of size 1)
-        if(oldNode == pList->head && oldNode == pList->tail){
+        //If the list is of size 1
+        if(pList->size == 1){
             //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
             pList->head = NULL;
             pList->tail = NULL;
             pList->current = NULL;
-            pList->currentItem = manager.outOfBoundsStart;
+            pList->currentItem = manager.outOfBoundsEnds;
             pList->size = 0;    //Ensure the size of pList is 0
         }
 
@@ -474,7 +471,8 @@ void* List_remove(List* pList){
             pList->head = oldNode->next;
             //Make the new head our current item
             pList->current = pList->head;  
-            pList->currentItem = pList->current->item;      
+            pList->currentItem = pList->current->item;     
+            pList->size--;      //Decrement the size of pList 
         }
 
         //Otherwise, if current is the tail
@@ -482,9 +480,10 @@ void* List_remove(List* pList){
             //Disconnect the tail and make the previous item our old tail
             oldNode->prev->next = NULL;
             pList->tail = oldNode->prev;
-            //Make the new tail our current item
-            pList->current = pList->tail;   
-            pList->currentItem = pList->current->item;  
+            //Make the next item our current item (LIST_OOB_ENDS)
+            pList->current = NULL;   
+            pList->currentItem = manager.outOfBoundsEnds;  
+            pList->size--;      //Decrement the size of pList
         }
 
         //Otherwise
@@ -495,23 +494,10 @@ void* List_remove(List* pList){
             //Make the next item the current item
             pList->current = oldNode->next;    
             pList->currentItem = pList->current->item;   
+            pList->size--;      //Decrement the size of pList
         }
 
-        oldNode->prev = NULL;
-        oldNode->item = NULL;
-        //If the freeNodes list is empty
-        if(manager.freeNodes == NULL){   
-            //Make the old node the head of the freeNodes list    
-            oldNode->next = NULL;
-            manager.freeNodes = oldNode;
-        }
-        //Otherwise
-        else{
-            //Move the old node into the current freeNodes list
-            manager.freeNodes->prev = oldNode;
-            oldNode->next = manager.freeNodes;
-            manager.freeNodes = oldNode;
-        }
+        addNode(oldNode);       //Give the node back to the freeNodes list
         return(returnValue);    //Return the item contained in the deleted node
     }
 }
