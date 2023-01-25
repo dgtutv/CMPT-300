@@ -61,16 +61,15 @@ void addNode(Node* node){
 
 List* List_create(){
     if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
+    
+        manager.nodes = nodeArr;
+        manager.heads = headArr;
 
         //Setup our outOfBounds Items
         enum ListOutOfBounds start = LIST_OOB_START;
         enum ListOutOfBounds end = LIST_OOB_ENDS;
         manager.outOfBoundsStart = &start;
         manager.outOfBoundsEnds = &end;
-
-    //Setup our nodes
-        Node nodeArr[LIST_MAX_NUM_NODES];
-        manager.nodes = nodeArr;
         
         //Setting up nodes in a linked list
         manager.numFreeNodes = 0;

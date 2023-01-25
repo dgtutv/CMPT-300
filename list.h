@@ -48,12 +48,14 @@ struct List_s {
 // (You may modify this, but reset the value to 100 when handing in your assignment)
 #define LIST_MAX_NUM_NODES 100
 
-static Node nodes[LIST_MAX_NUM_NODES];    //An array of all of our nodes
-static List heads[LIST_MAX_NUM_HEADS];    //Array of all our heads
+static Node nodeArr[LIST_MAX_NUM_NODES];    //An array of all of our nodes
+static List headArr[LIST_MAX_NUM_HEADS];    //Array of all our heads
 
 
 //Structure to manage our nodes and lists
 struct Manager_s {
+    Node* nodes;
+    List* heads;
     Node* freeNodes;    //Linked list of free nodes
     int numHeads;       //Count of heads currently in use
     int numFreeNodes;   //Count of nodes available to use
