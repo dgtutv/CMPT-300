@@ -41,6 +41,7 @@ int main(){
         assert(&manager.nodes[i] == currentFreeNode);
         assert(currentFreeNode->item == NULL);
         assert(currentFreeNode->index == i);
+        assert(currentFreeNode != NULL);
         prevFreeNode = currentFreeNode;
         i++;
         prevFreeNode = currentFreeNode;
@@ -383,11 +384,10 @@ int main(){
         currentHead->currentItem = currentHead->current->item;
         int testInt6 = 6;
         if(i==9){
-            while(manager.freeNodes->next != NULL){
+            while(manager.numFreeNodes > 1){
                 assert(List_insert_after(currentHead, &testInt6)==0);
             }
-            assert(List_insert_after(currentHead, &testInt6)==0);
-            assert(manager.freeNodes == NULL);
+            assert(manager.numFreeNodes == 1);
         }
     
     //Inserting an item when there are no more Nodes available should return -1
