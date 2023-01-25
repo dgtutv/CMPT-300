@@ -177,9 +177,7 @@ int main(){
         assert(currentHead->current == currentHead->tail);
         assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem == currentHead->tail->item);
-        assert(currentHead->current == currentHead->tail->prev);
         assert(currentHead->currentItem == currentHead->current->item);
-        assert(currentHead->currentItem == currentHead->tail->prev->item);
         headSize = currentHead->size;
         currentHead->size = 0;
         assert(List_prev(currentHead) == NULL);     //List size is 0

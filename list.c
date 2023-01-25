@@ -248,13 +248,6 @@ void* List_prev(List* pList){
         return(NULL);   //Return a NULL pointer
     }
 
-    //Otherwise, if current is the head and tail(i.e. backs up the current item beyond the start of pList)
-    else if(pList->current == pList->head && pList->current == pList->tail){
-        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
-        pList->current = pList->head;
-        return(NULL);   //Return a NULL pointer
-    }
-
     //Otherwise, if current is after the end of the list
     else if(pList->currentItem == manager.outOfBoundsEnds){
         //Set the new current item to tail
@@ -262,6 +255,13 @@ void* List_prev(List* pList){
         pList->currentItem = pList->tail->item;
         return(pList->currentItem);  //Return a pointer to the new current item
 
+    }
+
+    //Otherwise, if current is the head and tail(i.e. backs up the current item beyond the start of pList)
+    else if(pList->current == pList->head && pList->current == pList->tail){
+        pList->currentItem = manager.outOfBoundsStart;      //Set current item to be before the start of pList
+        pList->current = pList->head;
+        return(NULL);   //Return a NULL pointer
     }
 
     //Otherwise, if the operation backs up the current item beyond the start of the pList
