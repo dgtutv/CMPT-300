@@ -28,6 +28,7 @@ List* List_create(){
     //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
+        manager.numFreeNodes = LIST_MAX_NUM_NODES;
         //Assign freeNodes to nodes, as all nodes are initially free
         manager.freeNodes = &nodeArr[0];
         //Setting up our first node
@@ -247,22 +248,26 @@ void* List_curr(List* pList){
 // the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
 int List_insert_after(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{   
         Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
         newNode->item = pItem;      //Set the item of our new node
 
+        manager.numFreeNodes--;
+
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
+        if(manager.numFreeNodes == 1){
             manager.freeNodes = NULL;
+            manager.numFreeNodes = 0;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
             manager.freeNodes->next->prev = NULL;            
             manager.freeNodes = manager.freeNodes->next;
+            manager.numFreeNodes--;
         }
 
         //If the list is empty
@@ -323,22 +328,26 @@ int List_insert_after(List* pList, void* pItem){
 // If the current pointer is beyond the end of the pList, the item is added at the end. 
 // Returns 0 on success, -1 on failure.
 int List_insert_before(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
         Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
         newNode->item = pItem;      //Set the item of our new node
 
+        manager.numFreeNodes--;
+
         //If the freeNodes list is singleton, take the head
         if(manager.freeNodes->next == NULL){
             manager.freeNodes = NULL;
+            manager.numFreeNodes = 0;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
             manager.freeNodes->next->prev = NULL;            
             manager.freeNodes = manager.freeNodes->next;
+            manager.numFreeNodes--;
         }
 
         //If the list is empty
@@ -389,22 +398,26 @@ int List_insert_before(List* pList, void* pItem){
 // Adds item to the end of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
         newNode->item = pItem;      //Make the newNode's item the item provided
 
+        manager.numFreeNodes--;
+
         //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
+        if(manager.numFreeNodes == 1){
             manager.freeNodes = NULL;
+            manager.numFreeNodes = 0;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
             manager.freeNodes->next->prev = NULL;            
             manager.freeNodes = manager.freeNodes->next;
+            manager.numFreeNodes--;
         }
 
         //If the list is empty, make the item the head and tail
@@ -429,22 +442,26 @@ int List_append(List* pList, void* pItem){
 // Adds item to the front of pList, and makes the new item the current one. 
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
-    if(manager.freeNodes==NULL){    //If there are no free nodes left to use
+    if(manager.numFreeNodes == 0){    //If there are no free nodes left to use
         return(-1);     //Report failure
     }
     else{
         Node* newNode = manager.freeNodes;        //Access a new Node to be added into our list
         newNode->item = pItem;      //Make the new Node's item the item provided
 
+        manager.numFreeNodes--;
+
         //If the freeNodes list is singleton, take the head
         if(manager.freeNodes->next == NULL){
             manager.freeNodes = NULL;
+            manager.numFreeNodes = 0;
         }
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
             manager.freeNodes->next->prev = NULL;            
             manager.freeNodes = manager.freeNodes->next;
+            manager.numFreeNodes--;
         }
 
         //If the list is empty, make the item the head and tail
@@ -484,6 +501,8 @@ void* List_remove(List* pList){
         void* returnValue = pList->currentItem;     //Get the current item to be returned
         Node* oldNode = pList->current;     //Get the current Node to be deleted
         
+        manager.numFreeNodes++;
+
         //If current is head and tail (the list is of size 1)
         if(oldNode == pList->head && oldNode == pList->tail){
             //Set head, tail, and current pointers to NULL to disconnect oldNode from the list

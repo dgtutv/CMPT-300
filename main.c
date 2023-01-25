@@ -386,7 +386,7 @@ int main(){
             while(manager.freeNodes->next != NULL){
                 assert(List_insert_after(currentHead, &testInt6)==0);
             }
-            //assert(List_insert_after(currentHead, &testInt6)==0);
+            assert(List_insert_after(currentHead, &testInt6)==0);
             assert(manager.freeNodes == NULL);
         }
     

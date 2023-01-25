@@ -20,6 +20,7 @@ struct Manager_s {
     Node* freeNodes;    //Linked list of free nodes
     List* heads;    //Array of all our heads
     int numHeads;       //Count of heads currently in use
+    int numFreeNodes;   //Count of nodes available to use
     List* freeHeads;    //Linked list of all our free heads
     void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
     void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
