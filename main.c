@@ -126,10 +126,11 @@ int main(){
 
     //Test for all heads to cover edge cases
     for(int i=0; i<10; i++){
+        //Size of list is 0 tests
         currentHead = &manager.heads[i];
         assert(List_count(currentHead) == 0);
-        assert(List_first(currentHead) == NULL);    //Size of list is 0
-        assert(List_last(currentHead) == NULL);     //Size of list is 0
+        assert(List_first(currentHead) == NULL);    
+        assert(List_last(currentHead) == NULL);     
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         assert(List_prev(currentHead) == NULL);
@@ -170,10 +171,16 @@ int main(){
         assert(List_prev(currentHead) == NULL);     //Current == head condition
         assert(currentHead->currentItem == manager.outOfBoundsStart);
         currentHead->currentItem = manager.outOfBoundsStart;
-        assert(List_prev(currentHead) == NULL);   //Item is before the start of the list
+        assert(List_prev(currentHead) == NULL);   //Item is before the start of the list condition
         currentHead->currentItem = manager.outOfBoundsEnds;
-        assert(List_prev(currentHead) == currentHead->tail->item);     //Item is beyond the end of the list
+        assert(List_prev(currentHead) == currentHead->tail->item);     //Item is beyond the end of the list condition
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->currentItem == currentHead->current->item);
         assert(currentHead->currentItem == currentHead->tail->item);
+        assert(List_prev(currentHead) == currentHead->tail->prev->item);     //Item is at the end of the list condition
+        assert(currentHead->current == currentHead->tail->prev);
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem == currentHead->tail->prev->item);
         headSize = currentHead->size;
         currentHead->size = 0;
         assert(List_prev(currentHead) == NULL);     //List size is 0
