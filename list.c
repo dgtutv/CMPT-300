@@ -596,8 +596,8 @@ void List_concat(List* pList1, List* pList2){
         if(pList1->size == 0){
             pList1->head = pList2->head;
             pList1->tail = pList2->tail;
-            pList1->current = pList2->current;
-            pList1->currentItem = pList2->currentItem;
+            pList1->current = NULL;
+            pList1->currentItem = manager.outOfBoundsStart;
         }
 
         //Otherwise, add pList2 to the end of pList1
