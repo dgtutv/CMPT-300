@@ -29,16 +29,16 @@ int main(){
 //----------------------------------------------Tests for List_create()---------------------------------------------------------------------------//
     List* newList = List_create();
     //Define pointers to iterate over the node lists in manager
-    Node* currentFreeNode = manager.freeNodes;
+    Node* currentFreeNode = manager.freeNodes;      //Nodes are properly allocated to this point
     Node* prevFreeNode = NULL;
     //Check the initial conditions of our node lists
     int i=0;
     while(currentFreeNode->next != NULL){
-        assert(prevFreeNode == currentFreeNode->prev);
+        assert(prevFreeNode == currentFreeNode->prev); 
         if(i>0){
             assert(currentFreeNode == prevFreeNode->next);
         }
-        assert(&manager.nodes[i] == currentFreeNode);
+        assert(currentFreeNode == &manager.nodes[i]);
         assert(currentFreeNode->item == NULL);
         assert(currentFreeNode->index == i);
         assert(currentFreeNode != NULL);

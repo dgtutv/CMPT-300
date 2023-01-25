@@ -79,9 +79,7 @@ List* List_create(){
             currentNode=&manager.nodes[i];
             currentNode->index=i;
             addNode(currentNode);
-            currentNode->item = NULL;
         }
-        
     //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
         manager.heads = listArr;
