@@ -14,17 +14,7 @@ typedef struct Manager_s Manager;
 typedef struct List_s List;
 typedef struct Item_s Item;
 
-//Structure to manage our nodes and lists
-struct Manager_s {
-    Node* nodes;    //An array of all of our nodes
-    Node* freeNodes;    //Linked list of free nodes
-    List* heads;    //Array of all our heads
-    int numHeads;       //Count of heads currently in use
-    int numFreeNodes;   //Count of nodes available to use
-    List* freeHeads;    //Linked list of all our free heads
-    void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
-    void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
-};
+
 
 //Structure for a node of a list
 struct Node_s {
@@ -57,6 +47,20 @@ struct List_s {
 // Maximum total number of nodes (statically allocated) to be shared across all lists
 // (You may modify this, but reset the value to 100 when handing in your assignment)
 #define LIST_MAX_NUM_NODES 100
+
+static Node nodes[LIST_MAX_NUM_NODES];    //An array of all of our nodes
+static List heads[LIST_MAX_NUM_HEADS];    //Array of all our heads
+
+
+//Structure to manage our nodes and lists
+struct Manager_s {
+    Node* freeNodes;    //Linked list of free nodes
+    int numHeads;       //Count of heads currently in use
+    int numFreeNodes;   //Count of nodes available to use
+    List* freeHeads;    //Linked list of all our free heads
+    void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
+    void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
+};
 
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
