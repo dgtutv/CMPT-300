@@ -279,7 +279,6 @@ void* List_prev(List* pList){
 
 // Returns a pointer to the current item in pList.
 void* List_curr(List* pList){
-    if(pList->size == 0){return(NULL);}     //If the pList is empty, return NULL
     return(pList->currentItem);     //Otherwise, return the current item in pList
 }
 
