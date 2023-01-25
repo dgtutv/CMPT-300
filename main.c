@@ -29,10 +29,22 @@ int main(){
 //----------------------------------------------Tests for List_create()---------------------------------------------------------------------------//
     List* newList = List_create();
     //Define pointers to iterate over the node lists in manager
-    Node* currentFreeNode = manager.freeNodes;      //Nodes are properly allocated to this point
-    Node* prevFreeNode = NULL;
+    Node* currentFreeNode = manager.freeNodes;      
     //Check the initial conditions of our node lists
-    int i=0;
+    int i=98;
+    assert(currentFreeNode == &manager.nodes[0]);
+    assert(currentFreeNode->item == NULL);
+    assert(currentFreeNode->index == 0);
+    assert(currentFreeNode != NULL);
+    Node* prevFreeNode = currentFreeNode;
+    currentFreeNode=currentFreeNode->next;
+    assert(prevFreeNode == currentFreeNode->prev); 
+    assert(currentFreeNode == &manager.nodes[99]);
+    assert(currentFreeNode->item == NULL);
+    assert(currentFreeNode->index == 99);
+    assert(currentFreeNode != NULL);
+    prevFreeNode = currentFreeNode;
+    currentFreeNode = currentFreeNode->next;
     while(currentFreeNode->next != NULL){
         assert(prevFreeNode == currentFreeNode->prev); 
         if(i>0){
@@ -43,12 +55,12 @@ int main(){
         assert(currentFreeNode->index == i);
         assert(currentFreeNode != NULL);
         prevFreeNode = currentFreeNode;
-        i++;
+        i--;
         prevFreeNode = currentFreeNode;
         currentFreeNode = currentFreeNode->next;
     }
-    assert(currentFreeNode->index == 99);
-    assert(i==99);
+    assert(currentFreeNode->index == 1);
+    assert(i==1);   //Check that we have iterated over 100 Nodes
 
     //Check our freeHeads list does not run out of bounds
     List* currentFreeHead = &manager.freeHeads[0];
