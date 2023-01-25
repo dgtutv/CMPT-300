@@ -256,11 +256,11 @@ int main(){
         currentItem = currentHead->currentItem;
 
         //List traversal test
-        // currentHead->currentItem = manager.outOfBoundsStart;
-        // assert(List_next(currentHead) == &testInt1);
-        // assert(List_next(currentHead) == manager.outOfBoundsEnds);
-        // assert(List_prev(currentHead) == &testInt1);
-        // assert(List_prev(currentHead) == manager.outOfBoundsStart);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_next(currentHead) == &testInt1);
+        assert(List_next(currentHead) == NULL);
+        assert(List_prev(currentHead) == &testInt1);
+        assert(List_prev(currentHead) == NULL);
 
         //Reset our values for next scenario
         currentHead->current = current;
