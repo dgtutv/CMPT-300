@@ -275,6 +275,15 @@ int List_insert_after(List* pList, void* pItem){
             newNode->prev = NULL;
         }
 
+        //Otherwise, if the list is singleton
+        else if(pList->size == 1){
+            //Insert the new node at the tail
+            newNode->next = NULL;
+            newNode->prev = pList->tail;
+            pList->tail->next = newNode;
+            pList->tail = newNode;
+        }
+
         //Otherwise, if the current item pointer is before the start of the pList
         else if(pList->currentItem == manager.outOfBoundsStart){
             //Insert the new node at the start of the list
@@ -299,8 +308,7 @@ int List_insert_after(List* pList, void* pItem){
             pList->current->next->prev = newNode;       //Seg fault here
             newNode->next = pList->current->next;
             newNode->prev = pList->current;
-            pList->current->next = newNode;
-            
+            pList->current->next = newNode;   
         }
         //Make item the current item
         pList->current = newNode;   
