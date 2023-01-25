@@ -660,6 +660,7 @@ int main(){
         // currentHead->size = headSize;
         
     //If the freeNodes list is not singleton when inserting an item, the next free node should become the new head of the freeNodes list (inserting after head)
+        freeNodesNext = manager.freeNodes->next;
         assert(List_insert_after(currentHead, &testInt5) == 0);
         assert(currentHead->size == 8);
         assert(List_count(currentHead) == 8);
@@ -670,7 +671,7 @@ int main(){
         assert(currentHead->head != currentHead->current);
         assert(currentHead->tail != currentHead->head);
         assert(currentHead->tail != currentHead->current);
-        //assert(manager.freeNodes == freeNodesNext);
+        assert(manager.freeNodes == freeNodesNext);
         assert(manager.freeNodes->prev == NULL);
         //List_last() test
         assert(List_last(currentHead) == &testInt4);
