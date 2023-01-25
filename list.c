@@ -31,11 +31,29 @@ Node* takeNode(){
         manager.freeNodes = manager.freeNodes->next;
         nodePointer->next = NULL;
         manager.freeNodes->prev = NULL;
-
+        manager.numFreeNodes--;
     }
 }
 void addNode(Node* node){
-
+    node->item = NULL;
+    node->next = NULL;
+    node->prev = NULL;
+    if(manager.numFreeNodes == 0){
+        manager.numFreeNodes = 1;
+        manager.freeNodes=node;
+    }
+    else if(manager.numFreeNodes == 1){
+        manager.numFreeNodes = 2;
+        manager.freeNodes->next = node;
+        node->prev = manager.freeNodes;
+    }
+    else{
+        manager.numFreeNodes++;
+        node->next = manager.freeNodes->next;
+        node->prev = manager.freeNodes;
+        manager.freeNodes->next = node;
+        node->next->prev = node;
+    }
 }
 
 List* List_create(){
