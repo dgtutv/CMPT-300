@@ -80,8 +80,6 @@ List* List_create(){
             addNode(currentNode);
         }
     //Setup our heads
-        List listArr[LIST_MAX_NUM_HEADS];
-        manager.heads = listArr;
         //Assign freeHeads to heads, as all heads are initially free
         manager.freeHeads = &manager.heads[0];
         //Setup our first head
