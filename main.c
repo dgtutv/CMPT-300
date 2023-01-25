@@ -156,9 +156,14 @@ int main(){
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->currentItem = manager.outOfBoundsStart;
         assert(List_next(currentHead) == &testInt);   //Item is before the start of the list
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->currentItem == currentHead->current->item);
         currentHead->currentItem = manager.outOfBoundsEnds;
         assert(List_next(currentHead) == NULL);     //Item is beyond the end of the list
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->currentItem = &testInt;
         int headSize = currentHead->size;
         currentHead->size = 0;
         assert(List_next(currentHead) == NULL);     //List size is 0
@@ -180,6 +185,7 @@ int main(){
         assert(currentHead->currentItem == currentHead->current->item);
         headSize = currentHead->size;
         currentHead->size = 0;
+        currentHead->currentItem = &testInt;
         assert(List_prev(currentHead) == NULL);     //List size is 0
         assert(currentHead->currentItem == manager.outOfBoundsStart);
         currentHead->size = headSize;
