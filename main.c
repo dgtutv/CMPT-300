@@ -223,19 +223,44 @@ int main(){
         assert(currentHead->head == currentHead->current);
         assert(currentHead->head->item == currentHead->currentItem);
 
-        //List_next() test 
-        assert(List_next(currentHead) == &testFloat);   //Should be the node after head, which is the float
-        assert(currentHead->currentItem == currentHead->current->item);
-        assert(currentHead->currentItem = &testFloat);
+        //TODO: adapt to this scenario
+        //List_next() tests
+        assert(List_next(currentHead) == NULL);     //Current == tail condition
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->currentItem = manager.outOfBoundsStart;
         assert(List_next(currentHead) == &testInt);   //Item is before the start of the list
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->currentItem == currentHead->current->item);
         currentHead->currentItem = manager.outOfBoundsEnds;
         assert(List_next(currentHead) == NULL);     //Item is beyond the end of the list
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
-        headSize = currentHead->size;
+        currentHead->currentItem = &testInt;
+        int headSize = currentHead->size;
         currentHead->size = 0;
         assert(List_next(currentHead) == NULL);     //List size is 0
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->size = headSize;
+
+        //List_prev() tests
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_prev(currentHead) == NULL);     //Current == head condition
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_prev(currentHead) == NULL);   //Item is before the start of the list condition
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_prev(currentHead) == currentHead->tail->item);     //Item is beyond the end of the list condition
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->currentItem == currentHead->current->item);
+        headSize = currentHead->size;
+        currentHead->size = 0;
+        currentHead->currentItem = &testInt;
+        assert(List_prev(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
         currentHead->size = headSize;
 
         //List_last() test
@@ -262,15 +287,45 @@ int main(){
         assert(currentHead->current->next == currentHead->tail);
         assert(currentHead->tail->prev == currentHead->current);
 
-        //List_next() test 
-        assert(List_next(currentHead) == currentHead->tail->item);  //Should be the node after this, the tail
-        assert(currentHead->currentItem == currentHead->tail->item);
+        //TODO: adapt to this scenario
+        //List_next() tests
+        assert(List_next(currentHead) == NULL);     //Current == tail condition
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_next(currentHead) == &testInt);   //Item is before the start of the list
         assert(currentHead->current == currentHead->tail);
-        currentHead->current = currentHead->current->prev->prev;
-        currentHead->currentItem = currentHead->current->item;
-        assert(List_next(currentHead) == &testString);   //Should be the node after float, which is the string
         assert(currentHead->currentItem == currentHead->current->item);
-        assert(currentHead->currentItem = &testString);
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->currentItem == currentHead->current->item);
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_next(currentHead) == NULL);     //Item is beyond the end of the list
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->currentItem = &testInt;
+        int headSize = currentHead->size;
+        currentHead->size = 0;
+        assert(List_next(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsEnds);
+        currentHead->size = headSize;
+
+        //List_prev() tests
+        currentHead->current = currentHead->head;
+        currentHead->currentItem = currentHead->current->item;
+        assert(List_prev(currentHead) == NULL);     //Current == head condition
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_prev(currentHead) == NULL);   //Item is before the start of the list condition
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_prev(currentHead) == currentHead->tail->item);     //Item is beyond the end of the list condition
+        assert(currentHead->current == currentHead->tail);
+        assert(currentHead->currentItem == currentHead->current->item);
+        assert(currentHead->currentItem == currentHead->tail->item);
+        assert(currentHead->currentItem == currentHead->current->item);
+        headSize = currentHead->size;
+        currentHead->size = 0;
+        currentHead->currentItem = &testInt;
+        assert(List_prev(currentHead) == NULL);     //List size is 0
+        assert(currentHead->currentItem == manager.outOfBoundsStart);
+        currentHead->size = headSize;
 
         //List_first() test
         assert(List_first(currentHead) == &testInt);
@@ -405,9 +460,14 @@ int main(){
         currentHead->current = currentHead->head;
         currentHead->currentItem = currentHead->current->item;
         int testInt6 = 6;
+        int sizeReference = 8;
         if(i==9){
             while(manager.numFreeNodes != 0){
+                sizeReference++;
                 assert(List_insert_after(currentHead, &testInt6)==0);
+                assert(List_count(currentHead) == currentHead->size);
+                assert(currentHead->size == sizeReference);
+                //TODO: test traversal of list with List_next() and List_prev()
             }
             assert(manager.numFreeNodes == 0);
         }
@@ -416,6 +476,9 @@ int main(){
         int testInt7 = 7;
         if(i==9){
             assert(List_insert_after(currentHead, &testInt7) == -1);
+            assert(List_count(currentHead) == currentHead->size);
+            assert(currentHead->size == sizeReference);
+            //TODO: test traversal of list with List_next() and List_prev()
         }
     }
 
