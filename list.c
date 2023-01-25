@@ -16,7 +16,7 @@ static Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
-Node* takeNode(){
+Node* takeNode(void* item){
     if(manager.numFreeNodes == 0){
         return(NULL);
     }
@@ -24,6 +24,7 @@ Node* takeNode(){
         Node* nodePointer = manager.freeNodes;
         manager.freeNodes = NULL;
         manager.numFreeNodes=0;
+        nodePointer->item = item;
         return nodePointer;
     }
     else{
@@ -32,6 +33,8 @@ Node* takeNode(){
         nodePointer->next = NULL;
         manager.freeNodes->prev = NULL;
         manager.numFreeNodes--;
+        nodePointer->item = item;
+        return nodePointer;
     }
 }
 void addNode(Node* node){
@@ -68,28 +71,16 @@ List* List_create(){
     //Setup our nodes
         Node nodeArr[LIST_MAX_NUM_NODES];
         manager.nodes = nodeArr;
-        manager.numFreeNodes = LIST_MAX_NUM_NODES;
-        //Assign freeNodes to nodes, as all nodes are initially free
-        manager.freeNodes = &nodeArr[0];
-        //Setting up our first node
-        manager.nodes[0].next = &manager.nodes[1];
-        manager.nodes[0].index = 0;
-        manager.nodes[0].prev = NULL;
-        manager.nodes[0].item = NULL;
+        
+        //Setting up nodes in a linked list
+        manager.numFreeNodes = 0;
         Node* currentNode;
-        //Setting up all nodes between the first and last
-        for(int i=1; i<LIST_MAX_NUM_NODES-1; i++){
+        for(int i=0; i<LIST_MAX_NUM_NODES; i++){
             currentNode=&manager.nodes[i];
             currentNode->index=i;
-            currentNode->next = &manager.nodes[i+1];
-            currentNode->prev = &manager.nodes[i-1];
+            addNode(currentNode);
             currentNode->item = NULL;
         }
-        //Setting up our last node
-        manager.nodes[LIST_MAX_NUM_NODES-1].index = LIST_MAX_NUM_NODES-1;
-        manager.nodes[LIST_MAX_NUM_NODES-1].prev = currentNode;
-        manager.nodes[LIST_MAX_NUM_NODES-1].next = NULL;
-        manager.nodes[LIST_MAX_NUM_NODES-1].item = NULL;
         
     //Setup our heads
         List listArr[LIST_MAX_NUM_HEADS];
@@ -292,22 +283,7 @@ int List_insert_after(List* pList, void* pItem){
         return(-1);     //Report failure
     }
     else{   
-        Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
-        newNode->item = pItem;      //Set the item of our new node
-
-        //If the freeNodes list is singleton, take the head
-        if(manager.numFreeNodes == 1){
-            manager.freeNodes = NULL;
-            manager.numFreeNodes = 0;
-        }
-
-        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
-        else{
-            newNode->next->prev = NULL;        
-            manager.freeNodes = newNode->next;
-            newNode->next = NULL;
-            manager.numFreeNodes--;
-        }
+        Node* newNode = takeNode(pItem);      //The pointer to our new node, taken as the first node from our freeNodes linked list
 
         //If the list is empty
         if(pList->size == 0){
