@@ -16,6 +16,28 @@ static Manager manager;
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
 
+Node* takeNode(){
+    if(manager.numFreeNodes == 0){
+        return(NULL);
+    }
+    else if(manager.numFreeNodes == 1){
+        Node* nodePointer = manager.freeNodes;
+        manager.freeNodes = NULL;
+        manager.numFreeNodes=0;
+        return nodePointer;
+    }
+    else{
+        Node* nodePointer = manager.freeNodes;
+        manager.freeNodes = manager.freeNodes->next;
+        nodePointer->next = NULL;
+        manager.freeNodes->prev = NULL;
+
+    }
+}
+void addNode(Node* node){
+
+}
+
 List* List_create(){
     if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
 
@@ -263,8 +285,9 @@ int List_insert_after(List* pList, void* pItem){
 
         //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
         else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
+            newNode->next->prev = NULL;        
+            manager.freeNodes = newNode->next;
+            newNode->next = NULL;
             manager.numFreeNodes--;
         }
 
