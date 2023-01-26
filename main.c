@@ -1292,8 +1292,38 @@ int main(){
     assert(currentHead->tail->next == NULL);
 
     //List is of size 1
-    
+    reference = &testInt5;
+    for(int i=0; i<4; i++){
+        //Empty all the List's elements but one
+        List_last(currentHead);
+        assert(List_remove(currentHead) != NULL); 
+    }  
+    assert(List_count(currentHead) == 1);
+    assert(manager.numFreeNodes == 7);
+    assert(List_first(currentHead) == List_last(currentHead));
+    currentNode = currentHead->current;
+    assert(List_remove(currentHead) == reference);
+    assert(List_count(currentHead) == 0);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+    assert(List_first(currentHead) == NULL);
+    assert(List_last(currentHead) == NULL);
+    assert(currentHead->head == NULL);
+    assert(currentHead->tail == NULL);
+    assert(currentHead->current == NULL);
+    assert(manager.numFreeNodes == 8);
+    assert(manager.freeNodes->next == currentNode);
+
     //List is empty
+    assert(List_remove(currentHead) == NULL);
+    assert(List_count(currentHead) == 0);
+    assert(List_curr(currentHead) == NULL);
+    assert(List_first(currentHead) == NULL);
+    assert(List_last(currentHead) == NULL);
+    assert(currentHead->head == NULL);
+    assert(currentHead->tail == NULL);
+    assert(currentHead->current == NULL);
+    assert(manager.numFreeNodes == 8);
+    assert(manager.freeNodes->next == currentNode);
 
 //-----------------------------------------------------------List_search() special case tests--------------------------------------------------------------//
 
