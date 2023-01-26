@@ -1267,12 +1267,32 @@ int main(){
     assert(currentNode->prev == manager.freeNodes);
     assert(currentNode->next == NULL);
     assert(currentNode->item == NULL);
-    assert(List_first(currentHead) != &testInt2);
+    assert(List_first(currentHead) == &testInt5);
     assert(currentHead->head != currentNode);
     assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->head->next->item == &testString);
 
     //Current item is the tail of the list
+    reference = &testInt4;
+    List_last(currentHead);
+    currentNode = currentHead->tail;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == reference);
+    assert(List_count(currentHead)== sizeReference-1);
+    assert(manager.numFreeNodes == 3);
+    assert(manager.freeNodes->next == currentNode);
+    assert(currentNode->prev == manager.freeNodes);
+    assert(currentNode->item == NULL);
+    assert(List_last(currentHead) == &testInt3);
+    assert(currentHead->tail != currentNode);
+    List_first(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->tail->prev->item == &testChar);
+    assert(currentHead->tail->next == NULL);
+
     //List is of size 1
+    
     //List is empty
 
 //-----------------------------------------------------------List_search() special case tests--------------------------------------------------------------//
