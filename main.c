@@ -1146,9 +1146,26 @@ int main(){
     currentHead->size = sizeReference;
 
     //current item before start of list
+    currentHead->currentItem = manager.outOfBoundsStart;
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+    
     //current item after end of list
+    currentHead->currentItem = manager.outOfBoundsEnds;
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+
     //current item 1 before target item
+    List_first(currentHead);
+    for(int i=0; i<2; i++){
+        List_next(currentHead);
+    }
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
     //current item many before target item
+    reference = &testChar;
+
     //current item 1 after target item
     //current item many after target item
     //current item at head of list
