@@ -1118,8 +1118,6 @@ int main(){
             assert(List_prev(currentHead) == NULL);
         }
     }
-    //If List_remove() works, make 3 more List_insert_after() tests for singleton after case and NULL case for size==0 & final else case
-
     //TODO: essentially copy/paste List_insert_after(), for List_insert_before()
 
     //TODO: kill two birds with one stone by testing List_free() to setup next tests
@@ -1368,4 +1366,28 @@ int main(){
     assert(currentHead->currentItem == manager.outOfBoundsEnds);
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(currentHead->currentItem == manager.outOfBoundsEnds);
+
+//-------------------------------------------List_insert_after() special case tests--------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+
+    //List is of size 1, and current is after the list
+    assert(List_insert_after(currentHead, &testInt7)==0);
+    assert(List_curr(currentHead) == &testInt7);
+    assert(List_curr(currentHead) == List_last(currentHead));
+    assert(List_count(currentHead) == 2);
+
+    //List is of size 1, and we want to insert a NULL item
+    List_remove(currentHead);
+    List_first(currentHead);
+    assert(List_insert_after(currentHead, NULL)==0);
+    assert(List_curr(currentHead) == List_last(currentHead));
+    assert(List_count(currentHead) == 2);
+
+    //List is empty, and we want to insert a item with value of NULL
+    currentHead = &manager.heads[0];
+    List_first(currentHead);
+    assert(List_insert_after(currentHead, NULL)==0);
+    assert(List_curr(currentHead) == List_last(currentHead));
+    assert(List_count(currentHead) == 1);
+
 }
