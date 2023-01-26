@@ -1390,4 +1390,350 @@ int main(){
     assert(List_curr(currentHead) == List_last(currentHead));
     assert(List_count(currentHead) == 1);
 
+//----------------------------------------------List_insert_before() tests--------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+
+    List_remove(currentHead);   //Make our list empty again
+
+    //List size is 0, current is before list
+    assert(currentHead->size == 0); 
+    reference = &testFloat;
+    List_prev(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->size == 1); 
+    List_remove(currentHead);
+
+    //List size is 0, current is after list
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->size == 1); 
+    List_remove(currentHead);
+
+    //List size is 0, current is before list, trying to insert NULL item
+    reference = NULL;
+    List_prev(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->size == 1); 
+    List_remove(currentHead);
+
+    //List size is 0, current is after list, trying to insert NULL item
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->size == 1); 
+
+    //List size is 1, current is before list
+    reference = &testFloat;
+    currentHead->currentItem = manager.outOfBoundsStart;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == NULL);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is 1, current is at the node
+    List_first(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == NULL);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is 1, current is after list
+    List_next(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == NULL);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->current->prev == currentHead->head);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is 1, current is before list, trying to insert NULL item
+    reference = NULL;
+    currentHead->currentItem = manager.outOfBoundsStart;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == NULL);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is 1, current is at the node, trying to insert NULL item
+    List_first(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == reference);
+    assert(currentHead->tail->item == NULL);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->current->prev == NULL);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is 1, current is after list, trying to insert NULL item
+    List_next(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->item == NULL);
+    assert(currentHead->tail->item == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->current->next == NULL);
+    assert(currentHead->current->prev == currentHead->head);
+    assert(currentHead->size == 2); 
+    List_remove(currentHead);
+
+    //List size is >1, current is before list
+    reference = &testInt0;
+    currentHead= &manager.heads[6];
+    Node* oldHead = currentHead->head;
+    Node* oldTail = currentHead->tail;
+    Node* oldTailPrev = currentHead->tail->prev;
+    List_first(currentHead);
+    List_prev(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->tail != currentHead->head);
+    assert(currentHead->head != oldHead);
+    assert(currentHead->head->next == oldHead);
+    assert(oldHead->prev == currentHead->head);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->tail->prev == oldTail->prev);
+    List_remove(currentHead);
+
+    //List size is >1, current is at head
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    List_first(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->tail != currentHead->head);
+    assert(currentHead->head != oldHead);
+    assert(currentHead->head->next == oldHead);
+    assert(oldHead->prev == currentHead->head);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->tail->prev == oldTail->prev);
+    List_remove(currentHead);
+
+    //List size is >1, current is at a node
+    List_next(currentHead);
+    List_next(currentHead);
+    List_next(currentHead);
+    Node* oldNode = currentHead->current;
+    Node* oldNodePrev = oldNode->prev;
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->current->next == oldNode);
+    assert(currentHead->current->prev == oldNodePrev);
+    assert(currentHead->tail->prev == oldTailPrev);
+    assert(oldNodePrev->next = currentHead->current);
+    assert(oldNode->prev == currentHead->current);
+    List_remove(currentHead);
+
+    //List size is >1, current is at tail
+    List_last(currentHead);
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->current->prev == oldTailPrev);
+    assert(oldTailPrev->next = currentHead->current);
+    assert(currentHead->tail->prev == currentHead->current);
+    List_remove(currentHead);
+
+    //List size is >1, current is after list
+    List_last(currentHead);
+    List_next(currentHead);
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail != oldTail);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->current->prev == oldTail);
+    assert(oldTail->next = currentHead->current);
+    assert(oldTail->prev == oldTailPrev);
+    List_remove(currentHead);
+
+    //List size is >1, current is before list, trying to insert NULL item
+    reference = NULL;
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    List_first(currentHead);
+    List_prev(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->tail != currentHead->head);
+    assert(currentHead->head != oldHead);
+    assert(currentHead->head->next == oldHead);
+    assert(oldHead->prev == currentHead->head);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->tail->prev == oldTail->prev);
+    List_remove(currentHead);
+
+    //List size is >1, current is at head, trying to insert NULL item
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    List_first(currentHead);
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == currentHead->current);
+    assert(currentHead->tail != currentHead->head);
+    assert(currentHead->head != oldHead);
+    assert(currentHead->head->next == oldHead);
+    assert(oldHead->prev == currentHead->head);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->tail->prev == oldTail->prev);
+    List_remove(currentHead);
+
+    //List size is >1, current is at a node, trying to insert NULL item
+    List_next(currentHead);
+    List_next(currentHead);
+    List_next(currentHead);
+    oldNode = currentHead->current;
+    oldNodePrev = oldNode->prev;
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->current->next == oldNode);
+    assert(currentHead->current->prev == oldNodePrev);
+    assert(currentHead->tail->prev == oldTailPrev);
+    assert(oldNodePrev->next = currentHead->current);
+    assert(oldNode->prev == currentHead->current);
+    List_remove(currentHead);
+
+    //List size is >1, current is at tail, trying to insert NULL item
+    List_last(currentHead);
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail == oldTail);
+    assert(currentHead->current->next == currentHead->tail);
+    assert(currentHead->current->prev == oldTailPrev);
+    assert(oldTailPrev->next = currentHead->current);
+    assert(currentHead->tail->prev == currentHead->current);
+    List_remove(currentHead);
+
+    //List size is >1, current is after list
+    List_last(currentHead);
+    List_next(currentHead);
+    oldHead = currentHead->head;
+    oldTail = currentHead->tail;
+    oldTailPrev = currentHead->tail->prev;
+    assert(List_insert_before(currentHead, reference) == 0);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->current->item == reference);
+    assert(currentHead->head == oldHead);
+    assert(currentHead->tail != oldTail);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->current->prev == oldTail);
+    assert(oldTail->next = currentHead->current);
+    assert(oldTail->prev == oldTailPrev);
+    List_remove(currentHead);
+    
+    //List size is >1, current is after list, trying to insert NULL item
+
+
 }
+

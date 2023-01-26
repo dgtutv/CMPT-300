@@ -311,7 +311,7 @@ int List_insert_after(List* pList, void* pItem){
         //Otherwise, if the current item pointer is before the start of the pList
         else if(pList->currentItem == manager.outOfBoundsStart){
             //Insert the new node at the start of the list
-            newNode->next = pList->head;
+            newNode->next = pList->head;          
             newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
             pList->head->prev = newNode;
             pList->head = newNode;
@@ -364,11 +364,11 @@ int List_insert_before(List* pList, void* pItem){
         }
 
         //Otherwise, if the current pointer is before the start of the pList OR current is the start of the list
-        if(pList->currentItem == manager.outOfBoundsStart || pList->current == pList->head){
-            //Insert the newNode at the start of the list
-            newNode->next = pList->head;
-            pList->head->prev = newNode;
+        else if(pList->currentItem == manager.outOfBoundsStart || pList->current == pList->head){
+            //Insert the new node at the start of the list
+            newNode->next = pList->head;          
             newNode->prev = NULL;       //Ensure that the new head (our new node) is not somehow still linked to another node
+            pList->head->prev = newNode;
             pList->head = newNode;
         }
 
