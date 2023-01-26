@@ -14,11 +14,6 @@ typedef struct Manager_s Manager;
 typedef struct List_s List;
 typedef struct Item_s Item;
 
-//TODO: cleanup this file
-//TODO: ensure that function headers are unaltered
-//TODO: ensure that the name of #define constants are unaltered (as well as their values)
-//TODO: see if manager struct can be removed entirely
-
 //Structure for a node of a list
 struct Node_s {
     Node* next;

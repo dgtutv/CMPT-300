@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-//TODO: Remove unecessary code to improve efficiency
-
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
 // bad List pointer. If it does, any behaviour is permitted (such as crashing).
@@ -15,9 +13,6 @@ static Manager manager;
 
 // Makes a new, empty list, and returns its reference on success. 
 // Returns a NULL pointer on failure.
-
-//TODO: make helper functions for any code segments that are repetative 
-//TODO: make sure all helper functions are static
 
 //Helper function to take a node from freeNodes list, if possible
 static Node* takeNode(void* item){
@@ -485,6 +480,14 @@ void* List_trim(List* pList){
     //If the pList is initially empty, return NULL
     if(pList->size == 0){
         return(NULL);
+    }
+    else if(pList->size == 1){
+            //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
+            pList->head = NULL;
+            pList->tail = NULL;
+            pList->current = NULL;
+            pList->currentItem = manager.outOfBoundsEnds;
+            pList->size = 0;    //Ensure the size of pList is 0
     }
     //Otherwise,
     else{

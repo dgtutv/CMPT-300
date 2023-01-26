@@ -20,9 +20,6 @@ int compareItem(void* item, void* reference){
     return(0);
 }
 
-//TODO: Create tests for each function
-//TODO: Check for coding style guidelines
-//TODO: add better comments to tests
 int main(){
     extern Manager manager; //our manager from list.c
 
@@ -125,8 +122,6 @@ int main(){
     //Here we test List_count(), List_first(), List_last(), List_next(), List_prev() and List_curr() on some lists filled by List_insert_after()
     //Also tests the majority of List_insert_after()
     
-    //TODO: if time permits, turn repetitive tests into functions
-
     //Our variables which will be used to test our functions for various scenarios
     int testInt0 = -1;
     int testInt1 = 1;
@@ -1119,16 +1114,6 @@ int main(){
         }
     }
 
-    //TODO: Test List_append() and List_prepend() on empty and non-empty lists, before start and after end items, head and tail items, normal items
-    //with more free nodes, and without
-
-    //TODO: test List_trim()
-
-    //TODO: test List_concat()
-
-
-
-
 //-------------------------------------------------List_search() tests-------------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
 
@@ -1727,56 +1712,46 @@ int main(){
     List_remove(currentHead);
 
 //---------------------------------------------------List_trim() tests--------------------------------------------------------------------------------//
-    // //Each comment at this indentation level covers a possible case for the function being tested
-    // List* trimList = &manager.heads[3];
-    // List* referenceList = &manager.heads[4];
-    // assert(trimList->tail->item == referenceList->tail->item);
-    // assert(trimList->head->item == referenceList->head->item);
-    // assert(trimList->size == referenceList->size);
-    // void* trimItem;
-    // void* referenceItem;
-    // Node* prevNode;
-    // //Full list scenario
-    // trimItem = List_trim(trimList);
-    // List_last(referenceList);
-    // referenceItem = List_remove(referenceList);
-    // List_last(referenceList);
-    // assert(trimList->size == referenceList->size);
-    // assert(trimList->tail->item == referenceList->tail->item);
-    // assert(trimList->tail->next == NULL);
-    // assert(trimList->head->prev == NULL);
-    // assert(trimItem == referenceItem);
-    // currentNode = trimList->current;
-    // assert(currentNode == trimList->tail);
-    // assert(currentNode->item == referenceList->currentItem);
-    // prevNode = currentNode;
-    // for(int i=0; i<List_count(trimList)-1; i++){
-    //     currentNode = currentNode->prev;
-    //     List_prev(referenceList);
-    //     assert(currentNode->item == referenceList->currentItem);
-    //     assert(prevNode->prev == currentNode);
-    //     assert(currentNode->next == prevNode);
-    //     prevNode = currentNode;
-    // }
-    // //Singleton list scenario
-    // while( trimList->size>1){
-    //     List_remove(trimList);
-    //     List_remove(referenceList);
-    // }
-    // trimItem = List_trim(trimList);
-    // List_last(referenceList);
-    // referenceItem = List_remove(referenceList);
-    // List_last(referenceList);
-    // assert(trimList->size == referenceList->size);
-    // assert(trimList->tail->item == referenceList->tail->item);
-    // assert(trimList->tail->next == NULL);
-    // assert(trimList->head->prev == NULL);
-    // assert(trimItem == referenceItem);
-    // currentNode = trimList->current;
-    // assert(currentNode == trimList->tail);
-    // assert(currentNode->item == referenceList->currentItem);
-
-    // //Empty list scenario
-    // printf("HERE\n");
+    //Each comment at this indentation level covers a possible case for the function being tested
+    List* trimList = &manager.heads[3];
+    List* referenceList = &manager.heads[4];
+    assert(trimList->tail->item == referenceList->tail->item);
+    assert(trimList->head->item == referenceList->head->item);
+    assert(trimList->size == referenceList->size);
+    void* trimItem;
+    void* referenceItem;
+    Node* prevNode;
+    //Full list scenario
+    trimItem = List_trim(trimList);
+    List_last(referenceList);
+    referenceItem = List_remove(referenceList);
+    List_last(referenceList);
+    assert(trimList->size == referenceList->size);
+    assert(trimList->tail->item == referenceList->tail->item);
+    assert(trimList->tail->next == NULL);
+    assert(trimList->head->prev == NULL);
+    assert(trimItem == referenceItem);
+    currentNode = trimList->current;
+    assert(currentNode == trimList->tail);
+    assert(currentNode->item == referenceList->currentItem);
+    prevNode = currentNode;
+    for(int i=0; i<List_count(trimList)-1; i++){
+        currentNode = currentNode->prev;
+        List_prev(referenceList);
+        assert(currentNode->item == referenceList->currentItem);
+        assert(prevNode->prev == currentNode);
+        assert(currentNode->next == prevNode);
+        prevNode = currentNode;
+    }
+    //Singleton list scenario
+    while( trimList->size>1){
+        List_trim(trimList);
+    }
+    trimItem = List_trim(trimList);
+    assert(trimList->size == 0);
+    assert(trimList->tail == NULL);
+    assert(trimList->head == NULL);
+    assert(trimList->current == NULL);
+    assert(trimList->currentItem == NULL);
 }
 
