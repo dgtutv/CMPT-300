@@ -1118,7 +1118,6 @@ int main(){
             assert(List_prev(currentHead) == NULL);
         }
     }
-
     //TODO: kill two birds with one stone by testing List_remove() to setup next tests
     //If List_remove() works, make 3 more List_insert_after() tests for singleton after case and NULL case for size==0 & final else case
 
@@ -1134,4 +1133,26 @@ int main(){
     //TODO: test List_trim()
 
     //TODO: test List_concat()
+//-------------------------------------------------List_search() tests------------------------------------------------------//
+    //TODO: if time permits, cycle through different references and heads
+    //Each comment at this indentation level covers a possible case for the function being tested
+    currentHead = &manager.heads[0];
+    void* reference = &testString;
+
+    //empty list
+    sizeReference = List_count(currentHead);
+    currentHead->size = 0;
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    currentHead->size = sizeReference;
+
+    //current item before start of list
+    //current item after end of list
+    //current item 1 before target item
+    //current item many before target item
+    //current item 1 after target item
+    //current item many after target item
+    //current item at head of list
+    //current item at tail of list
+    //current item at target of list
+    //current item at head of list, but list does not contain target 
 }
