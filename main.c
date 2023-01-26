@@ -1118,7 +1118,6 @@ int main(){
             assert(List_prev(currentHead) == NULL);
         }
     }
-    //TODO: kill two birds with one stone by testing List_remove() to setup next tests
     //If List_remove() works, make 3 more List_insert_after() tests for singleton after case and NULL case for size==0 & final else case
 
     //TODO: essentially copy/paste List_insert_after(), for List_insert_before()
@@ -1140,15 +1139,9 @@ int main(){
 //-------------------------------------------------List_search() tests-------------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
 
-    //empty list
-    currentHead = &manager.heads[0];
-    void* reference = &testString;
-    sizeReference = List_count(currentHead);
-    currentHead->size = 0;      //TODO: Remove once list emptied
-    assert(List_search(currentHead, &compareItem, reference) == NULL);
-    currentHead->size = sizeReference;  //TODO: Remove once list emptied
-
     //current item before start of list
+    currentHead = &manager.heads[1];
+    void* reference = &testString;
     currentHead->currentItem = manager.outOfBoundsStart;
     assert(List_search(currentHead, &compareItem, reference) == reference);
     assert(List_curr(currentHead) == reference);
@@ -1326,8 +1319,53 @@ int main(){
     assert(manager.freeNodes->next == currentNode);
 
 //-----------------------------------------------------------List_search() special case tests--------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
 
-    //List is of size 1 and contains the reference item
+    //empty list
+    reference = &testString;
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
 
-    //List is of size 1 and does not contain the reference item    
+    
+    currentHead=&manager.heads[1];
+    reference = List_first(currentHead);
+    while(List_count(currentHead)>1){
+        //Remove all but one Node from the list
+        List_last(currentHead);
+        List_remove(currentHead);
+    }
+
+    //List is of size 1 and contains the reference item, with current after the end of the list
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
+
+    //List is of size 1 and contains the reference item, with current at the reference item
+    List_prev(currentHead);
+    assert(List_curr(currentHead) == reference);
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //List is of size 1 and contains the reference item, with current before the start of the list
+    List_prev(currentHead);
+    assert(currentHead->currentItem == manager.outOfBoundsStart);
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //List is of size 1 and does not contain the reference item, with current before the start of the list
+    reference = &testInt0;
+    List_prev(currentHead);
+    assert(currentHead->currentItem == manager.outOfBoundsStart);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
+
+    //List is of size 1 and does not contain the reference item, with current at the reference item
+    List_first(currentHead);
+    assert(List_curr(currentHead) ==& testInt2);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
+
+    //List is of size 1 and does not contain the reference item, with current after the end of the list
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(currentHead->currentItem == manager.outOfBoundsEnds);
 }
