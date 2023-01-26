@@ -1256,7 +1256,20 @@ int main(){
     assert(List_search(currentHead, &compareItem, reference) == NULL);
 
     //Current item is the head of the list
-
+    reference = &testInt2;
+    List_first(currentHead);
+    currentNode = currentHead->head;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == reference);
+    assert(List_count(currentHead)== sizeReference-1);
+    assert(manager.numFreeNodes == 2);
+    assert(manager.freeNodes->next == currentNode);
+    assert(currentNode->prev == manager.freeNodes);
+    assert(currentNode->next == NULL);
+    assert(currentNode->item == NULL);
+    assert(List_first(currentHead) != &testInt2);
+    assert(currentHead->head != currentNode);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
 
     //Current item is the tail of the list
     //List is of size 1
