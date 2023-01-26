@@ -363,15 +363,6 @@ int List_insert_before(List* pList, void* pItem){
             newNode->prev = NULL;
         }
 
-        //Otherwise, if the list is singleton
-        else if(pList->size == 1){
-            //Insert the new node at the tail
-            newNode->next = NULL;
-            newNode->prev = pList->tail;
-            pList->tail->next = newNode;
-            pList->tail = newNode;
-        }
-
         //Otherwise, if the current pointer is before the start of the pList OR current is the start of the list
         if(pList->currentItem == manager.outOfBoundsStart || pList->current == pList->head){
             //Insert the newNode at the start of the list
