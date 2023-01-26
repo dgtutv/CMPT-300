@@ -1713,8 +1713,7 @@ int main(){
     assert(currentHead->tail->prev == currentHead->current);
     List_remove(currentHead);
 
-    //List size is >1, current is after list
-    List_last(currentHead);
+    //List size is >1, current is after list, trying to insert NULL item    List_last(currentHead);
     List_next(currentHead);
     oldHead = currentHead->head;
     oldTail = currentHead->tail;
@@ -1731,9 +1730,5 @@ int main(){
     assert(oldTail->next = currentHead->current);
     assert(oldTail->prev == oldTailPrev);
     List_remove(currentHead);
-    
-    //List size is >1, current is after list, trying to insert NULL item
-
-
 }
 
