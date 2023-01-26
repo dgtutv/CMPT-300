@@ -1134,10 +1134,21 @@ int main(){
 
     //TODO: test List_concat()
 
-//-------------------------------------------------List_search() tests------------------------------------------------------//
+//-------------------------------------------------List_remove() tests-----------------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+    currentHead = &manager.heads[0];
+    
+    //List is empty
+    //Current item is before the start of the list
+    //Current item is after the end of the list
+    //Current item is the head of the list
+    //Current item is the tail of the list
+    //List is of size 1
+
+//-------------------------------------------------List_search() tests-------------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
 
-    currentHead = &manager.heads[0];
+    currentHead = &manager.heads[1];
     void* reference = &testString;
 
     //empty list
@@ -1212,8 +1223,12 @@ int main(){
     assert(List_curr(currentHead) == reference);
 
     //current item at head of list, but list does not contain the reference item
-    currentHead = &manager.heads[0];
+    currentHead = &manager.heads[1];
     reference = &testInt6;
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+
+    //List is of size 1 and contains the reference item
+
+    //List is of size 1 and does not contain the reference item    
 }
