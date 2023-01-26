@@ -141,6 +141,7 @@ int main(){
     Node* freeNodesNext = manager.freeNodes->next;
     int sizeReference;
     int insertCounter = 0;
+    Node* oldCurrent;
 
     //Test for all heads to cover edge cases
     for(int i=0; i<10; i++){
@@ -149,7 +150,7 @@ int main(){
         //List_curr() test
         assert(List_curr(currentHead) == NULL);
 
-        //List_search() test
+        //List_search() test (covers pList is empty case)
         assert(List_search(currentHead, &compareItem, &testInt0) == NULL);
         assert(List_search(currentHead, &compareItem, NULL) == NULL);
         assert(List_search(currentHead, &compareItem, &testInt1) == NULL);
@@ -218,7 +219,8 @@ int main(){
         //List_curr() test
         assert(List_curr(currentHead) == &testInt1);
 
-        //List_search() test
+        oldCurrent = currentHead->current;
+        //List_search() test for currentItem == testInt1
         assert(List_search(currentHead, &compareItem, &testInt1) == &testInt1);
         assert(List_search(currentHead, &compareItem, &testInt2) == NULL);
         assert(List_search(currentHead, &compareItem, &testInt3) == NULL);
@@ -229,6 +231,34 @@ int main(){
         assert(List_search(currentHead, &compareItem, &testString) == NULL);
         assert(List_search(currentHead, &compareItem, &testChar) == NULL);
         assert(List_search(currentHead, &compareItem, &testFloat) == NULL);
+
+        //List_search() test for current item before start of list
+        currentHead->currentItem = manager.outOfBoundsStart;
+        assert(List_search(currentHead, &compareItem, &testInt1) == &testInt1);
+        assert(List_search(currentHead, &compareItem, &testInt2) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt3) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt4) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt5) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt6) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt7) == NULL);
+        assert(List_search(currentHead, &compareItem, &testString) == NULL);
+        assert(List_search(currentHead, &compareItem, &testChar) == NULL);
+        assert(List_search(currentHead, &compareItem, &testFloat) == NULL);
+
+        //List_search() test for current item after end of pList
+        currentHead->currentItem = manager.outOfBoundsEnds;
+        assert(List_search(currentHead, &compareItem, &testInt1) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt2) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt3) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt4) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt5) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt6) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt7) == NULL);
+        assert(List_search(currentHead, &compareItem, &testString) == NULL);
+        assert(List_search(currentHead, &compareItem, &testChar) == NULL);
+        assert(List_search(currentHead, &compareItem, &testFloat) == NULL);
+        currentHead->current = oldCurrent;
+        currentHead->currentItem = currentHead->current->item;
 
         //List_count() test     
         assert(List_count(currentHead) == 1);
