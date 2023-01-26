@@ -627,5 +627,6 @@ void* List_search(List* pList, COMPARATOR_FN pComparator, void* pComparisonArg){
 
     //If no match was found, the current pointer is left beyond the end of the list, and a NULL pointer is returned
     pList->currentItem = manager.outOfBoundsEnds;
+    pList->current = NULL;
     return(NULL);
 }
