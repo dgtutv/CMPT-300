@@ -1074,6 +1074,7 @@ int main(){
     }
 
     //TODO: kill two birds with one stone by testing List_remove() to setup next tests
+    //If List_remove() works, make 3 more List_insert_after() tests for singleton edge cases (NULL, before, after) and NULL case for size==0 & final else case
 
     //TODO: essentially copy/paste List_insert_after(), for List_insert_before()
 

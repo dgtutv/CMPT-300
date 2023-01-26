@@ -308,8 +308,9 @@ int List_insert_after(List* pList, void* pItem){
             newNode->prev = NULL;
         }
 
-        //Otherwise, if the list is singleton
-        else if(pList->size == 1){
+        //Otherwise, if the list is singleton, and current is at both the head and the tail
+        else if(pList->size == 1 && pList->current == pList->head && pList->current == pList->tail){
+            //If the current item is 
             //Insert the new node at the tail
             newNode->next = NULL;
             newNode->prev = pList->tail;
@@ -360,21 +361,7 @@ int List_insert_before(List* pList, void* pItem){
         return(-1);     //Report failure
     }
     else{
-        Node* newNode = manager.freeNodes;      //The pointer to our new node, taken as the first node from our freeNodes linked list
-        newNode->item = pItem;      //Set the item of our new node
-
-        //If the freeNodes list is singleton, take the head
-        if(manager.freeNodes->next == NULL){
-            manager.freeNodes = NULL;
-            manager.numFreeNodes = 0;
-        }
-
-        //Otherwise, make the next available node (after the one we are taking) the head of freeNodes list
-        else{
-            manager.freeNodes->next->prev = NULL;            
-            manager.freeNodes = manager.freeNodes->next;
-            manager.numFreeNodes--;
-        }
+        Node* newNode = takeNode(pItem);      //The pointer to our new node, taken as the first node from our freeNodes linked list
 
         //If the list is empty
         if(pList->size == 0){
@@ -386,8 +373,17 @@ int List_insert_before(List* pList, void* pItem){
             newNode->prev = NULL;
         }
 
+        //Otherwise, if the list is singleton
+        else if(pList->size == 1){
+            //Insert the new node at the tail
+            newNode->next = NULL;
+            newNode->prev = pList->tail;
+            pList->tail->next = newNode;
+            pList->tail = newNode;
+        }
+
         //Otherwise, if the current pointer is before the start of the pList OR current is the start of the list
-        if(pList->current == manager.outOfBoundsStart || pList->current == pList->head){
+        if(pList->currentItem == manager.outOfBoundsStart || pList->current == pList->head){
             //Insert the newNode at the start of the list
             newNode->next = pList->head;
             pList->head->prev = newNode;
