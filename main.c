@@ -1133,9 +1133,10 @@ int main(){
     //TODO: test List_trim()
 
     //TODO: test List_concat()
+
 //-------------------------------------------------List_search() tests------------------------------------------------------//
-    //TODO: if time permits, cycle through different references and heads
     //Each comment at this indentation level covers a possible case for the function being tested
+
     currentHead = &manager.heads[0];
     void* reference = &testString;
 
@@ -1155,7 +1156,7 @@ int main(){
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(List_curr(currentHead) == manager.outOfBoundsEnds);
 
-    //current item 1 before target item
+    //current item 1 before reference item
     List_first(currentHead);
     for(int i=0; i<2; i++){
         List_next(currentHead);
@@ -1163,13 +1164,56 @@ int main(){
     assert(List_search(currentHead, &compareItem, reference) == reference);
     assert(List_curr(currentHead) == reference);
 
-    //current item many before target item
+    //current item many before reference item
     reference = &testChar;
+    List_first(currentHead);
+    List_next(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
 
-    //current item 1 after target item
+    //current item at reference item
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //current item 1 after reference item
+    List_next(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+
     //current item many after target item
-    //current item at head of list
-    //current item at tail of list
-    //current item at target of list
-    //current item at head of list, but list does not contain target 
+    currentHead = &manager.heads[9];
+    reference = &testInt5;
+    List_last(currentHead);
+    List_prev(currentHead);
+    List_prev(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+
+    //current item at head of list (and reference item is not)
+    List_first(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //current item at head of list (and reference item is in head)
+    reference = &testInt2;
+    List_first(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //current item at tail of list (and reference item is not)
+    List_last(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+    
+    //current item at tail of list (and reference item is in tail)
+    List_last(currentHead);
+    reference = &testInt4;
+    assert(List_search(currentHead, &compareItem, reference) == reference);
+    assert(List_curr(currentHead) == reference);
+
+    //current item at head of list, but list does not contain the reference item
+    currentHead = &manager.heads[0];
+    reference = &testInt6;
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+    assert(List_curr(currentHead) == manager.outOfBoundsEnds);
 }
