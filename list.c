@@ -488,31 +488,14 @@ void* List_trim(List* pList){
     }
     //Otherwise,
     else{
-        void* returnValue = pList->tail->item;     //Get the tail's item to be returned
-        Node* oldNode = pList->tail;     //Get the current Node to be deleted
-
-        //If the list is of size 1
-        if(pList->size == 1){
-            //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
-            pList->head = NULL;
-            pList->tail = NULL;
-            pList->current = NULL;
-            pList->currentItem = manager.outOfBoundsStart;
-            pList->size = 0;    //Ensure the size of pList is 0
-        }
-
-        //Otherwise,
-        else{
-            //Disconnect the tail and make the previous item our old tail
-            oldNode->prev->next = NULL;
-            pList->tail = oldNode->prev;
-            //Make the new last item our current item
-            pList->current = pList->tail;   
-            pList->currentItem = pList->current->item;  
-            pList->size--;      //Decrement the size of pList
-        }
-        addNode(oldNode);       //Give the old node back to the freeNodes list
-        return(returnValue);    //Return the item contained in the deleted node
+        //Pass control to pList->remove()
+        pList->current = pList->tail;
+        pList->currentItem = pList->tail->item;
+        void* returnVal = List_remove(pList);
+        //Make the new last item the current one
+        pList->current = pList->tail;
+        pList->currentItem = pList->current->item;
+        return(returnVal);    //Return the item contained in the deleted node
     }
 }
 
