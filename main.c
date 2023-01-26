@@ -1136,26 +1136,31 @@ int main(){
 
 //-------------------------------------------------List_remove() tests-----------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
-    currentHead = &manager.heads[0];
-    
-    //List is empty
+
     //Current item is before the start of the list
+    currentHead = &manager.heads[0];
+    currentHead->currentItem = manager.outOfBoundsStart;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == NULL);
+    assert(currentHead->size == sizeReference);
+    assert(manager.numFreeNodes == 0);
+    
     //Current item is after the end of the list
     //Current item is the head of the list
     //Current item is the tail of the list
     //List is of size 1
+    //List is empty
 
 //-------------------------------------------------List_search() tests-------------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
 
-    currentHead = &manager.heads[1];
-    void* reference = &testString;
-
     //empty list
+    currentHead = &manager.heads[0];
+    void* reference = &testString;
     sizeReference = List_count(currentHead);
-    currentHead->size = 0;
+    currentHead->size = 0;      //TODO: Remove once list emptied
     assert(List_search(currentHead, &compareItem, reference) == NULL);
-    currentHead->size = sizeReference;
+    currentHead->size = sizeReference;  //TODO: Remove once list emptied
 
     //current item before start of list
     currentHead->currentItem = manager.outOfBoundsStart;
@@ -1167,7 +1172,7 @@ int main(){
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(List_curr(currentHead) == manager.outOfBoundsEnds);
 
-    //current item 1 before reference item
+    //current item 1 before reference items
     List_first(currentHead);
     for(int i=0; i<2; i++){
         List_next(currentHead);
@@ -1223,7 +1228,7 @@ int main(){
     assert(List_curr(currentHead) == reference);
 
     //current item at head of list, but list does not contain the reference item
-    currentHead = &manager.heads[1];
+    currentHead = &manager.heads[2];
     reference = &testInt6;
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(List_curr(currentHead) == manager.outOfBoundsEnds);
