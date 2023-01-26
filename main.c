@@ -269,7 +269,7 @@ int main(){
         
         //List_insert_after() test
         currentHead->current = currentHead->head;
-        currentHead->currentItem = currentHead->currentItem;
+        currentHead->currentItem = currentHead->current->item;
         assert(List_insert_after(currentHead, &testFloat) == 0);
         assert(currentHead->currentItem == &testFloat);
         assert(currentHead->current->item == &testFloat);
@@ -1074,7 +1074,7 @@ int main(){
     }
 
     //TODO: kill two birds with one stone by testing List_remove() to setup next tests
-    //If List_remove() works, make 3 more List_insert_after() tests for singleton edge cases (NULL, before, after) and NULL case for size==0 & final else case
+    //If List_remove() works, make 3 more List_insert_after() tests for singleton after case and NULL case for size==0 & final else case
 
     //TODO: essentially copy/paste List_insert_after(), for List_insert_before()
 
