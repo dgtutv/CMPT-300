@@ -149,35 +149,49 @@ int main(){
         //List_curr() test
         assert(List_curr(currentHead) == NULL);
 
-        //List_count() tests
+        //List_search() test
+        assert(List_search(currentHead, &compareItem, &testInt0) == NULL);
+        assert(List_search(currentHead, &compareItem, NULL) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt1) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt2) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt3) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt4) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt5) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt6) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt7) == NULL);
+        assert(List_search(currentHead, &compareItem, &testString) == NULL);
+        assert(List_search(currentHead, &compareItem, &testChar) == NULL);
+        assert(List_search(currentHead, &compareItem, &testFloat) == NULL);
+
+        //List_count() test
         assert(List_count(currentHead) == 0);
         assert(currentHead->size == 0);
         currentHead->currentItem = &testInt0;
         assert(List_count(currentHead) == 0);
         assert(currentHead->size == 0);
 
-        //List_first() tests
+        //List_first() test
         assert(List_first(currentHead) == NULL); 
         assert(currentHead->currentItem == NULL);  
         currentHead->currentItem = &testInt0;
         assert(List_first(currentHead) == NULL); 
         assert(currentHead->currentItem == NULL); 
 
-        //List_last() tests 
+        //List_last() test
         assert(List_last(currentHead) == NULL);  
         assert(currentHead->currentItem == NULL);  
         currentHead->currentItem = &testInt0;
         assert(List_last(currentHead) == NULL);  
         assert(currentHead->currentItem == NULL);
 
-        //List_next() tests  
+        //List_next() test  
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
         currentHead->currentItem = &testInt0;
         assert(List_next(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsEnds);
 
-        //List_prev() tests
+        //List_prev() test
         assert(List_prev(currentHead) == NULL);
         assert(currentHead->currentItem == manager.outOfBoundsStart);
         currentHead->currentItem = &testInt0;
@@ -203,6 +217,18 @@ int main(){
 
         //List_curr() test
         assert(List_curr(currentHead) == &testInt1);
+
+        //List_search() test
+        assert(List_search(currentHead, &compareItem, &testInt1) == &testInt1);
+        assert(List_search(currentHead, &compareItem, &testInt2) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt3) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt4) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt5) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt6) == NULL);
+        assert(List_search(currentHead, &compareItem, &testInt7) == NULL);
+        assert(List_search(currentHead, &compareItem, &testString) == NULL);
+        assert(List_search(currentHead, &compareItem, &testChar) == NULL);
+        assert(List_search(currentHead, &compareItem, &testFloat) == NULL);
 
         //List_count() test     
         assert(List_count(currentHead) == 1);
@@ -358,6 +384,7 @@ int main(){
         assert(List_prev(currentHead) == NULL);
 
 
+
     //Inserting an item after the head again should make the item just the current item of the list, keeping both head and tail the same
 
         //List_insert_after() test
@@ -447,6 +474,9 @@ int main(){
         assert(List_prev(currentHead) == &testInt1);
         assert(List_prev(currentHead) == NULL);
 
+
+
+
     //Inserting an item after the tail (current pointer is at tail) should make the item both the tail and current item of the list, keeping head the same
         
         //List_insert_after() test
@@ -532,6 +562,8 @@ int main(){
         assert(List_prev(currentHead) == &testString);
         assert(List_prev(currentHead) == &testInt1);
         assert(List_prev(currentHead) == NULL);
+
+
 
     //Inserting an item at the head (current pointer is at LIST_OOB_START) should make both the head, and the current pointer the item, keeping tail the same
         
@@ -621,6 +653,9 @@ int main(){
         assert(List_prev(currentHead) == &testInt1);
         assert(List_prev(currentHead) == &testInt2);
         assert(List_prev(currentHead) == NULL);
+
+
+        
 
     //Inserting an item after the tail (current pointer is at LIST_OOB_ENDS) should make the item both the tail and current item of the list, keeping head the same
         
