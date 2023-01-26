@@ -1134,22 +1134,8 @@ int main(){
 
     //TODO: test List_concat()
 
-//-------------------------------------------------List_remove() tests-----------------------------------------------------------------------------------//
-    //Each comment at this indentation level covers a possible case for the function being tested
 
-    //Current item is before the start of the list
-    currentHead = &manager.heads[0];
-    currentHead->currentItem = manager.outOfBoundsStart;
-    sizeReference = List_count(currentHead);
-    assert(List_remove(currentHead) == NULL);
-    assert(currentHead->size == sizeReference);
-    assert(manager.numFreeNodes == 0);
-    
-    //Current item is after the end of the list
-    //Current item is the head of the list
-    //Current item is the tail of the list
-    //List is of size 1
-    //List is empty
+
 
 //-------------------------------------------------List_search() tests-------------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
@@ -1232,6 +1218,51 @@ int main(){
     reference = &testInt6;
     assert(List_search(currentHead, &compareItem, reference) == NULL);
     assert(List_curr(currentHead) == manager.outOfBoundsEnds);
+
+
+//---------------------------------------------------List_remove() tests-----------------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+
+    //Current item is before the start of the list
+    currentHead = &manager.heads[0];
+    currentHead->currentItem = manager.outOfBoundsStart;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == NULL);
+    assert(currentHead->size == sizeReference);
+    assert(manager.numFreeNodes == 0);
+    
+    //Current item is after the end of the list
+    currentHead->currentItem = manager.outOfBoundsEnds;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == NULL);
+    assert(currentHead->size == sizeReference);
+    assert(manager.numFreeNodes == 0);
+
+    //Standard case
+    reference = &testInt1;
+    List_first(currentHead);
+    List_next(currentHead);
+    List_next(currentHead);
+    Node* currentNode = currentHead->current;
+    sizeReference = List_count(currentHead);
+    assert(List_remove(currentHead) == reference);
+    assert(List_count(currentHead)== sizeReference-1);
+    assert(manager.numFreeNodes == 1);
+    assert(manager.freeNodes == currentNode);
+    assert(currentNode->prev == NULL);
+    assert(currentNode->next == NULL);
+    assert(currentNode->item == NULL);
+    List_first(currentHead);
+    assert(List_search(currentHead, &compareItem, reference) == NULL);
+
+    //Current item is the head of the list
+
+
+    //Current item is the tail of the list
+    //List is of size 1
+    //List is empty
+
+//-----------------------------------------------------------List_search() special case tests--------------------------------------------------------------//
 
     //List is of size 1 and contains the reference item
 
