@@ -1768,5 +1768,16 @@ int main(){
     assert(trimList->head == NULL);
     assert(trimList->current == NULL);
     assert(trimList->currentItem == manager.outOfBoundsEnds);
+
+//---------------------------------------------------List_concat() tests--------------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+
+    //pList1 & pList2 are both empty
+    //pList1 is singleton, pList2 is empty
+    //pList1 is empty, pList2 is singleton
+    //pList1 & pList2 are both singleton
+    //pList1->size>1, pList2 is empty
+    //pList1 is empty, pList2->size>1
+    //pList1 & pList2 both have size>1
 }
 
