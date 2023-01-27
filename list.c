@@ -73,11 +73,11 @@ static List* takeHead(){
     else{
         List* headPointer = manager.freeHeads;
         manager.freeHeads = manager.freeHeads->next;
-        headPointer->next = NULL;
         manager.freeHeads->prev = NULL;
         manager.numFreeHeads--;
         headPointer->current = NULL;
         headPointer->currentItem = manager.outOfBoundsStart;
+        headPointer->next = NULL;
         return(headPointer);
     }
 }
@@ -391,7 +391,12 @@ int List_insert_before(List* pList, void* pItem){
 // Returns 0 on success, -1 on failure.
 int List_append(List* pList, void* pItem){
     pList->current = pList->tail;
-    pList->currentItem = pList->current->item;
+    if(pList->size == 0){
+        pList->currentItem = NULL;
+    }
+    else{
+        pList->currentItem = pList->current->item;
+    }
     return(List_insert_after(pList, pItem));
 }
 
@@ -399,7 +404,12 @@ int List_append(List* pList, void* pItem){
 // Returns 0 on success, -1 on failure.
 int List_prepend(List* pList, void* pItem){
     pList->current = pList->head;
-    pList->currentItem = pList->current->item;
+    if(pList->size == 0){
+        pList->currentItem = NULL;
+    }
+    else{
+        pList->currentItem = pList->current->item;
+    }
     return(List_insert_before(pList, pItem));
 }
 

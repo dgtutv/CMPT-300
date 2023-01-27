@@ -1709,7 +1709,7 @@ int main(){
     assert(currentHead->current->prev == oldTail);
     assert(oldTail->next = currentHead->current);
     assert(oldTail->prev == oldTailPrev);
-    List_remove(currentHead);
+    List_remove(currentHead) != NULL;
 
 //---------------------------------------------------List_trim() tests--------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
@@ -1773,8 +1773,10 @@ int main(){
     //Each comment at this indentation level covers a possible case for the function being tested
 
     //Empty list
-    currentHead = &manager.heads[0];
-    while(List_trim(currentHead)!=NULL);
+    while(currentHead->size >0){
+        List_last(currentHead);
+        List_remove(currentHead);
+    }
     assert(currentHead->size == 0);
     List_free(currentHead, &freeItem);
     assert(currentHead->head == NULL);
@@ -1866,6 +1868,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1 is singleton, pList2 is empty
     List_insert_after(list1, &testInt0);
@@ -1893,6 +1896,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1 is empty, pList2 is singleton
     List_trim(list1);
@@ -1926,6 +1930,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1 & pList2 are both singleton
     list2 = List_create();
@@ -1959,6 +1964,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1->size>1, pList2 is empty
     list2 = List_create();
@@ -1987,6 +1993,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1 is empty, pList2->size>1
     List_free(list1, &freeItem);
@@ -2019,6 +2026,7 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
+    assert(foundHead == true);
 
     //pList1 & pList2 both have size>1
     list2 = List_create();
@@ -2055,5 +2063,63 @@ int main(){
         assert(currentFreeHead != list1);
         currentFreeHead = currentFreeHead->next;
     }
-}
+    assert(foundHead == true);
+    assert(manager.numFreeHeads == 1);
+//---------------------------------------------------List_append() tests--------------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
 
+    //append to empty list
+    currentHead = List_create();
+    reference = &testInt0;
+    assert(List_append(currentHead, reference) == 0);
+    assert(currentHead->head == currentHead->tail);
+    assert(currentHead->head->item == currentHead->currentItem);
+    assert(currentHead->currentItem == currentHead->current->item);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->size == 1);    
+
+    //append to singleton list
+    reference = &testInt1;
+    assert(List_append(currentHead, reference) == 0);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->tail->item == currentHead->currentItem);
+    assert(currentHead->currentItem == currentHead->current->item);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->size == 2);   
+
+    //append to list with size n>1
+    reference = &testFloat;
+    assert(List_append(currentHead, reference) == 0);
+    assert(currentHead->tail == currentHead->current);
+    assert(currentHead->tail->item == currentHead->currentItem);
+    assert(currentHead->currentItem == currentHead->current->item);
+    assert(currentHead->currentItem == reference);
+    assert(currentHead->head->prev == NULL);
+    assert(currentHead->tail->next == NULL);
+    assert(currentHead->size == 3); 
+
+    //append to empty list, with no free nodes left
+    prevHead = currentHead;
+    List_free(prevFreeHead, freeItem);
+    prevHead = List_create();
+    currentHead = &manager.heads[1];
+    while(List_insert_after(currentHead, &testChar) != -1);
+    reference = &testInt0;
+    assert(List_append(currentHead, reference) == -1);
+
+    //append to singleton list, with no free nodes left
+    reference = &testInt1;
+    List_trim(currentHead);
+    List_insert_after(prevHead, &testChar);
+    assert(List_append(currentHead, reference) == -1);
+
+    //append to list with size n>1, with no free nodes left
+    reference = &testInt1;
+    List_trim(currentHead);
+    List_insert_after(prevHead, &testChar);
+    assert(List_append(currentHead, reference) == -1);
+}
