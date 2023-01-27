@@ -2021,5 +2021,39 @@ int main(){
     }
 
     //pList1 & pList2 both have size>1
+    list2 = List_create();
+    List_insert_after(list2, &testInt5);
+    List_insert_after(list2, &testString);
+    List_insert_after(list2, &testInt6);
+    List_insert_after(list2, &testFloat);
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
+    prevList1Head = list1->head;
+    prevList1Tail = list1->tail;
+    prevList2Head = list2->head;
+    prevList2Tail = list2->tail;
+    List_concat(list1, list2);
+    assert(list1->head == prevList1Head);
+    assert(list1->tail == prevList2Tail);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
+    assert(list1->size == 6);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    assert(prevList2Head->prev == prevList1Tail);
+    assert(prevList1Tail->next == prevList2Head);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
 }
 
