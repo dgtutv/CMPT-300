@@ -481,24 +481,31 @@ void* List_trim(List* pList){
     if(pList->size == 0){
         return(NULL);
     }
-    else if(pList->size == 1){
-            //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
-            pList->head = NULL;
-            pList->tail = NULL;
-            pList->current = NULL;
-            pList->currentItem = manager.outOfBoundsEnds;
-            pList->size = 0;    //Ensure the size of pList is 0
-    }
-    //Otherwise,
     else{
-        //Pass control to pList->remove()
-        pList->current = pList->tail;
-        pList->currentItem = pList->tail->item;
-        void* returnVal = List_remove(pList);
-        //Make the new last item the current one
-        pList->current = pList->tail;
-        pList->currentItem = pList->current->item;
-        return(returnVal);    //Return the item contained in the deleted node
+        void* returnValue = pList->tail->item;     //Get the current tail item to be returned
+        Node* oldNode = pList->tail;     //Get the current tail to be deleted
+        //Otherwise, if the list is of size 1
+        if(pList->size == 1){
+        //Set head, tail, and current pointers to NULL to disconnect oldNode from the list
+        pList->head = NULL;
+        pList->tail = NULL;
+        pList->current = NULL;
+        pList->currentItem = manager.outOfBoundsEnds;
+        pList->size = 0;    //Ensure the size of pList is 0
+        }
+        //Otherwise,
+        else{
+            //Disconnect the tail and make the previous item our old tail
+            oldNode->prev->next = NULL;
+            pList->tail = oldNode->prev;
+            //Make the new last item the current one
+            pList->current = pList->tail;   
+            pList->currentItem = pList->tail->item;  
+            pList->size--;      //Decrement the size of pList
+        }
+
+        addNode(oldNode);       //Give the node back to the freeNodes list
+        return(returnValue);    //Return the item contained in the deleted node
     }
 }
 
@@ -532,7 +539,7 @@ void List_concat(List* pList1, List* pList2){
         pList2->size = 0;
     }
 
-    List_free(pList2, List_remove);     //Delete pList2
+    //List_free(pList2, List_remove);     //Delete pList2
 }
 
 // Delete pList. pItemFreeFn is a pointer to a routine that frees an item. 

@@ -1720,38 +1720,53 @@ int main(){
     assert(trimList->size == referenceList->size);
     void* trimItem;
     void* referenceItem;
-    Node* prevNode;
+
     //Full list scenario
     trimItem = List_trim(trimList);
     List_last(referenceList);
     referenceItem = List_remove(referenceList);
-    List_last(referenceList);
     assert(trimList->size == referenceList->size);
     assert(trimList->tail->item == referenceList->tail->item);
     assert(trimList->tail->next == NULL);
     assert(trimList->head->prev == NULL);
     assert(trimItem == referenceItem);
-    currentNode = trimList->current;
-    assert(currentNode == trimList->tail);
-    assert(currentNode->item == referenceList->currentItem);
-    prevNode = currentNode;
-    for(int i=0; i<List_count(trimList)-1; i++){
-        currentNode = currentNode->prev;
+    List_last(referenceList);
+    for(int i=0; i<List_count(trimList); i++){
         List_prev(referenceList);
-        assert(currentNode->item == referenceList->currentItem);
-        assert(prevNode->prev == currentNode);
-        assert(currentNode->next == prevNode);
-        prevNode = currentNode;
+        List_prev(trimList);
+        assert(trimList->currentItem == referenceList->currentItem);
     }
+
+    //Emptying a list to its last node
+    while(List_count(referenceList)>1){
+        trimItem = List_trim(trimList);
+        List_last(referenceList);
+        referenceItem = List_remove(referenceList);
+        assert(trimItem == referenceItem);
+        assert(trimList->size == referenceList->size);
+        assert(trimList->tail->item == referenceList->tail->item);
+        assert(trimList->tail->next == NULL);
+        assert(trimList->head->prev == NULL);
+    }
+
     //Singleton list scenario
-    while( trimList->size>1){
-        List_trim(trimList);
-    }
     trimItem = List_trim(trimList);
+    List_last(referenceList);
+    referenceItem = List_remove(referenceList);
+    assert(trimItem == referenceItem);
     assert(trimList->size == 0);
     assert(trimList->tail == NULL);
     assert(trimList->head == NULL);
     assert(trimList->current == NULL);
-    assert(trimList->currentItem == NULL);
+    assert(trimList->currentItem == manager.outOfBoundsEnds);
+
+    //Empty list scenario
+    trimItem = List_trim(trimList);
+    assert(trimItem == NULL);
+    assert(trimList->size == 0);
+    assert(trimList->tail == NULL);
+    assert(trimList->head == NULL);
+    assert(trimList->current == NULL);
+    assert(trimList->currentItem == manager.outOfBoundsEnds);
 }
 
