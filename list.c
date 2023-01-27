@@ -60,6 +60,52 @@ static void addNode(Node* node){
     }
 }
 
+//Helper function to take a head from freeHeads list, if possible
+static List* takeHead(){
+    if(manager.numFreeHeads == 0){
+        return(NULL);
+    }
+    else if(manager.numFreeHeads == 1){
+        List* headPointer = manager.freeHeads;
+        manager.freeHeads = NULL;
+        manager.numFreeHeads=0;
+        return(headPointer);
+    }
+    else{
+        List* headPointer = manager.freeHeads;
+        manager.freeHeads = manager.freeHeads->next;
+        headPointer->next = NULL;
+        manager.freeHeads->prev = NULL;
+        manager.numFreeHeads--;
+        return(headPointer);
+    }
+}
+
+//Helper function to give a head back to freeHeads list
+static void addHead(List* head){
+    head->head = NULL;
+    head->tail = NULL;
+    head->current = NULL;
+    head->currentItem = NULL;
+    head->size = 0;
+    if(manager.numFreeHeads == 0){
+        manager.numFreeHeads= 1;
+        manager.freeHeads=head;
+    }
+    else if(manager.numFreeHeads == 1){
+        manager.numFreeHeads = 2;
+        manager.freeHeads->next = head;
+        head->prev = manager.freeHeads;
+    }
+    else{
+        manager.numFreeHeads++;
+        head->next = manager.freeHeads->next;
+        head->prev = manager.freeHeads;
+        manager.freeHeads->next = head;
+        head->next->prev = head;
+    }
+}
+
 //Helper function to ensure the integrity of the list stays in tact
 static void integrityEnsurance(List* pList){
     if(pList->current->next == NULL){
@@ -128,36 +174,7 @@ List* List_create(){
         manager.heads[LIST_MAX_NUM_HEADS-1].tail = NULL;
         manager.heads[LIST_MAX_NUM_HEADS-1].size = 0;
     }
-
-    if(manager.freeHeads != NULL){   //If possible, return a new head pointer (not possible when heads are all in use)
-        //Set head to next available head (the start of our freeHeads list)
-        List* head = manager.freeHeads;  
-
-        //Fully disconnect head from freeHeads list
-        //If the freeHeads list is of size 1, set the freeHeads list to NULL
-        if(head->next == NULL){
-            manager.freeHeads = NULL;
-        }
-        //Otherwise, disconnect just the head of the freeHeads (from the list side)
-        else{
-            head->next->prev = NULL;  
-            manager.freeHeads = head->next;
-        }
-        //Disconnect the head from the head's side
-        head->next = NULL;
-        head->prev = NULL;
-        head->size = 0;
-        head->current = NULL;
-        head->currentItem = NULL;
-        head->head = NULL;
-        head->tail = NULL;
-        manager.numHeads++;         //Increment our numHeads counter
-        return(head);
-    }
-
-    else{
-        return NULL;
-    }
+    //Implement similar functions to takeNode and addNode
 }
 
 // Returns the number of items in pList.

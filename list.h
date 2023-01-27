@@ -55,7 +55,7 @@ struct Manager_s {
     Node* nodes;
     List* heads;
     Node* freeNodes;    //Linked list of free nodes
-    int numHeads;       //Count of heads currently in use
+    int numFreeHeads;       //Count of heads available to use
     int numFreeNodes;   //Count of nodes available to use
     List* freeHeads;    //Linked list of all our free heads
     void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
