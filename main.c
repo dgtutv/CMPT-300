@@ -1840,8 +1840,83 @@ int main(){
     //Each comment at this indentation level covers a possible case for the function being tested
 
     //pList1 & pList2 are both empty
+    assert(manager.numFreeHeads > 1);
+    List* list1 = List_create();
+    List* list2 = List_create();
+    List_concat(list1, list2);
+    assert(list1->head == NULL);
+    assert(list1->tail == NULL);
+    assert(list1->current == NULL);
+    assert(list1->currentItem == NULL);
+    assert(list1->size == 0);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1 is singleton, pList2 is empty
+    List_insert_after(list1, &testInt0);
+    list2 = List_create();
+    List_concat(list1, list2);
+    assert(list1->head->item == list1->tail->item);
+    assert(list1->tail == list1->current);
+    assert(list1->current != NULL);
+    assert(list1->currentItem == &testInt0);
+    assert(list1->size == 1);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1 is empty, pList2 is singleton
+    List_trim(list1);
+    assert(List_count(list1) == 0);
+    list2 = List_create();
+    List_insert_after(list2, &testInt0);
+    List_concat(list1, list2);
+    assert(list1->head->item == list1->tail->item);
+    assert(list1->tail == list1->current);
+    assert(list1->current != NULL);
+    assert(list1->currentItem == &testInt0);
+    assert(list1->size == 1);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1 & pList2 are both singleton
     //pList1->size>1, pList2 is empty
     //pList1 is empty, pList2->size>1
