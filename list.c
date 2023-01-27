@@ -66,6 +66,8 @@ static List* takeHead(){
         List* headPointer = manager.freeHeads;
         manager.freeHeads = NULL;
         manager.numFreeHeads=0;
+        headPointer->current = NULL;
+        headPointer->currentItem = manager.outOfBoundsStart;
         return(headPointer);
     }
     else{
@@ -74,6 +76,8 @@ static List* takeHead(){
         headPointer->next = NULL;
         manager.freeHeads->prev = NULL;
         manager.numFreeHeads--;
+        headPointer->current = NULL;
+        headPointer->currentItem = manager.outOfBoundsStart;
         return(headPointer);
     }
 }
@@ -507,10 +511,8 @@ void List_concat(List* pList1, List* pList2){
     if(pList2->size != 0){ 
         //If pList1 is empty, move pList2 to pList1
         if(pList1->size == 0){
-            pList1->head = pList2->head;
             pList1->tail = pList2->tail;
-            pList1->current = NULL;
-            pList1->currentItem = manager.outOfBoundsStart;
+            pList1->head = pList2->head;
         }
 
         //Otherwise, add pList2 to the end of pList1

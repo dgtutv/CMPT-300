@@ -97,7 +97,7 @@ int main(){
         assert(newList->prev == NULL);
         assert(newList->size == 0);
         assert(newList->current == NULL);
-        assert(newList->currentItem == NULL);
+        assert(newList->currentItem == manager.outOfBoundsStart);
         assert(newList->head == NULL);
         assert(newList->tail == NULL);
         prevList = newList;
@@ -143,7 +143,7 @@ int main(){
         currentHead = &manager.heads[i];
 
         //List_curr() test
-        assert(List_curr(currentHead) == NULL);
+        assert(List_curr(currentHead) == manager.outOfBoundsStart);
 
         //List_count() test
         assert(List_count(currentHead) == 0);
@@ -1843,11 +1843,13 @@ int main(){
     assert(manager.numFreeHeads > 1);
     List* list1 = List_create();
     List* list2 = List_create();
+    Node* prevList1current = list1->current;
+    Node* prevList1currentItem = list1->currentItem;
     List_concat(list1, list2);
     assert(list1->head == NULL);
     assert(list1->tail == NULL);
-    assert(list1->current == NULL);
-    assert(list1->currentItem == NULL);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
     assert(list1->size == 0);
     assert(list2->head == NULL);
     assert(list2->tail == NULL);
@@ -1868,11 +1870,13 @@ int main(){
     //pList1 is singleton, pList2 is empty
     List_insert_after(list1, &testInt0);
     list2 = List_create();
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
     List_concat(list1, list2);
     assert(list1->head->item == list1->tail->item);
     assert(list1->tail == list1->current);
-    assert(list1->current != NULL);
-    assert(list1->currentItem == &testInt0);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
     assert(list1->size == 1);
     assert(list2->head == NULL);
     assert(list2->tail == NULL);
@@ -1895,11 +1899,15 @@ int main(){
     assert(List_count(list1) == 0);
     list2 = List_create();
     List_insert_after(list2, &testInt0);
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
+    Node* prevList2Head = list2->head;
+    Node* prevList2Tail = list2->tail;
     List_concat(list1, list2);
-    assert(list1->head->item == list1->tail->item);
-    assert(list1->tail == list1->current);
-    assert(list1->current != NULL);
-    assert(list1->currentItem == &testInt0);
+    assert(list1->head->item == list1->tail->item);//
+    assert(list1->tail == list1->head);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
     assert(list1->size == 1);
     assert(list2->head == NULL);
     assert(list2->tail == NULL);
