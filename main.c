@@ -1769,6 +1769,73 @@ int main(){
     assert(trimList->current == NULL);
     assert(trimList->currentItem == manager.outOfBoundsEnds);
 
+//-----------------------------------------------------List_free() tests--------------------------------------------------------------------------------//
+    //Each comment at this indentation level covers a possible case for the function being tested
+
+    //Empty list
+    currentHead = &manager.heads[0];
+    while(List_trim(currentHead)!=NULL);
+    assert(currentHead->size == 0);
+    List_free(currentHead, &freeItem);
+    assert(currentHead->head == NULL);
+    assert(currentHead->tail == NULL);
+    assert(currentHead->current == NULL);
+    assert(currentHead->currentItem == NULL);
+    assert(currentHead->size == 0);
+    currentFreeHead = manager.freeHeads;
+    bool foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == currentHead){
+            foundHead = true;
+            break;
+        }
+    }
+    assert(foundHead == true);
+
+    //Singleton list
+    currentHead = List_create();
+    List_insert_after(currentHead, &testInt0);
+    assert(currentHead->size == 1);
+    List_free(currentHead, &freeItem);
+    assert(currentHead->head == NULL);
+    assert(currentHead->tail == NULL);
+    assert(currentHead->current == NULL);
+    assert(currentHead->currentItem == NULL);
+    assert(currentHead->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == currentHead){
+            foundHead = true;
+            break;
+        }
+        currentFreeHead = currentFreeHead->next;
+    }
+    assert(foundHead == true);
+
+    //List size > 1
+    currentHead = &manager.heads[5];
+    assert(currentHead->size == 8);
+    List_free(currentHead, &freeItem);
+    assert(currentHead->head == NULL);
+    assert(currentHead->tail == NULL);
+    assert(currentHead->current == NULL);
+    assert(currentHead->currentItem == NULL);
+    assert(currentHead->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == currentHead){
+            foundHead = true;
+            break;
+        }
+        currentFreeHead = currentFreeHead->next;
+    }
+    assert(foundHead == true);
+
 //---------------------------------------------------List_concat() tests--------------------------------------------------------------------------------//
     //Each comment at this indentation level covers a possible case for the function being tested
 
