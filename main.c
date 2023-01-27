@@ -72,12 +72,12 @@ int main(){
         currentFreeHead = currentFreeHead->next;
         i++;
     }
-    assert(currentFreeHead->index == 9);    //Index will be 1 higher than the list size, since we take from the front
+    assert(currentFreeHead->index == 1);    //Index will be 1 since we add after the head
     assert(i==8);
 
-    //Test the conditions of our first list
+    //Test the conditions of our initial list
     assert(newList != NULL);  
-    assert(manager.numHeads == 1);
+    assert(manager.numFreeHeads == LIST_MAX_NUM_HEADS-1);
     List* currentHead = &manager.heads[0];
     assert(newList == currentHead); 
     //Define pointers to iterate over the head lists in manager 
@@ -86,9 +86,9 @@ int main(){
     //Check the initial conditions of our head lists
     for(int i=1; i<10; i++){
         newList = List_create();
-        assert(manager.numHeads == i+1);    
+        assert(manager.numFreeHeads == LIST_MAX_NUM_HEADS-i-1);    
         prevHead = currentHead;
-        currentHead = &manager.heads[i];
+        currentHead = &manager.heads[newList->index];
         assert(newList == currentHead);       
         assert(prevList == prevHead);     
         assert(newList != NULL);    
@@ -96,21 +96,21 @@ int main(){
         assert(newList->next == NULL);
         assert(newList->prev == NULL);
         assert(newList->size == 0);
-        assert(newList->index == i);
+        assert(newList->current == NULL);
+        assert(newList->currentItem == NULL);
+        assert(newList->head == NULL);
+        assert(newList->tail == NULL);
         prevList = newList;
     }
     
 
     //There should be no more free heads
-    assert(manager.freeHeads == 0);
-
-    //All of the heads should be taken
-    assert(manager.numHeads == 10);
+    assert(manager.freeHeads == NULL);
+    assert(manager.numFreeHeads == 0);
 
     //Attempting to create more than 10 lists will return a NULL pointer
     newList = List_create();
     assert(newList == NULL);
-    assert(manager.numHeads == 10);     //Test the number of heads is still 10
 
     //Test that our out of bounds variables have been defined
     enum ListOutOfBounds start = LIST_OOB_START;

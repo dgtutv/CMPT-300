@@ -11,9 +11,6 @@
 //Our manager for our list
 static Manager manager;
 
-// Makes a new, empty list, and returns its reference on success. 
-// Returns a NULL pointer on failure.
-
 //Helper function to take a node from freeNodes list, if possible
 static Node* takeNode(void* item){
     if(manager.numFreeNodes == 0){
@@ -118,12 +115,13 @@ static void integrityEnsurance(List* pList){
     }
 }
 
+// Makes a new, empty list, and returns its reference on success. 
+// Returns a NULL pointer on failure.
 List* List_create(){
-    if(manager.nodes == NULL){//If this is the first time List_create is called, setup our Manager, List and Node structs
+    if(manager.nodes == NULL){  //If this is the first time List_create is called, setup our Manager, List and Node structs
     
         manager.nodes = nodeArr;
         manager.heads = headArr;
-        manager.freeNodes = &nodeArr[0];
 
         //Setup our outOfBounds Items
         enum ListOutOfBounds start = LIST_OOB_START;
@@ -139,42 +137,17 @@ List* List_create(){
             currentNode->index=i;
             addNode(currentNode);
         }
-    //Setup our heads
-        //Assign freeHeads to heads, as all heads are initially free
-        manager.freeHeads = &manager.heads[0];
-        //Setup our first head
-        manager.heads[0].next = &manager.heads[1];
-        manager.heads[0].index = 0;
-        manager.heads[0].prev = NULL;
-        manager.heads[0].current = NULL;
-        manager.heads[0].currentItem = NULL;
-        manager.heads[0].head = NULL;
-        manager.heads[0].tail = NULL;
-        manager.heads[0].size = 0;
-        List* currentList;
-        //Setting up all heads between the first and last
-        for(int i=1; i<LIST_MAX_NUM_HEADS-1; i++){
-            currentList = &manager.heads[i];
-            currentList->next = &manager.heads[i+1];
-            currentList->index = i;
-            currentList->prev = &manager.heads[i-1];
-            currentList->current = NULL;
-            currentList->currentItem = NULL;
-            currentList->head = NULL;
-            currentList->tail = NULL;
-            currentList->size = 0;
+
+        //Setting up heads in a linked list
+        manager.numFreeHeads = 0;
+        List* currentHead;
+        for(int i=0; i<LIST_MAX_NUM_HEADS; i++){
+            currentHead=&manager.heads[i];
+            currentHead->index=i;
+            addHead(currentHead);
         }
-        //Setting up our last head
-        manager.heads[LIST_MAX_NUM_HEADS-1].next = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].index = LIST_MAX_NUM_HEADS-1;
-        manager.heads[LIST_MAX_NUM_HEADS-1].prev = currentList;
-        manager.heads[LIST_MAX_NUM_HEADS-1].current = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].currentItem = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].head = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].tail = NULL;
-        manager.heads[LIST_MAX_NUM_HEADS-1].size = 0;
     }
-    //Implement similar functions to takeNode and addNode
+    return(takeHead()); //Make a new, empty list, return its reference on success
 }
 
 // Returns the number of items in pList.
