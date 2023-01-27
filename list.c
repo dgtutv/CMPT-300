@@ -520,16 +520,9 @@ void List_concat(List* pList1, List* pList2){
             pList1->tail = pList2->tail;
         }
         pList1->size += pList2->size;       //Update the size of pList1
-
-        //Empty pList2
-        pList2->head = NULL;
-        pList2->tail = NULL;
-        pList2->current = NULL;
-        pList2->currentItem = NULL;
-        pList2->size = 0;
     }
 
-    //List_free(pList2, List_remove);     //Delete pList2
+    addHead(pList2);     //Delete pList2
 }
 
 // Delete pList. pItemFreeFn is a pointer to a routine that frees an item. 
@@ -550,25 +543,7 @@ void List_free(List* pList, FREE_FN pItemFreeFn){
         (*pItemFreeFn)(itemToBeDeleted);     //Free the item in memory   
     }
 
-    //Reset the list to its standard values
-    pList->head = NULL;
-    pList->tail = NULL;
-    pList->current = NULL;
-    pList->currentItem = NULL;
-    pList->size = 0;    //Ensure the size of pList is 0
-
-    //If the freeHeads list is empty, make the freed list the head of freeHeads
-    if(manager.freeHeads == NULL){
-        manager.freeHeads = pList;  
-    }
-
-    //Otherwise,
-    else{
-        //Add pList to the freeHeads list
-        pList->next = manager.freeHeads;
-        manager.freeHeads->prev = pList;
-        manager.freeHeads = pList;
-    }
+    addHead(pList);     //Delete pList2
 }
 // Search pList, starting at the current item, until the end is reached or a match is found. 
 // In this context, a match is determined by the comparator parameter. This parameter is a
