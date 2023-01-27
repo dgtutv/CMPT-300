@@ -1899,13 +1899,15 @@ int main(){
     assert(List_count(list1) == 0);
     list2 = List_create();
     List_insert_after(list2, &testInt0);
+    assert(list2->size == 1);
+    assert(list1->size == 0);
     prevList1current = list1->current;
     prevList1currentItem = list1->currentItem;
     Node* prevList2Head = list2->head;
     Node* prevList2Tail = list2->tail;
     List_concat(list1, list2);
-    assert(list1->head->item == list1->tail->item);//
-    assert(list1->tail == list1->head);
+    assert(list1->head == prevList2Head);
+    assert(list1->tail == prevList2Tail);
     assert(list1->current == prevList1current);
     assert(list1->currentItem == prevList1currentItem);
     assert(list1->size == 1);
@@ -1926,8 +1928,98 @@ int main(){
     }
 
     //pList1 & pList2 are both singleton
+    list2 = List_create();
+    List_insert_after(list2, &testInt1);
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
+    Node* prevList1Head = list1->head;
+    Node* prevList1Tail = list1->tail;
+    prevList2Head = list2->head;
+    prevList2Tail = list2->tail;
+    List_concat(list1, list2);
+    assert(list1->head == prevList1Head);
+    assert(list1->tail == prevList2Tail);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
+    assert(list1->size == 2);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    assert(prevList2Head->prev == prevList1Tail);
+    assert(prevList1Tail->next == prevList2Head);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1->size>1, pList2 is empty
+    list2 = List_create();
+    prevList1Head = list1->head;
+    prevList1Tail = list1->tail;
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
+    List_concat(list1, list2);
+    assert(list1->head == prevList1Head);
+    assert(list1->tail == prevList1Tail);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
+    assert(list1->size == 2);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1 is empty, pList2->size>1
+    List_free(list1, &freeItem);
+    list1 = List_create();
+    list2 = List_create();
+    List_insert_after(list2, &testInt2);
+    List_insert_after(list2, &testChar);
+    prevList1current = list1->current;
+    prevList1currentItem = list1->currentItem;
+    prevList2Head = list2->head;
+    prevList2Tail = list2->tail;
+    List_concat(list1, list2);
+    assert(list1->head == prevList2Head);
+    assert(list1->tail == prevList2Tail);
+    assert(list1->current == prevList1current);
+    assert(list1->currentItem == prevList1currentItem);
+    assert(list1->size == 2);
+    assert(list2->head == NULL);
+    assert(list2->tail == NULL);
+    assert(list2->current == NULL);
+    assert(list2->currentItem == NULL);
+    assert(list2->size == 0);
+    currentFreeHead = manager.freeHeads;
+    foundHead = false;
+    assert(currentFreeHead != NULL);
+    while(currentFreeHead!=NULL){
+        if(currentFreeHead == list2){
+            foundHead = true;
+        }
+        assert(currentFreeHead != list1);
+        currentFreeHead = currentFreeHead->next;
+    }
+
     //pList1 & pList2 both have size>1
 }
 

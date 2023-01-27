@@ -90,7 +90,7 @@ static void addHead(List* head){
     head->currentItem = NULL;
     head->size = 0;
     if(manager.numFreeHeads == 0){
-        manager.numFreeHeads= 1;
+        manager.numFreeHeads = 1;
         manager.freeHeads=head;
     }
     else if(manager.numFreeHeads == 1){
@@ -513,6 +513,9 @@ void List_concat(List* pList1, List* pList2){
         if(pList1->size == 0){
             pList1->tail = pList2->tail;
             pList1->head = pList2->head;
+            pList1->size = pList2->size;       //Update the size of pList1
+            addHead(pList2);
+            return;
         }
 
         //Otherwise, add pList2 to the end of pList1
@@ -521,9 +524,8 @@ void List_concat(List* pList1, List* pList2){
             pList2->head->prev = pList1->tail;
             pList1->tail = pList2->tail;
         }
-        pList1->size += pList2->size;       //Update the size of pList1
     }
-
+    pList1->size += pList2->size;       //Update the size of pList1
     addHead(pList2);     //Delete pList2
 }
 
