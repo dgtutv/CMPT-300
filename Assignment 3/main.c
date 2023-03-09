@@ -13,7 +13,7 @@ List* sendQueue;    //The queue of processes waiting on a send operation (i.e., 
 List* recvQueue;    //The queue of processes waiting on a receive operation
 List* blockedQueue; //The queue of all blocked processes for our operating system
 List* processes;    //The list of all of our processes
-
+struct PCB* runningProcess;     //A pointer to the currently running process
 
 //---------------------------------------------OS data structures-------------------------------------------//
 
@@ -55,6 +55,12 @@ struct PCB* create(int priority){
         List_prepend(highQueue, process);
     }
     List_append(processes, process);
+    //If the currently running process is the init process, make this the currently runnning process, and make the init process' state ready
+    if(runningProcess->ID == 0){
+        runningProcess->state = ready;
+        runningProcess = process;
+        process->state = running;
+    }
     return(process);
 }
 
@@ -81,7 +87,7 @@ void commands(char input){
             else if(newProcess->priority == 2){
                 priority="low";
             }
-            printf("Created a new process with ID %d and it added to the %s priority ready queue\n", newProcess->ID, priority);
+            printf("Created a new process with ID %d and added it to the %s priority ready queue\n", newProcess->ID, priority);
             return;
         }
         return;
@@ -108,6 +114,7 @@ int main(int argc, char* argv[]){
     init->state = running;     //The state should be running when the OS starts execution
     init->ID=0;
     List_append(processes, init);
+    runningProcess = init;
     printf("Created the init process with process ID 0, high priority, and state set to running\n");
 
     char buffer;
@@ -116,5 +123,17 @@ int main(int argc, char* argv[]){
         while((buffer = getchar()) != '\n' && buffer != EOF){   //Get user input
         	commands(buffer);   //Handle the input
         }
+        //Mention which process is currently running
+        char* priority;
+        if(runningProcess->priority == 0){
+            priority="high";
+        }
+        else if(runningProcess->priority == 1){
+            priority="medium";
+        }
+        else if(runningProcess->priority == 2){
+            priority="low";
+        }
+        printf("Process with ID %d and %s priority is currently running\n", runningProcess->ID, priority);
     }
 }
