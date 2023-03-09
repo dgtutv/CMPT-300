@@ -14,6 +14,7 @@ List* recvQueue;    //The queue of processes waiting on a receive operation
 List* blockedQueue; //The queue of all blocked processes for our operating system
 List* processes;    //The list of all of our processes
 struct PCB* runningProcess;     //A pointer to the currently running process
+int currIndex;      //The list index for round robin schedualer (which index am I on?)
 
 //---------------------------------------------OS data structures-------------------------------------------//
 
@@ -30,6 +31,78 @@ struct sem{
     int val;    //The value of our semaphore
     List* waitingProcesses; //A list of all the processes waiting on this semaphore
 };
+
+//----------------------------------------------Round Robin Schedualer---------------------------------------//
+void roundRobin(){
+    struct PCB* nextProcess;        //Pointer to the process that will run next
+    //If the current running process is of high priority
+    if(runningProcess->priority == high){
+        //If the medium queue is not empty, take the next process from there
+        if(List_count(mediumQueue) > 0){
+            nextProcess = List_trim(mediumQueue);
+        }
+        //If the medium queue is empty, and the low queue is not, take the process from the low queue
+        else if(List_count(lowQueue) > 0){
+            nextProcess = List_trim(lowQueue);
+        }
+        //If the medium and low queues are empty, take the process from the high queue
+        else if(List_count(highQueue) > 0){
+            nextProcess = List_trim(highQueue);
+        }
+        //If all queues are empty, do nothing
+        else{
+            return;
+        }
+        //Add the current process to the high queue
+        List_prepend(highQueue, runningProcess);
+    }
+    //If the current running process is of medium priority
+    else if(runningProcess->priority == medium){
+        //If the low queue is not empty, take the next process from there
+        if(List_count(lowQueue) > 0){
+            nextProcess = List_trim(lowQueue);
+        }
+        //If the low queue is empty, and the high queue is not, take the process from the high queue
+        else if(List_count(highQueue) > 0){
+            nextProcess = List_trim(highQueue);
+        }
+        //If the low and high queues are empty, take the process from the medium queue
+        else if(List_count(mediumQueue) > 0){
+            nextProcess = List_trim(mediumQueue);
+        }
+        //If all queues are empty, do nothing
+        else{
+            return;
+        }
+        //Add the current process to the medium queue
+        List_prepend(mediumQueue, runningProcess);
+    }
+    //If the current running process is of low priority
+    else{
+        //If the high queue is not empty, take the next process from there
+        if(List_count(highQueue) > 0){
+            nextProcess = List_trim(highQueue);
+        }
+        //If the high queue is empty, and the medium queue is not, take the process from the medium queue
+        else if(List_count(mediumQueue) > 0){
+            nextProcess = List_trim(mediumQueue);
+        }
+        //If the high and medium queues are empty, take the process from the low queue
+        else if(List_count(lowQueue) > 0){
+            nextProcess = List_trim(lowQueue);
+        }
+        //If all queues are empty, do nothing
+        else{
+            return;
+        }
+        //Add the current process to the low queue
+        List_prepend(lowQueue, runningProcess);
+    }
+    //Set the runnign process to ready, and make the next process the running process
+    runningProcess->state = ready;
+    nextProcess->state = running;
+    runningProcess = nextProcess;
+}
 
 //------------------------------------------The functions for our commands-----------------------------------//
 
@@ -89,6 +162,11 @@ struct PCB* fork(){
     List_append(processes, process);
     return(process);
 }
+
+//Kills the named process and removes it from the system
+//Returns 1 on success, 0 on failure
+//If the named process is the init process, end program iff there are no other processes or all other processes are blocked
+//If the named process is the running processes, and not the init process, then handle round-robin style
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
