@@ -185,13 +185,15 @@ bool kill(int ID){
         }
         //Otherwise, return failure
         else{
+            printf("ERROR: Could not kill init process, as other processes exist!\n");
             return(0);
         }
     }
 
     //Find the process with the given ID, if it does not exist, report failure
-    struct PCB* processToKill = List_search(processes, &compareProcesses, ID);
+    struct PCB* processToKill = List_search(processes, &compareProcesses, ID);      //Issue is here
     if(processToKill == NULL){
+        printf("ERROR: Process %d could not be found!\n", ID);
         return(0);
     }
 
@@ -260,7 +262,7 @@ void commands(char input){
         scanf(" %d", &processPriority);
         newProcess = create(processPriority);
         if(newProcess == NULL){
-            printf("Failed to create a new process!\n");
+            printf("ERROR: Failed to create a new process!\n");
             return;
         }
         else{
@@ -285,7 +287,7 @@ void commands(char input){
         struct PCB* newProcess;
         newProcess = fork();
         if(newProcess == NULL){
-            printf("Failed to fork process!\n");
+            printf("ERROR: Failed to fork process!\n");
             return;
         }
         else{
@@ -315,8 +317,9 @@ void commands(char input){
             printf("Successfully killed process %d\n", ID);
         }
         else{
-            printf("Could not kill process %d\n", ID);
+            printf("ERROR: Could not kill process %d\n", ID);
         }
+        return;
     }
 
     //Handle invalid requests
