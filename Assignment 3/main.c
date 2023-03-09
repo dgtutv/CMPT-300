@@ -107,11 +107,9 @@ int main(int argc, char* argv[]){
 
     char buffer;
     while(1){
-        //Get user input
         printf("%s","user@OS:~$ ");
-        buffer = getchar();
-
-        //Handle the input
-        commands(buffer);
+        while((buffer = getchar()) != '\n' && buffer != EOF){   //Get user input
+        	commands(buffer);   //Handle the input
+        }
     }
 }
