@@ -64,8 +64,35 @@ struct PCB* create(int priority){
     return(process);
 }
 
-//Function to handle user-command requests
+//Copies the currently running process and puts it on the ready queue corresponding to the original process' priority
+//Attempting to Fork the init process should fail
+//Returns a pointer to the new process on success, returns NULL on failure
+struct PCB* fork(){
+    //Attempting to fork the init process should fail
+    if(runningProcess->ID == 0){
+        return(NULL);
+    }
+    struct PCB* process = malloc(sizeof(struct PCB));
+    process->priority = runningProcess->priority;
+    process->state = ready;
+    process->ID = currID;
+    currID++;
+    if(runningProcess->priority == low){
+        List_prepend(lowQueue, process);
+    }
+    else if(runningProcess->priority == medium){
+        List_prepend(mediumQueue, process);
+    }
+    else{
+        List_prepend(highQueue, process);
+    }
+    List_append(processes, process);
+    return(process);
+}
+
+//-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
+    //Handle create request
     if(input == 'C'){
         int processPriority;
         struct PCB* newProcess;
@@ -92,6 +119,33 @@ void commands(char input){
         }
         return;
     }
+
+    //Handle fork request
+    else if(input == 'F'){
+        struct PCB* newProcess;
+        newProcess = fork();
+        if(newProcess == NULL){
+            printf("Failed to fork process!\n");
+            return;
+        }
+        else{
+            char* priority;
+            if(newProcess->priority == 0){
+                priority="high";
+            }
+            else if(newProcess->priority == 1){
+                priority="medium";
+            }
+            else if(newProcess->priority == 2){
+                priority="low";
+            }
+            printf("Forked process ID %d, new process has ID %d and has been added to the %s priority ready queue\n", runningProcess->ID, newProcess->ID, priority);
+            return;
+        }
+        return;
+    }
+
+    //Handle invalid requests
     printf("%s","That command does not exist!\n");
     return;
 }
