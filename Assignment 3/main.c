@@ -57,36 +57,35 @@ struct PCB* create(int priority){
 }
 
 //Function to handle user-command requests
-void commands(char* input){
-    if(strncmp(input, "C", 1) == 0){
-            int processPriority;
-            struct PCB* newProcess;
-            printf("Enter the desired priority of the process (0=high, 1=medium, 2=low):\n");
-            scanf("%d", &processPriority);
-            newProcess = create(processPriority);
-            if(newProcess == NULL){
-                printf("Failed to create a new process!\n");
-                return;
-            }
-            else{
-                char* priority;
-                if(newProcess->priority == 0){
-                    priority="high";
-                }
-                else if(newProcess->priority == 1){
-                    priority="medium";
-                }
-                else if(newProcess->priority == 2){
-                    priority="low";
-                }
-                printf("Created a new process with ID %d with %s priority\n", newProcess->ID, priority);
-                return;
-            }
+void commands(char input){
+    if(input == 'C'){
+        int processPriority;
+        struct PCB* newProcess;
+        printf("%s","Enter the desired priority of the process (0=high, 1=medium, 2=low):");
+        scanf(" %d", &processPriority);
+        newProcess = create(processPriority);
+        if(newProcess == NULL){
+            printf("Failed to create a new process!\n");
+            return;
         }
-    else{
-        printf("That command does not exist!\n");
+        else{
+            char* priority;
+            if(newProcess->priority == 0){
+                priority="high";
+            }
+            else if(newProcess->priority == 1){
+                priority="medium";
+            }
+            else if(newProcess->priority == 2){
+                priority="low";
+            }
+            printf("Created a new process with ID %d with %s priority\n", newProcess->ID, priority);
+            return;
+        }
         return;
     }
+    printf("%s","That command does not exist!\n");
+    return;
 }
 
 //-----------------------------------------------------Main--------------------------------------------------//
@@ -106,26 +105,11 @@ int main(int argc, char* argv[]){
     init.state = running;     //The state should be running when the OS starts execution
     init.ID=0;
 
-    //While the program is running, take input
-    int retVal;
-    int processPriority;
-    int numBytes=0;
-
-    //run indefinitely as long as the user hasn't given '!' as input
+    char buffer;
     while(1){
-        //clear numBytes
-        numBytes=0;
-
-        //Clear the buffer
-        char buffer[1];
-
-        //Await keyboard input
-        while(numBytes == 0){
-            numBytes=read(0, buffer, 1);
-            if(numBytes == -1){
-                printf("ERROR in keylistener!\n");
-            }
-        }
+        //Get user input
+        printf("%s","user@OS:~$ ");
+        buffer = getchar();
 
         //Handle the input
         commands(buffer);
