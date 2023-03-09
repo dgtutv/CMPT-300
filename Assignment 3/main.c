@@ -207,34 +207,42 @@ bool kill(int ID){
     
     //Find the priority queue in which the named process may reside
     List* queue;
+    char* priority;
     if(processToKill->priority == high){
         queue = highQueue;
+        priority = "high";
     }
     else if(processToKill->priority == medium){
         queue = mediumQueue;
+        priority = "medium";
     }
     else{
         queue = lowQueue;
+        priority = "low";
     }
 
     //Search through the priority queue, and remove the process if it is present
     if(List_search(queue, &compareProcesses, ID) != NULL){
         List_remove(queue);
+        printf("Process %d removed from the %s priority queue\n", processToKill->ID, priority);
     }
 
     //Search through the blocked queue, and remove the process if it is present
     if(List_search(blockedQueue, &compareProcesses, ID) != NULL){
         List_remove(blockedQueue);
+        printf("Process %d removed from the blocked queue\n", processToKill->ID);
     }
 
     //Search through the send queue, and remove the process if it is present
     if(List_search(sendQueue, &compareProcesses, ID) != NULL){
         List_remove(sendQueue);
+        printf("Process %d removed from the send queue\n", processToKill->ID);
     }
 
     //Search through the recv queue, and remove the process if it is present
     if(List_search(recvQueue, &compareProcesses, ID) != NULL){
         List_remove(recvQueue);
+        printf("Process %d removed from the recieve queue\n", processToKill->ID);
     }
 
     //Remove the process from the processes list
@@ -244,7 +252,7 @@ bool kill(int ID){
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
-    //Handle create request
+    //Handle create requests
     if(input == 'C'){
         int processPriority;
         struct PCB* newProcess;
@@ -272,7 +280,7 @@ void commands(char input){
         return;
     }
 
-    //Handle fork request
+    //Handle fork requests
     else if(input == 'F'){
         struct PCB* newProcess;
         newProcess = fork();
@@ -295,6 +303,20 @@ void commands(char input){
             return;
         }
         return;
+    }
+
+    //Handle kill requests
+    else if(input == 'K'){
+        int ID;
+        printf("Enter the ID of the process you would like to kill:\n");
+        scanf(" %d", &ID);
+        bool returnVal = kill(ID);
+        if(returnVal){
+            printf("Successfully killed process %d\n", ID);
+        }
+        else{
+            printf("Could not kill process %d\n", ID);
+        }
     }
 
     //Handle invalid requests
