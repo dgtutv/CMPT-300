@@ -33,6 +33,14 @@ struct sem{
     List* waitingProcesses; //A list of all the processes waiting on this semaphore
 };
 
+//------------------------------------------------Helper Functions-------------------------------------------//
+
+//List uses this function to see if two items are equivalent
+bool compareProcesses(void* process, void* ID){
+    return(((struct PCB*)process)->ID == (int)ID);
+}
+
+
 //----------------------------------------------Round Robin Schedualer---------------------------------------//
 void roundRobin(){
     struct PCB* nextProcess;        //Pointer to the process that will run next
@@ -105,7 +113,7 @@ void roundRobin(){
     runningProcess = nextProcess;
 }
 
-//------------------------------------------The functions for our commands-----------------------------------//
+//------------------------------------------The functions for our commands--------------------------------------------//
 
 //Creates a process and puts it on the appropiate ready queue
 //Returns NULL on failure, returns a pointer to the thread otherwise
@@ -181,17 +189,17 @@ bool kill(int ID){
         }
     }
 
-    //Find the process with the given ID
-    struct PCB* current;
-    for(current = List_first(processes); List_next(processes) != NULL; current = List_next(processes)){
-        if(current->ID == ID){break;}
+    //Find the process with the given ID, if it does not exist, report failure
+    struct PCB* processToKill = List_search(processes, &compareProcesses, ID);
+    if(processToKill == NULL){
+        return(0);
     }
 
     //If the named process is the running process, set the next running process
-    if(current == runningProcess){
+    if(processToKill == runningProcess){
         roundRobin();
         //If after round robin, the running is still the named one, set the running process to init
-        if(current == runningProcess){
+        if(processToKill == runningProcess){
             runningProcess = init;
             init->state = running;
         }
@@ -199,10 +207,10 @@ bool kill(int ID){
     
     //Find the priority queue in which the named process may reside
     List* queue;
-    if(current->priority == high){
+    if(processToKill->priority == high){
         queue = highQueue;
     }
-    else if(current->priority == medium){
+    else if(processToKill->priority == medium){
         queue = mediumQueue;
     }
     else{
@@ -210,20 +218,28 @@ bool kill(int ID){
     }
 
     //Search through the priority queue, and remove the process if it is present
-    if(List_count(queue) > 0){
-        struct PCB* iterator;
-        for(iterator = List_first(queue); List_next(queue) != NULL; iterator = List_next(queue)){
-            if(iterator == current){
-                List_remove(queue);
-            }
-        }
+    if(List_search(queue, &compareProcesses, ID) != NULL){
+        List_remove(queue);
     }
 
     //Search through the blocked queue, and remove the process if it is present
-    //Search through the send queue, and remove the process if it is present
-    //Search through the recv queue, and remove the process if it is present
-    //Remove the process from the processes list
+    if(List_search(blockedQueue, &compareProcesses, ID) != NULL){
+        List_remove(blockedQueue);
+    }
 
+    //Search through the send queue, and remove the process if it is present
+    if(List_search(sendQueue, &compareProcesses, ID) != NULL){
+        List_remove(sendQueue);
+    }
+
+    //Search through the recv queue, and remove the process if it is present
+    if(List_search(recvQueue, &compareProcesses, ID) != NULL){
+        List_remove(recvQueue);
+    }
+
+    //Remove the process from the processes list
+    List_remove(processes);
+    return(1);       //Report success
 }
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
