@@ -33,11 +33,11 @@ struct sem{
 //------------------------------------------The functions for our commands-----------------------------------//
 
 //Creates a process and puts it on the appropiate ready queue
-//Returns -1 on failure, returns the ID of the process created otherwise
+//Returns NULL on failure, returns a pointer to the thread otherwise
 //Priorities: 0=high, 1=medium, 2=low
-int create(int priority){
+struct PCB* create(int priority){
     if(priority < 0 || priority > 2){
-        return -1;  //Report failure if an invalid priority level is passed
+        return NULL;  //Report failure if an invalid priority level is passed
     }
     struct PCB* process = malloc(sizeof(struct PCB));
     process->priority = priority;
@@ -52,6 +52,40 @@ int create(int priority){
     }
     else{
         List_prepend(highQueue, process);
+    }
+    return(process);
+}
+
+//Function to handle user-command requests
+void commands(char* input){
+    if(strncmp(input, "C", 1) == 0){
+            int processPriority;
+            struct PCB* newProcess;
+            printf("Enter the desired priority of the process (0=high, 1=medium, 2=low):\n");
+            scanf("%d", &processPriority);
+            newProcess = create(processPriority);
+            if(newProcess == NULL){
+                printf("Failed to create a new process!\n");
+                return;
+            }
+            else{
+                char* priority;
+                if(newProcess->priority == 0){
+                    priority="high";
+                }
+                else if(newProcess->priority == 1){
+                    priority="medium";
+                }
+                else if(newProcess->priority == 2){
+                    priority="low";
+                }
+                printf("Created a new process with ID %d with %s priority\n", newProcess->ID, priority);
+                return;
+            }
+        }
+    else{
+        printf("That command does not exist!\n");
+        return;
     }
 }
 
@@ -76,30 +110,24 @@ int main(int argc, char* argv[]){
     int retVal;
     int processPriority;
     int numBytes=0;
+
+    //run indefinitely as long as the user hasn't given '!' as input
     while(1){
         //clear numBytes
         numBytes=0;
 
         //Clear the buffer
-        char buffer;
+        char buffer[1];
 
         //Await keyboard input
-        printf("user@simulation $ ");
         while(numBytes == 0){
             numBytes=read(0, buffer, 1);
-        }
-        if(){
-            scanf("Enter the desired priority of the process (0=high, 1=medium, 2=low):\n", &processPriority);
-            retVal = create(processPriority);
-            if(retVal == -1){
-                printf("Failed to create a new process!\n");
-            }
-            else{
-                printf("Created a new process with ID %d\n", retVal);
+            if(numBytes == -1){
+                printf("ERROR in keylistener!\n");
             }
         }
-        else{
-            printf("That command does not exist!\n");
-        }
+
+        //Handle the input
+        commands(buffer);
     }
 }
