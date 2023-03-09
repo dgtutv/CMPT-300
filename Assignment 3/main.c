@@ -15,6 +15,7 @@ List* blockedQueue; //The queue of all blocked processes for our operating syste
 List* processes;    //The list of all of our processes
 struct PCB* runningProcess;     //A pointer to the currently running process
 int currIndex;      //The list index for round robin schedualer (which index am I on?)
+struct PCB* init;   //A pointer to the process that runs at startup
 
 //---------------------------------------------OS data structures-------------------------------------------//
 
@@ -165,8 +166,65 @@ struct PCB* fork(){
 
 //Kills the named process and removes it from the system
 //Returns 1 on success, 0 on failure
-//If the named process is the init process, end program iff there are no other processes or all other processes are blocked
-//If the named process is the running processes, and not the init process, then handle round-robin style
+//If the named process is the init process, end program iff there are no other processes
+bool kill(int ID){
+
+    //If the named process is the init process
+    if(ID == 0){
+        //If there are no other processes, end the program
+        if(List_count(processes) == 1){
+            exit(EXIT_SUCCESS);
+        }
+        //Otherwise, return failure
+        else{
+            return(0);
+        }
+    }
+
+    //Find the process with the given ID
+    struct PCB* current;
+    for(current = List_first(processes); List_next(processes) != NULL; current = List_next(processes)){
+        if(current->ID == ID){break;}
+    }
+
+    //If the named process is the running process, set the next running process
+    if(current == runningProcess){
+        roundRobin();
+        //If after round robin, the running is still the named one, set the running process to init
+        if(current == runningProcess){
+            runningProcess = init;
+            init->state = running;
+        }
+    }
+    
+    //Find the priority queue in which the named process may reside
+    List* queue;
+    if(current->priority == high){
+        queue = highQueue;
+    }
+    else if(current->priority == medium){
+        queue = mediumQueue;
+    }
+    else{
+        queue = lowQueue;
+    }
+
+    //Search through the priority queue, and remove the process if it is present
+    if(List_count(queue) > 0){
+        struct PCB* iterator;
+        for(iterator = List_first(queue); List_next(queue) != NULL; iterator = List_next(queue)){
+            if(iterator == current){
+                List_remove(queue);
+            }
+        }
+    }
+
+    //Search through the blocked queue, and remove the process if it is present
+    //Search through the send queue, and remove the process if it is present
+    //Search through the recv queue, and remove the process if it is present
+    //Remove the process from the processes list
+
+}
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
@@ -241,7 +299,7 @@ int main(int argc, char* argv[]){
     processes = List_create();
 
     //Create our init process
-    struct PCB* init = malloc(sizeof(struct PCB));
+    init = malloc(sizeof(struct PCB));
     init->priority = high;
     init->state = running;     //The state should be running when the OS starts execution
     init->ID=0;
