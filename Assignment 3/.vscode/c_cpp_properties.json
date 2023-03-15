@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "compilerPath": "C:\\Users\\dgtut\\Desktop\\CMPT-300\\Makefile",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "${default}",
             "cppStandard": "${default}",
             "intelliSenseMode": "linux-clang-x64",

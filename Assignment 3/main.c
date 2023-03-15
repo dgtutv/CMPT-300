@@ -1,8 +1,9 @@
-#include "list.c"
+#include "list.h"
 #include <stdio.h> 
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 
 //----------------------------------------------Global variables---------------------------------------------//
 int currID=1;   //This will keep track of which ID a process should be, where we increment ID for each new process created
@@ -37,7 +38,7 @@ struct sem{
 
 //List uses this function to see if two items are equivalent
 bool compareProcesses(void* process, void* ID){
-    return(((struct PCB*)process)->ID == (int)ID);
+    return(((struct PCB*)process)->ID == *(int*)ID);
 }
 
 
@@ -127,21 +128,24 @@ struct PCB* create(int priority){
     process->state = ready;
     process->ID = currID;
     currID++;
-    if(process->priority == low){
-        List_prepend(lowQueue, process);
-    }
-    else if(process->priority == medium){
-        List_prepend(mediumQueue, process);
-    }
-    else{
-        List_prepend(highQueue, process);
-    }
+    
     List_append(processes, process);
     //If the currently running process is the init process, make this the currently runnning process, and make the init process' state ready
     if(runningProcess->ID == 0){
         runningProcess->state = ready;
         runningProcess = process;
         process->state = running;
+    }
+    else{
+        if(process->priority == low){
+        List_prepend(lowQueue, process);
+        }
+        else if(process->priority == medium){
+            List_prepend(mediumQueue, process);
+        }
+        else{
+            List_prepend(highQueue, process);
+        }
     }
     return(process);
 }
@@ -191,11 +195,14 @@ bool kill(int ID){
     }
 
     //Find the process with the given ID, if it does not exist, report failure
-    struct PCB* processToKill = List_search(processes, &compareProcesses, ID);      //Issue is here
+    List_first(processes);
+    struct PCB* processToKill = List_search(processes, &compareProcesses, &ID);
     if(processToKill == NULL){
         printf("ERROR: Process %d could not be found!\n", ID);
         return(0);
     }
+    //Remove the process from the processes list
+    assert(((struct PCB*)List_remove(processes))->ID == processToKill->ID);
 
     //If the named process is the running process, set the next running process
     if(processToKill == runningProcess){
@@ -224,31 +231,36 @@ bool kill(int ID){
     }
 
     //Search through the priority queue, and remove the process if it is present
-    if(List_search(queue, &compareProcesses, ID) != NULL){
+    List_first(queue);
+    if(List_search(queue, &compareProcesses, &ID) != NULL){
         List_remove(queue);
         printf("Process %d removed from the %s priority queue\n", processToKill->ID, priority);
     }
 
     //Search through the blocked queue, and remove the process if it is present
-    if(List_search(blockedQueue, &compareProcesses, ID) != NULL){
+    List_first(blockedQueue);
+    if(List_search(blockedQueue, &compareProcesses, &ID) != NULL){
         List_remove(blockedQueue);
         printf("Process %d removed from the blocked queue\n", processToKill->ID);
     }
 
     //Search through the send queue, and remove the process if it is present
-    if(List_search(sendQueue, &compareProcesses, ID) != NULL){
+    List_first(sendQueue);
+    if(List_search(sendQueue, &compareProcesses, &ID) != NULL){
         List_remove(sendQueue);
         printf("Process %d removed from the send queue\n", processToKill->ID);
     }
 
     //Search through the recv queue, and remove the process if it is present
-    if(List_search(recvQueue, &compareProcesses, ID) != NULL){
+    List_first(recvQueue);
+    if(List_search(recvQueue, &compareProcesses, &ID) != NULL){
         List_remove(recvQueue);
         printf("Process %d removed from the recieve queue\n", processToKill->ID);
     }
 
-    //Remove the process from the processes list
-    List_remove(processes);
+    //Free the killed process
+    free(processToKill);
+
     return(1);       //Report success
 }
 

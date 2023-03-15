@@ -10,57 +10,34 @@
 #define LIST_FAIL -1
 
 typedef struct Node_s Node;
-typedef struct Manager_s Manager;
-typedef struct List_s List;
-typedef struct Item_s Item;
-
-//Structure for a node of a list
 struct Node_s {
-    Node* next;
-    Node* prev;
-    int index;  //The permanent index of the node (where it actually is in our array)
-    void* item;
+    void* pItem;
+    Node* pNext;
+    Node* pPrev;
 };
 
 enum ListOutOfBounds {
     LIST_OOB_START,
-    LIST_OOB_ENDS
+    LIST_OOB_END
 };
-//Structure to manage a list
-struct List_s {
-    Node* head;  //First node in list (NULL if this list is not in use)
-    Node* tail;  //Last node in list (NULL if this list is not in use)
-    Node* current;   //Current node being accessed in list (NULL if this list is not in use, head if list is empty), this will be of ListOutOfBounds type if before or after the list
-    void* currentItem;      //Stores the current item of the List, will be the same as Node current item, if not out of bounds
-    List* next;  //The next list in the freeHeads array (this is NULL if this list is in use)
-    List* prev;  //The previous list in the freeHeads array
-    int index;  //The permanent index of the list (where it actually is in our head array)
-    int size;   //The size of the list
+
+typedef struct List_s List;
+struct List_s{
+    Node* pFirstNode;
+    Node* pLastNode;
+    Node* pCurrentNode;
+    int count;
+    List* pNextFreeHead;
+    enum ListOutOfBounds lastOutOfBoundsReason;
 };
 
 // Maximum number of unique lists the system can support
-// (You may modify this, but reset the value to 10 when handing in your assignment)
-#define LIST_MAX_NUM_HEADS 10
+// (You may modify for your needs)
+#define LIST_MAX_NUM_HEADS 100
 
 // Maximum total number of nodes (statically allocated) to be shared across all lists
-// (You may modify this, but reset the value to 100 when handing in your assignment)
-#define LIST_MAX_NUM_NODES 100
-
-static Node nodeArr[LIST_MAX_NUM_NODES];    //An array of all of our nodes
-static List headArr[LIST_MAX_NUM_HEADS];    //Array of all our heads
-
-
-//Structure to manage our nodes and lists
-struct Manager_s {
-    Node* nodes;
-    List* heads;
-    Node* freeNodes;    //Linked list of free nodes
-    int numFreeHeads;       //Count of heads available to use
-    int numFreeNodes;   //Count of nodes available to use
-    List* freeHeads;    //Linked list of all our free heads
-    void* outOfBoundsStart; //This item is pointed to when the current item in list is before the start of the list
-    void* outOfBoundsEnds;  //This item is pointed to when the current item in list is after the end of
-};
+// (You may modify for your needs)
+#define LIST_MAX_NUM_NODES 1000
 
 // General Error Handling:
 // Client code is assumed never to call these functions with a NULL List pointer, or 
@@ -120,10 +97,6 @@ int List_prepend(List* pList, void* pItem);
 // then do not change the pList and return NULL.
 void* List_remove(List* pList);
 
-// Return last item and take it out of pList. Make the new last item the current one.
-// Return NULL if pList is initially empty.
-void* List_trim(List* pList);
-
 // Adds pList2 to the end of pList1. The current pointer is set to the current pointer of pList1. 
 // pList2 no longer exists after the operation; its head is available
 // for future operations.
@@ -133,8 +106,13 @@ void List_concat(List* pList1, List* pList2);
 // It should be invoked (within List_free) as: (*pItemFreeFn)(itemToBeFreedFromNode);
 // pList and all its nodes no longer exists after the operation; its head and nodes are 
 // available for future operations.
+// UPDATED: Changed function pointer type, May 19
 typedef void (*FREE_FN)(void* pItem);
 void List_free(List* pList, FREE_FN pItemFreeFn);
+
+// Return last item and take it out of pList. Make the new last item the current one.
+// Return NULL if pList is initially empty.
+void* List_trim(List* pList);
 
 // Search pList, starting at the current item, until the end is reached or a match is found. 
 // In this context, a match is determined by the comparator parameter. This parameter is a
@@ -146,6 +124,7 @@ void List_free(List* pList, FREE_FN pItemFreeFn);
 // that item is returned. If no match is found, the current pointer is left beyond the end of 
 // the list and a NULL pointer is returned.
 // 
+// UPDATED: Added May 19
 // If the current pointer is before the start of the pList, then start searching from
 // the first node in the list (if any).
 typedef bool (*COMPARATOR_FN)(void* pItem, void* pComparisonArg);
