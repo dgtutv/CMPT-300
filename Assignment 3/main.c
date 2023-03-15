@@ -347,6 +347,24 @@ void commands(char input){
         return;
     }
 
+    //Handle quantum requests
+    else if(input == 'Q'){
+        struct PCB* prevProcess = runningProcess;
+        char* priority;
+        if(prevProcess->priority == 0){
+            priority="high";
+        }
+        else if(prevProcess->priority == 1){
+            priority="medium";
+        }
+        else if(prevProcess->priority == 2){
+            priority="low";
+        }
+        roundRobin();
+        printf("Process #%d placed on the %s priority queue\n", prevProcess->ID, priority);
+        return;
+    }
+
     //Handle invalid requests
     printf("%s","That command does not exist!\n");
     return;
