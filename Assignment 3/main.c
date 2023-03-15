@@ -14,6 +14,7 @@ List* sendQueue;    //The queue of processes waiting on a send operation (i.e., 
 List* recvQueue;    //The queue of processes waiting on a receive operation
 List* blockedQueue; //The queue of all blocked processes for our operating system
 List* processes;    //The list of all of our processes
+List* messages;     //The list of all messages waiting to be received
 struct PCB* runningProcess;     //A pointer to the currently running process
 int currIndex;      //The list index for round robin schedualer (which index am I on?)
 struct PCB* init;   //A pointer to the process that runs at startup
@@ -34,11 +35,23 @@ struct sem{
     List* waitingProcesses; //A list of all the processes waiting on this semaphore
 };
 
+//The structure for a message on the messages queue
+struct message{
+    int recvID;     //The ID of the process receiving a message
+    int sendID;     //The ID of the process which sent the message
+    char* message;  //The message to be sent between the processes
+};
+
 //------------------------------------------------Helper Functions-------------------------------------------//
 
 //List uses this function to see if two items are equivalent
 bool compareProcesses(void* process, void* ID){
     return(((struct PCB*)process)->ID == *(int*)ID);
+}
+
+//List uses this function to see if a message is meant for a process #ID
+bool compareMessages(void* message, void* ID){
+    return(((struct message*)message)->recvID == *(int*)ID);
 }
 
 
@@ -108,7 +121,7 @@ void roundRobin(){
         //Add the current process to the low queue
         List_prepend(lowQueue, runningProcess);
     }
-    //Set the runnign process to ready, and make the next process the running process
+    //Set the running process to ready, and make the next process the running process
     runningProcess->state = ready;
     nextProcess->state = running;
     runningProcess = nextProcess;
@@ -264,6 +277,108 @@ bool kill(int ID){
     return(1);       //Report success
 }
 
+//Sends a message to process with specified ID
+//Blocks the current running process until a reply is received
+//Returns message sent on success, NULL upon failure
+struct message* send(int ID, char* string){
+    struct PCB* sendingProcess = runningProcess;
+    //Find the process with the given ID, if it does not exist, report failure
+    List_first(processes);
+    struct PCB* receivingProcess = List_search(processes, &compareProcesses, &ID);
+    if(receivingProcess == NULL){
+        printf("ERROR: Process #%d could not be found!\n", ID);
+        return(NULL);
+    }
+
+    //Send our message
+    struct message* message = malloc(sizeof(struct message));
+    message->sendID = sendingProcess->ID;
+    message->recvID = ID;
+    message->message = string;
+    List_prepend(messages, message);
+    
+    
+    //Run the next process
+    roundRobin();
+
+    //Take our sendingProcess off its waiting queue (which it was put onto by roundRobin)
+    List* queue;
+    char* priority;
+    if(sendingProcess->priority == high){
+        queue = highQueue;
+        priority = "high";
+    }
+    else if(sendingProcess->priority == medium){
+        queue = mediumQueue;
+        priority = "medium";
+    }
+    else{
+        queue = lowQueue;
+        priority = "low";
+    }
+    List_first(queue);
+    if(List_search(queue, &compareProcesses, &sendingProcess->ID) != NULL){
+        List_remove(queue);
+    }
+
+    //Make our currently running process wait for a reply
+    List_prepend(sendQueue, sendingProcess);
+    List_prepend(blockedQueue, sendingProcess);
+    sendingProcess->state = blocked;
+    printf("Placed process #%d on the blocked queue and the send queue\nProcess #%d is now blocked\n", sendingProcess->ID, sendingProcess->ID);
+
+    //Report success
+    return(message);
+}
+
+//The currently running process receives a message
+//If there is no message currently waiting for this process, then block this process until one is available
+//Returns the message recieved on success, returns NULL when the process is blocked
+struct message* receive(){
+    struct PCB* receivingProcess = runningProcess;
+    //See if there is a message for the currently running process
+    List_first(messages);
+    struct message* message = List_search(messages, &compareMessages, &receivingProcess->ID);
+
+    //If there is a message for the currently running process, receive the message and return it 
+    if(message != NULL){
+        receivingProcess->message=message->message;
+        printf("Process #%d now contains message \"%s\"", receivingProcess->ID, receivingProcess->message);
+        return message;
+    }
+    //Otherwise run the next process
+    roundRobin();
+
+    //Take our sendingProcess off its waiting queue (which it was put onto by roundRobin)
+    List* queue;
+    char* priority;
+    if(receivingProcess->priority == high){
+        queue = highQueue;
+        priority = "high";
+    }
+    else if(receivingProcess->priority == medium){
+        queue = mediumQueue;
+        priority = "medium";
+    }
+    else{
+        queue = lowQueue;
+        priority = "low";
+    }
+    List_first(queue);
+    if(List_search(queue, &compareProcesses, &receivingProcess->ID) != NULL){
+        List_remove(queue);
+    }
+
+    //Make our currently running process wait for a message
+    List_prepend(recvQueue, receivingProcess);
+    List_prepend(blockedQueue, receivingProcess);
+    receivingProcess->state = blocked;
+    printf("Placed process #%d on the blocked queue and the receive queue\nProcess #%d is now blocked\n", receivingProcess->ID, receivingProcess->ID);
+    
+    //Report failure 
+    return(NULL);
+}
+
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
     //Handle create requests
@@ -362,6 +477,33 @@ void commands(char input){
         }
         roundRobin();
         printf("Process #%d placed on the %s priority queue\n", prevProcess->ID, priority);
+        return;
+    }
+
+    //Handle send requests
+    else if(input == 'S'){
+        int ID;
+        char* string;
+        printf("Enter the ID of the process you would like to send to:\n");
+        scanf(" %d", &ID);
+        printf("Enter the message you would like to send to process #%d:\n", ID);
+        scanf(" %s", string);
+        struct message* message = send(ID, string);
+        if(message != NULL){
+            printf("Process #%d sent message \"%s\" to process #%d\n", message->sendID, message->message, message->recvID);
+        }
+        else{
+            printf("ERROR: Could not send message %d\n", ID);
+        }
+        return;
+    }
+
+    //Handle receive requests
+    else if(input == 'R'){
+        struct message* message = receive();
+        if(message != NULL){
+            printf("Process #%d recieved message \"%s\" from process #%d\n", message->recvID, message->message, message->sendID);
+        }
         return;
     }
 
