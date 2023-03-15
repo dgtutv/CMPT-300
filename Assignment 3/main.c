@@ -54,6 +54,8 @@ bool compareMessages(void* message, void* ID){
     return(((struct message*)message)->recvID == *(int*)ID);
 }
 
+//This function checks whether a blocked receiver process has a message ready for it
+
 
 //----------------------------------------------Round Robin Schedualer---------------------------------------//
 void roundRobin(){
