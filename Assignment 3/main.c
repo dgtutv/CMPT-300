@@ -334,6 +334,19 @@ void commands(char input){
         return;
     }
 
+    //Handle exit requests
+    else if(input == 'E'){
+        int ID = runningProcess->ID;
+        bool returnVal = kill(ID);
+        if(returnVal){
+            printf("Successfully killed process %d\n", ID);
+        }
+        else{
+            printf("ERROR: Could not kill process %d\n", ID);
+        }
+        return;
+    }
+
     //Handle invalid requests
     printf("%s","That command does not exist!\n");
     return;
