@@ -54,7 +54,33 @@ bool compareMessages(void* message, void* ID){
     return(((struct message*)message)->recvID == *(int*)ID);
 }
 
-//This function checks whether a blocked receiver process has a message ready for it
+//This function checks whether a blocked receiver process has a message ready for it, and returns the reciever process if so
+void recvOnWait(){
+    if(List_count(recvQueue)>0 && List_count(messages)>0){
+        struct PCB* currentProcess = (struct PCB*)List_first(recvQueue);
+        while(currentProcess != NULL){
+            //See if there is a message for the current process
+            List_first(messages);
+            struct message* message = List_search(messages, &compareMessages, &currentProcess->ID);
+
+            //If there is a message for the current process, receive the message
+            if(message != NULL){
+                currentProcess->message=message->message;
+                printf("Process #%d now contains message \"%s\"\n", currentProcess->ID, currentProcess->message);
+                //Remove the message from the messages queue
+                List_remove(messages);
+
+                //Remove the process from the blocked queues
+                List_remove(recvQueue);
+                List_remove(blockedQueue);
+            }
+            else{
+                //End the loop when there are no more processes
+                currentProcess = (struct PCB*)List_next(recvQueue);
+            }  
+        }
+    }
+}
 
 
 //----------------------------------------------Round Robin Schedualer---------------------------------------//
@@ -293,15 +319,20 @@ struct message* send(int ID, char* string){
     }
 
     //Send our message
-    struct message* message = malloc(sizeof(struct message));
-    message->sendID = sendingProcess->ID;
-    message->recvID = ID;
-    message->message = string;
-    List_prepend(messages, message);
+    struct message* newMessage = malloc(sizeof(struct message));
+    newMessage->sendID = sendingProcess->ID;
+    newMessage->recvID = ID;
+    newMessage->message = string;
+    List_append(messages, newMessage);
     
     
     //Run the next process
     roundRobin();
+    //If after round robin, the running is still the named one, set the running process to init
+    if(sendingProcess == runningProcess){
+        runningProcess = init;
+        init->state = running;
+    }
 
     //Take our sendingProcess off its waiting queue (which it was put onto by roundRobin)
     List* queue;
@@ -330,7 +361,7 @@ struct message* send(int ID, char* string){
     printf("Placed process #%d on the blocked queue and the send queue\nProcess #%d is now blocked\n", sendingProcess->ID, sendingProcess->ID);
 
     //Report success
-    return(message);
+    return(newMessage);
 }
 
 //The currently running process receives a message
@@ -345,11 +376,17 @@ struct message* receive(){
     //If there is a message for the currently running process, receive the message and return it 
     if(message != NULL){
         receivingProcess->message=message->message;
-        printf("Process #%d now contains message \"%s\"", receivingProcess->ID, receivingProcess->message);
+        printf("Process #%d now contains message \"%s\"\n", receivingProcess->ID, receivingProcess->message);       
+        List_remove(messages);      //Remove the message from the messages queue
         return message;
     }
     //Otherwise run the next process
     roundRobin();
+    //If after round robin, the running is still the named one, set the running process to init
+    if(receivingProcess == runningProcess){
+        runningProcess = init;
+        init->state = running;
+    }
 
     //Take our sendingProcess off its waiting queue (which it was put onto by roundRobin)
     List* queue;
@@ -525,6 +562,7 @@ int main(int argc, char* argv[]){
     recvQueue = List_create();    
     blockedQueue = List_create(); 
     processes = List_create();
+    messages = List_create();
 
     //Create our init process
     init = malloc(sizeof(struct PCB));
@@ -552,6 +590,7 @@ int main(int argc, char* argv[]){
         else if(runningProcess->priority == 2){
             priority="low";
         }
+        recvOnWait();       //Check if there is a message to be received, and a receiver waiting
         printf("Process with ID %d and %s priority is currently running\n", runningProcess->ID, priority);
     }
 }
