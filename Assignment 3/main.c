@@ -418,6 +418,49 @@ struct message* receive(){
     return(NULL);
 }
 
+//Function unlocks sender specified by ID, and sends it the specified message
+//Returns the ID of the unblocked sender on success, returns a NULL pointer on failure
+struct PCB* reply(int ID, char* message){
+    //Find the sender on the blocked queue and the send queue, and remove it from both
+    List_first(blockedQueue);
+    struct PCB* sender1 = (struct PCB*)List_search(blockedQueue, compareProcesses, &ID);
+    List_first(sendQueue);
+    struct PCB* sender2 = (struct PCB*)List_search(sendQueue, compareProcesses, &ID);
+    List_remove(blockedQueue);
+    List_remove(sendQueue);
+
+    //If the sender is not found in the send queue, return an error
+    if(sender2 == NULL){
+        printf("ERROR: Process with ID %d could not be found!\n", ID);
+        return(NULL);
+    }
+
+    //Find the priority queue in which the sender process will reside
+    List* queue;
+    char* priority;
+    if(sender2->priority == high){
+        queue = highQueue;
+        priority = "high";
+    }
+    else if(sender2->priority == medium){
+        queue = mediumQueue;
+        priority = "medium";
+    }
+    else{
+        queue = lowQueue;
+        priority = "low";
+    }
+
+    //Unblock the sender, and give it the message
+    sender2->state=ready;
+    sender2->message=message;
+    List_prepend(queue, (void*)sender2);
+    printf("Process with ID %d was added to the %s priority ready queue\n", sender2->ID, priority);
+    
+    printf("Process #%d recieved message \"%s\"\n", sender2->ID, sender2->message);
+    return(sender2);
+}
+
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
     //Handle create requests
@@ -522,7 +565,7 @@ void commands(char input){
     //Handle send requests
     else if(input == 'S'){
         int ID;
-        char* string;
+        char* string = malloc(sizeof(char[40]));
         printf("Enter the ID of the process you would like to send to:\n");
         scanf(" %d", &ID);
         printf("Enter the message you would like to send to process #%d:\n", ID);
@@ -542,6 +585,24 @@ void commands(char input){
         struct message* message = receive();
         if(message != NULL){
             printf("Process #%d recieved message \"%s\" from process #%d\n", message->recvID, message->message, message->sendID);
+        }
+        return;
+    }
+
+    //Handle reply requests
+    else if(input == 'Y'){
+        int ID;
+        char* msg = malloc(sizeof(char[40]));
+        printf("Enter the ID of the process you would like to reply to:\n");
+        scanf(" %d", &ID);
+        printf("Enter the message you would like to reply to process #%d with:\n", ID);
+        scanf(" %s", msg);
+        struct PCB* response = reply(ID, msg);
+        if(response == NULL){
+            printf("ERROR: Could not reply to process #%d with message \"%s\"\n", ID, msg);
+        }
+        else{
+            printf("Succesfully replied to process #%d with message \"%s\"\n", response->ID, response->message);
         }
         return;
     }
