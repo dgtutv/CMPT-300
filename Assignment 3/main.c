@@ -455,9 +455,9 @@ struct PCB* reply(int ID, char* message){
     sender2->state=ready;
     sender2->message=message;
     List_prepend(queue, (void*)sender2);
-    printf("Process with ID %d was added to the %s priority ready queue\n", sender2->ID, priority);
+    printf("Process with ID %d was added to the %s priority ready queue \n", sender2->ID, priority);
     
-    printf("Process #%d recieved message \"%s\"\n", sender2->ID, sender2->message);
+    printf("Process #%d recieved message \"%s\" \n", sender2->ID, sender2->message);
     return(sender2);
 }
 
@@ -599,10 +599,10 @@ void commands(char input){
         scanf(" %s", msg);
         struct PCB* response = reply(ID, msg);
         if(response == NULL){
-            printf("ERROR: Could not reply to process #%d with message \"%s\"\n", ID, msg);
+            printf("ERROR: Could not reply to process #%d with message \"%s\" \n", ID, msg);
         }
         else{
-            printf("Succesfully replied to process #%d with message \"%s\"\n", response->ID, response->message);
+            printf("Succesfully replied to process #%d with message \"%s\" \n", response->ID, response->message);
         }
         return;
     }
