@@ -5,19 +5,7 @@
 #include <string.h>
 #include <assert.h>
 
-//----------------------------------------------Global variables---------------------------------------------//
-int currID=1;   //This will keep track of which ID a process should be, where we increment ID for each new process created
-List* lowQueue;     //The ready queue for low priority processes
-List* mediumQueue;  //The ready queue for medium priority processes
-List* highQueue;    //The ready queue for high priority processes
-List* sendQueue;    //The queue of processes waiting on a send operation (i.e., waiting for a reply)
-List* recvQueue;    //The queue of processes waiting on a receive operation
-List* blockedQueue; //The queue of all blocked processes for our operating system
-List* processes;    //The list of all of our processes
-List* messages;     //The list of all messages waiting to be received
-struct PCB* runningProcess;     //A pointer to the currently running process
-int currIndex;      //The list index for round robin schedualer (which index am I on?)
-struct PCB* init;   //A pointer to the process that runs at startup
+//TODO: fix bug where first part of message typed is only part picked up by program
 
 //---------------------------------------------OS data structures-------------------------------------------//
 
@@ -30,9 +18,9 @@ struct PCB{
 };
 
 //The structure for a semaphore
-struct sem{
+struct semaphore{
     int val;    //The value of our semaphore
-    List* waitingProcesses; //A list of all the processes waiting on this semaphore
+    int ID;     //The ID of our semaphore
 };
 
 //The structure for a message on the messages queue
@@ -41,6 +29,21 @@ struct message{
     int sendID;     //The ID of the process which sent the message
     char* message;  //The message to be sent between the processes
 };
+
+//----------------------------------------------Global variables---------------------------------------------//
+int currID=1;   //This will keep track of which ID a process should be, where we increment ID for each new process created
+List* lowQueue;     //The ready queue for low priority processes
+List* mediumQueue;  //The ready queue for medium priority processes
+List* highQueue;    //The ready queue for high priority processes
+List* sendQueue;    //The queue of processes waiting on a send operation (i.e., waiting for a reply)
+List* recvQueue;    //The queue of processes waiting on a receive operation
+List* blockedQueue; //The queue of all blocked processes for our operating system
+List* processes;    //The list of all of our processes
+List* messages;     //The list of all messages waiting to be received
+struct semaphore semaphores[4];   //The list of all semaphores present in the current OS instance
+struct PCB* runningProcess;     //A pointer to the currently running process
+int currIndex;      //The list index for round robin schedualer (which index am I on?)
+struct PCB* init;   //A pointer to the process that runs at startup
 
 //------------------------------------------------Helper Functions-------------------------------------------//
 
@@ -461,6 +464,35 @@ struct PCB* reply(int ID, char* message){
     return(sender2);
 }
 
+//Fucntion initializes the named semaphore with the value given
+//IDs are unique and can range from 0-4
+//Returns a pointer to the semaphore on success, a NULL pointer on failure
+struct semaphore* newSem(int ID, int val){
+    //Check the given value is valid
+    if(val < 0){
+        printf("ERROR: Initial semaphore value must be greater than or equal to 0\n");
+        return(NULL);
+    }
+
+    //Check the given semaphore ID
+    if(ID<0 || ID>4){
+        printf("ERROR: Semaphore ID must range from [0, 4]\n");
+        return(NULL);
+    }
+
+    //Check the semaphore is not in use
+    if(semaphores[ID].ID != -1){
+        printf("ERROR: Semaphore with ID #%d is already in use!\n", ID);
+        return(NULL);
+    }
+
+    //Initialize the semaphore
+    semaphores[ID].ID = ID;
+    semaphores[ID].val = val;
+    return(&semaphores[ID]);
+
+}
+
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
     //Handle create requests
@@ -607,6 +639,24 @@ void commands(char input){
         return;
     }
 
+    //Handle new semaphore requests
+    else if(input == 'N'){
+        int ID;
+        int val;
+        printf("Enter the ID of the semaphore you would like to initialize:\n");
+        scanf(" %d", &ID);
+        printf("Enter the value of the semaphore you would like to initialize:\n");
+        scanf(" %d", &val);
+        struct semaphore* newSemaphore = newSem(ID, val);
+        if(newSemaphore == NULL){
+            printf("ERROR: Could not initialize semaphore #%d with value %d \n", ID, val);
+        }
+        else{
+            printf("Successfully initialized semaphore #%d with value %d \n", ID, val);
+        }
+        return;
+    }
+
     //Handle invalid requests
     printf("%s","That command does not exist!\n");
     return;
@@ -624,6 +674,11 @@ int main(int argc, char* argv[]){
     blockedQueue = List_create(); 
     processes = List_create();
     messages = List_create();
+
+    //Set all of our semaphore IDs to -1 (to indicate they have not been initialized)
+    for(int i=0; i<5; i++){
+        semaphores[i].ID = -1;
+    }
 
     //Create our init process
     init = malloc(sizeof(struct PCB));
