@@ -498,6 +498,11 @@ struct semaphore* newSem(int ID, int val){
 //Returns false on failure, true on success
 //TODO: ensure that the init process does not get blocked
 bool semP(int ID){
+    //Check that the currently running process is not the INIT process
+    if(runningProcess==init){
+        printf("ERROR: Cannot call p() with the init process\n");
+        return(false);
+    }
     //Check the given semaphore ID
     if(ID<0 || ID>4){
         printf("ERROR: Semaphore ID must range from [0, 4]\n");
@@ -507,7 +512,7 @@ bool semP(int ID){
     //Check the semaphore is in use
     if(semaphores[ID].ID == -1){
         printf("ERROR: Semaphore with ID #%d is not in use!\n", ID);
-        return(NULL);
+        return(false);
     }
 
     //Decrement the semaphore
@@ -516,8 +521,8 @@ bool semP(int ID){
     //Check if the running procecss should be blocked
     if(semaphores[ID].val <= -1){
         semaphores[ID].val++;   //Reset the value of the semaphore 
-        roundRobin();   //Run the next process
         struct PCB* process = runningProcess;   //Create a pointer to the currently running process
+        roundRobin();   //Run the next process
 
         //If after round robin, the running is still the named one, set the running process to init
         if(process == runningProcess){
@@ -549,7 +554,7 @@ bool semP(int ID){
         List_prepend(semaphores[ID].blocked, process);
         List_prepend(blockedQueue, process);
         process->state = blocked;
-        printf("Placed process #%d on both the global, and semaphore %d's blocked queue\nProcess #%d is now blocked\n", process->ID, ID, process->ID);
+        printf("Placed process #%d on both the global, and semaphore #%d's blocked queue\nProcess #%d is now blocked\n", process->ID, ID, process->ID);
 
         //Report success
         return(true);
@@ -775,6 +780,38 @@ void commands(char input){
         }
         else{
             printf("Successfully initialized semaphore #%d with value %d \n", ID, val);
+        }
+        return;
+    }
+
+    //Handle sempahore p requests
+    else if(input == 'P'){
+        int ID;
+        struct PCB* curr = runningProcess;
+        printf("Enter the ID of the semaphore you would like to call p() on:\n");
+        scanf(" %d", &ID);
+        bool passed = semP(ID);
+        if(passed){
+            printf("Process #%d successfully called p(%d)\n", curr->ID, ID);
+        }
+        else{
+            printf("Process #%d failed to call p(%d)\n", curr->ID, ID);
+        }
+        return;
+    }
+
+    //Handle sempahore v requests
+    else if(input == 'V'){
+        int ID;
+        struct PCB* curr = runningProcess;
+        printf("Enter the ID of the semaphore you would like to call v() on:\n");
+        scanf(" %d", &ID);
+        bool passed = semV(ID);
+        if(passed){
+            printf("Process #%d successfully called v(%d)\n", curr->ID, ID);
+        }
+        else{
+            printf("Process #%d failed to call v(%d)\n", curr->ID, ID);
         }
         return;
     }
