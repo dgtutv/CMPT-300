@@ -172,6 +172,7 @@ struct PCB* create(int priority){
     process->priority = priority;
     process->state = ready;
     process->ID = currID;
+    process->message = "";
     currID++;
     
     List_append(processes, process);
@@ -620,6 +621,51 @@ bool semV(int ID){
     return(true);
 }
 
+//Function dumps complete state information of the process with the given ID to the screen
+void procinfo(int ID){
+    //Find the process with the given ID, if it does not exist, report failure
+    List_first(processes);
+    struct PCB* process = List_search(processes, &compareProcesses, &ID);
+    if(process == NULL){
+        printf("ERROR: Process #%d could not be found!\n", ID);
+        return;
+    }
+
+    //Find the state of the process in string form
+    char* state;
+    if(process->state == running){
+        state = "running";
+    }
+    else if(process->state == ready){
+        state = "ready";
+    }
+    else{
+        state = "blocked";
+    }
+
+    //Find the queue and priority of the process in string form
+    char* priority;
+    if(process->priority == high){
+        priority = "high";
+    }
+    else if(process->priority == medium){
+        priority = "medium";
+    }
+    else{
+        priority = "low";
+    }
+
+    //Print the process state information
+    printf("Process #%d state: %s\n", process->ID, state);
+    printf("Process #%d priority: %s\n", process->ID, priority);
+    if(strlen(process->message)==0){
+        printf("Process #%d contains no message\n", process->ID);
+    }
+    else{
+        printf("Process #%d contains message: \"%s\" \n", process->ID, process->message);
+    } 
+}
+
 //-------------------------------------Function to handle OS command requests----------------------------------//
 void commands(char input){
     //Handle create requests
@@ -816,6 +862,15 @@ void commands(char input){
         return;
     }
 
+    //Handle procinfo requests
+    else if(input == 'I'){
+        int ID;
+        printf("Enter the ID of the process you would like information on:\n");
+        scanf(" %d", &ID);
+        procinfo(ID);
+        return;
+    }
+
     //Handle invalid requests
     printf("%s","That command does not exist!\n");
     return;
@@ -845,6 +900,7 @@ int main(int argc, char* argv[]){
     init->priority = high;
     init->state = running;     //The state should be running when the OS starts execution
     init->ID=0;
+    init->message="";
     List_append(processes, init);
     runningProcess = init;
     printf("Created the init process with process ID 0, high priority, and state set to running\n");
