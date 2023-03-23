@@ -21,6 +21,7 @@ struct PCB{
 struct semaphore{
     int val;    //The value of our semaphore
     int ID;     //The ID of our semaphore
+    List* blocked;      //A list of all the processes blocked on this semaphore
 };
 
 //The structure for a message on the messages queue
@@ -490,7 +491,128 @@ struct semaphore* newSem(int ID, int val){
     semaphores[ID].ID = ID;
     semaphores[ID].val = val;
     return(&semaphores[ID]);
+}
 
+//Function executes the semaphore P operation on behalf of the running process
+//It is assumed that semaphore ID range from 0-4
+//Returns false on failure, true on success
+//TODO: ensure that the init process does not get blocked
+bool semP(int ID){
+    //Check the given semaphore ID
+    if(ID<0 || ID>4){
+        printf("ERROR: Semaphore ID must range from [0, 4]\n");
+        return(false);
+    }
+
+    //Check the semaphore is in use
+    if(semaphores[ID].ID == -1){
+        printf("ERROR: Semaphore with ID #%d is not in use!\n", ID);
+        return(NULL);
+    }
+
+    //Decrement the semaphore
+    semaphores[ID].val--;
+
+    //Check if the running procecss should be blocked
+    if(semaphores[ID].val <= -1){
+        semaphores[ID].val++;   //Reset the value of the semaphore 
+        roundRobin();   //Run the next process
+        struct PCB* process = runningProcess;   //Create a pointer to the currently running process
+
+        //If after round robin, the running is still the named one, set the running process to init
+        if(process == runningProcess){
+            runningProcess = init;
+            init->state = running;
+        }
+
+        //Take our process off its waiting queue (which it was put onto by roundRobin)
+        List* queue;
+        char* priority;
+        if(process->priority == high){
+            queue = highQueue;
+            priority = "high";
+        }
+        else if(process->priority == medium){
+            queue = mediumQueue;
+            priority = "medium";
+        }
+        else{
+            queue = lowQueue;
+            priority = "low";
+        }
+        List_first(queue);
+        if(List_search(queue, &compareProcesses, &process->ID) != NULL){
+            List_remove(queue);
+        }
+
+        //Block the process that called P
+        List_prepend(semaphores[ID].blocked, process);
+        List_prepend(blockedQueue, process);
+        process->state = blocked;
+        printf("Placed process #%d on both the global, and semaphore %d's blocked queue\nProcess #%d is now blocked\n", process->ID, ID, process->ID);
+
+        //Report success
+        return(true);
+    }
+
+    //If not, report success
+    printf("Semaphore #%d decremented to %d by process #%d\n", ID, semaphores[ID].val, runningProcess->ID);
+}
+
+//Function executes the semaphore V operation on behalf of the running process
+//It is assumed that semaphore ID range from 0-4
+//Returns false on failure, true on success
+bool semV(int ID){
+    //Check the given semaphore ID
+    if(ID<0 || ID>4){
+        printf("ERROR: Semaphore ID must range from [0, 4]\n");
+        return(false);
+    }
+
+    //Check the semaphore is in use
+    if(semaphores[ID].ID == -1){
+        printf("ERROR: Semaphore with ID #%d is not in use!\n", ID);
+        return(NULL);
+    }
+    
+    //Increment the semaphore
+    semaphores[ID].val++;
+    printf("Semaphore #%d incremented to %d by process #%d\n", ID, semaphores[ID].val, runningProcess->ID);
+    
+    //Check if the semaphore value is positive, if so unblock a process waiting on this semaphore
+    if(semaphores[ID].val > 0){
+        if(List_count(semaphores[ID].blocked)>0){
+            struct PCB* processToUnblock = List_trim(semaphores[ID].blocked);   //Grab our blocked process
+
+            //Find the priority queue in which the blocked process will reside
+            List* queue;
+            char* priority;
+            if(processToUnblock->priority == high){
+                queue = highQueue;
+                priority = "high";
+            }
+            else if(processToUnblock->priority == medium){
+                queue = mediumQueue;
+                priority = "medium";
+            }
+            else{
+                queue = lowQueue;
+                priority = "low";
+            }
+
+            //Unblock our blocked process
+            processToUnblock->state=ready;
+            List_prepend(queue, (void*)processToUnblock);
+            printf("Process with ID %d was unblocked\n", processToUnblock->ID);
+
+            //Decrement the semaphore, as now we are acting as the unblocked portion of P()
+            semaphores[ID].val--;       
+            printf("Semaphore #%d decremented to %d by process #%d\n", ID, semaphores[ID].val, processToUnblock->ID);
+            printf("Process #%d was added to the %s priority ready queue \n", processToUnblock->ID, priority);
+        }
+    }
+    //Return success
+    return(true);
 }
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
@@ -675,9 +797,10 @@ int main(int argc, char* argv[]){
     processes = List_create();
     messages = List_create();
 
-    //Set all of our semaphore IDs to -1 (to indicate they have not been initialized)
+    //Setup our uninitialized semaphores
     for(int i=0; i<5; i++){
-        semaphores[i].ID = -1;
+        semaphores[i].ID = -1;  //Set all of our semaphore IDs to -1 (to indicate they have not been initialized)
+        semaphores[i].blocked = List_create();
     }
 
     //Create our init process
