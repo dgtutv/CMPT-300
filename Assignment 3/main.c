@@ -86,6 +86,25 @@ void recvOnWait(){
     }
 }
 
+//This function prints the contents of a given list
+void printList(List* list){
+    if(List_count(list) == 0){
+        printf(": empty\n");
+        return;
+    }
+    struct PCB* currentProcess = (struct PCB*)List_first(list);
+    printf("->%d", currentProcess->ID);
+    while(true){
+        currentProcess = (struct PCB*)List_next(list);
+        if(currentProcess == NULL){
+            printf(";\n");
+            return;
+        }
+        else{
+            printf("->%d", currentProcess->ID);
+        }
+    }
+}
 
 //----------------------------------------------Round Robin Schedualer---------------------------------------//
 void roundRobin(){
@@ -314,6 +333,11 @@ bool kill(int ID){
 //Blocks the current running process until a reply is received
 //Returns message sent on success, NULL upon failure
 struct message* send(int ID, char* string){
+    //Check that the currently running process is not the INIT process
+    if(runningProcess==init){
+        printf("ERROR: Cannot send from the init process\n");
+        return(false);
+    }
     struct PCB* sendingProcess = runningProcess;
     //Find the process with the given ID, if it does not exist, report failure
     List_first(processes);
@@ -610,6 +634,11 @@ bool semV(int ID){
             processToUnblock->state=ready;
             List_prepend(queue, (void*)processToUnblock);
             printf("Process with ID %d was unblocked\n", processToUnblock->ID);
+            List_first(blockedQueue);
+            struct PCB* processCMP = (struct PCB*)List_search(blockedQueue, compareProcesses, &processToUnblock->ID);
+            if(processCMP == processToUnblock){
+                List_remove(blockedQueue);
+            }
 
             //Decrement the semaphore, as now we are acting as the unblocked portion of P()
             semaphores[ID].val--;       
@@ -622,7 +651,7 @@ bool semV(int ID){
 }
 
 //Function dumps complete state information of the process with the given ID to the screen
-void procinfo(int ID){
+void procInfo(int ID){
     //Find the process with the given ID, if it does not exist, report failure
     List_first(processes);
     struct PCB* process = List_search(processes, &compareProcesses, &ID);
@@ -664,6 +693,35 @@ void procinfo(int ID){
     else{
         printf("Process #%d contains message: \"%s\" \n", process->ID, process->message);
     } 
+}
+
+//Displays all process queues and their contents
+void totalInfo(){
+    //Print all global process queues
+    printf("Low priority ready queue");
+    printList(lowQueue);
+    printf("Medium priority ready queue");
+    printList(mediumQueue);
+    printf("High priority ready queue");
+    printList(highQueue);
+    printf("Send blocked queue");
+    printList(sendQueue);
+    printf("Receive blocked queue");
+    printList(recvQueue);
+    printf("Blocked queue for all processes");
+    printList(blockedQueue);
+    printf("Queue for all processes");
+    printList(processes);
+
+    //Print all the queues in the semaphores
+    struct semaphore* currentSem;
+    for(int i=0; i<5; i++){
+        currentSem = &semaphores[i];
+        if(currentSem->ID != -1){
+            printf("Semaphore #%d blocked queue", currentSem->ID);
+            printList(currentSem->blocked);
+        }
+    }
 }
 
 //-------------------------------------Function to handle OS command requests----------------------------------//
@@ -780,7 +838,7 @@ void commands(char input){
             printf("Process #%d sent message \"%s\" to process #%d\n", message->sendID, message->message, message->recvID);
         }
         else{
-            printf("ERROR: Could not send message %d\n", ID);
+            printf("ERROR: Could not send message \"%s\" from process #%d\n", ID);
         }
         return;
     }
@@ -862,12 +920,18 @@ void commands(char input){
         return;
     }
 
-    //Handle procinfo requests
+    //Handle procInfo requests
     else if(input == 'I'){
         int ID;
         printf("Enter the ID of the process you would like information on:\n");
         scanf(" %d", &ID);
-        procinfo(ID);
+        procInfo(ID);
+        return;
+    }
+
+    //Handle totalInfo requests
+    else if(input == 'T'){
+        totalInfo();
         return;
     }
 
@@ -923,6 +987,10 @@ int main(int argc, char* argv[]){
             priority="low";
         }
         recvOnWait();       //Check if there is a message to be received, and a receiver waiting
+        //If the running process is init, call round robin to ensure no other processes are available
+        if(runningProcess == init){
+            roundRobin();
+        }
         printf("Process with ID %d and %s priority is currently running\n", runningProcess->ID, priority);
     }
 }
