@@ -828,17 +828,23 @@ void commands(char input){
     //Handle send requests
     else if(input == 'S'){
         int ID;
-        char* string = malloc(sizeof(char[40]));
+        char* string = malloc(sizeof(char[40]));    //41 to remove the trailing newline
         printf("Enter the ID of the process you would like to send to:\n");
         scanf(" %d", &ID);
+        getchar();
+        fflush(stdin);
         printf("Enter the message you would like to send to process #%d:\n", ID);
-        scanf(" %s", string);
+        fgets(string, 40, stdin);
+
+        //Remove the trailing newline
+        string[strlen(string)-1] = '\0';
+
         struct message* message = send(ID, string);
         if(message != NULL){
-            printf("Process #%d sent message \"%s\" to process #%d\n", message->sendID, message->message, message->recvID);
+            printf("Process #%d sent message \"%s\" to process #%d, press enter to continue:\n", message->sendID, message->message, message->recvID);
         }
         else{
-            printf("ERROR: Could not send message \"%s\" from process #%d\n", ID);
+            printf("ERROR: Could not send message \"%s\" from process #%d, press enter to continue:\n", string, ID);
         }
         return;
     }
@@ -855,17 +861,23 @@ void commands(char input){
     //Handle reply requests
     else if(input == 'Y'){
         int ID;
-        char* msg = malloc(sizeof(char[40]));
+        char* msg = malloc(sizeof(char[41]));
         printf("Enter the ID of the process you would like to reply to:\n");
         scanf(" %d", &ID);
+        getchar();
+        fflush(stdin);
         printf("Enter the message you would like to reply to process #%d with:\n", ID);
-        scanf(" %s", msg);
+        fgets(msg, 40, stdin);
+
+        //Remove the trailing newline
+        msg[strlen(msg)-1] = '\0';
+
         struct PCB* response = reply(ID, msg);
         if(response == NULL){
-            printf("ERROR: Could not reply to process #%d with message \"%s\" \n", ID, msg);
+            printf("ERROR: Could not reply to process #%d with message\"%s\", press enter to continue: \n", ID, msg);
         }
         else{
-            printf("Succesfully replied to process #%d with message \"%s\" \n", response->ID, response->message);
+            printf("Succesfully replied to process #%d with message \"%s\", press enter to continue:\n", response->ID, response->message);
         }
         return;
     }
@@ -971,6 +983,7 @@ int main(int argc, char* argv[]){
 
     char buffer;
     while(1){
+        fflush(stdin);
         printf("%s","user@OS:~$ ");
         while((buffer = getchar()) != '\n' && buffer != EOF){   //Get user input
         	commands(buffer);   //Handle the input
