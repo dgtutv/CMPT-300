@@ -5,8 +5,6 @@
 #include <string.h>
 #include <assert.h>
 
-//TODO: fix bug where first part of message typed is only part picked up by program
-
 //---------------------------------------------OS data structures-------------------------------------------//
 
 //The structure for a process control block
@@ -831,13 +829,8 @@ void commands(char input){
         char* string = malloc(sizeof(char[40]));    //41 to remove the trailing newline
         printf("Enter the ID of the process you would like to send to:\n");
         scanf(" %d", &ID);
-        getchar();
-        fflush(stdin);
         printf("Enter the message you would like to send to process #%d:\n", ID);
-        fgets(string, 40, stdin);
-
-        //Remove the trailing newline
-        string[strlen(string)-1] = '\0';
+        scanf(" %[^\n]%*c", string);
 
         struct message* message = send(ID, string);
         if(message != NULL){
@@ -864,13 +857,8 @@ void commands(char input){
         char* msg = malloc(sizeof(char[41]));
         printf("Enter the ID of the process you would like to reply to:\n");
         scanf(" %d", &ID);
-        getchar();
-        fflush(stdin);
         printf("Enter the message you would like to reply to process #%d with:\n", ID);
-        fgets(msg, 40, stdin);
-
-        //Remove the trailing newline
-        msg[strlen(msg)-1] = '\0';
+        scanf(" %[^\n]%*c", msg);
 
         struct PCB* response = reply(ID, msg);
         if(response == NULL){
