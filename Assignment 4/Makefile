@@ -1,7 +1,8 @@
-main: main.o
+UnixLs: UnixLs.o list.o
 	gcc -o UnixLs UnixLs.o list.o
-	
-main.o: main.c
+
+UnixLs.o: UnixLs.c
 	gcc -c -g UnixLs.c
+
 clean:
 	rm UnixLs UnixLs.o
