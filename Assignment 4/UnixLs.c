@@ -85,7 +85,7 @@ bool argumentHandler(char* argument){
    
     //If there is no hyphen provided, treat the argument as a file or directory
     if(!hasHyphen){
-        List_append(baseFileNames, &argument);
+        List_append(baseFileNames, argument);
     }
 
     return(true);
@@ -117,6 +117,17 @@ int main(int argc, char* argv[]){
                 return(0);
             }
             currentArgument = List_next(arguments);
+        }
+    }
+
+    //For now, print out all the set flags, and specified files or directories for testing purposes
+    if(rFlag){printf("The \'R\' option has been set\n");}
+    if(lFlag){printf("The \'l\' option has been set\n");}
+    if(iFlag){printf("The \'i\' option has been set\n");}
+    if(List_count(baseFileNames) > 0){
+        printf("Files specified: %s\n", (char*)List_first(baseFileNames));
+        for(int i=1; i<List_count(baseFileNames); i++){
+            printf("%s\n", (char*)List_next(baseFileNames));
         }
     }
 
