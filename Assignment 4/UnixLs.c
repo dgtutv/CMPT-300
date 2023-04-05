@@ -9,6 +9,7 @@ Course: CMPT 300 - Operating Systems*/
 #include "list.h"
 #include <string.h>
 #include <dirent.h>
+#include <sys/types.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 typedef struct File File;
@@ -17,7 +18,6 @@ typedef struct Directory Directory;
 //Stores essential information about a file
 struct File{
     char* fileName;
-    char* fileType;
     bool isDirectory;
     bool canBeRan;
     bool isHiddenFile;
@@ -29,15 +29,15 @@ struct File{
     char* fileGroupName;
     int sizeOfFile;
     char* dateTimeOfMostRecentChange;
-
+    ino_t iNodeNumber;
 };
 
 //Stores essential information about a directory
 struct Directory{
     List* files;
-    Directory* parent;
+    DIR* parent;            //The directory stream for the parent of this directory
     File* directoryFile;    //The file information for this directory
-    DIR* directoryStream;     //The pointer to the dirent struct for the directory
+    DIR* directoryStream;   //The pointer to the dirent struct for the directory
 };
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
@@ -120,11 +120,27 @@ Directory* directoryReader(const char* directoryName){
         return(NULL);
     }
 
-    //Read all of the entries in the directory
-    while
-    
-    //Finally, set all the values in our directory struct
+    //Set information about our directory
+    Directory* currentDirectory = malloc(sizeof(Directory));
+    currentDirectory->files = List_create();
+    currentDirectory->directoryStream = directoryStream;
+    //TODO: parentDirectory
 
+    //Read all of the entries in the directory
+    struct dirent* directoryEntry;
+    while((directoryEntry = readdir(directoryStream)) != NULL){
+        //Store information about each file
+        File* currentFile = malloc(sizeof(File));
+        List_append(currentDirectory->files, currentFile);
+        currentFile->iNodeNumber = directoryEntry->d_ino;
+        currentFile->fileName = directoryEntry->d_name;
+        currentFile->        
+    }
+
+    //The first entry in the directory is the directory itself
+    currentDirectory->directoryFile = List_first(currentDirectory->files);
+
+    //Get infor
 }
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
