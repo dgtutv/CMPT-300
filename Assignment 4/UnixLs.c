@@ -3,6 +3,8 @@ Author: Daniel Todd
 Description: The purpose of this program is to emulate the UNIX ls command with flags -i, -l, and -R
 Course: CMPT 300 - Operating Systems*/
 
+#define _DEFAULT_SOURCE     //Defines some necessary macros
+
 /*------------------------------------------------------------Includes-----------------------------------------------------------------------*/
 #include <stdio.h>
 #include <syscall.h>
@@ -10,6 +12,7 @@ Course: CMPT 300 - Operating Systems*/
 #include <string.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <stdlib.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 typedef struct File File;
@@ -35,7 +38,7 @@ struct File{
 //Stores essential information about a directory
 struct Directory{
     List* files;
-    DIR* parent;            //The directory stream for the parent of this directory
+    DIR* parent;            //The directory stream for the parent of this directory, set to NULL if root.
     File* directoryFile;    //The file information for this directory
     DIR* directoryStream;   //The pointer to the dirent struct for the directory
 };
@@ -44,7 +47,9 @@ struct Directory{
 
 int argumentCount;      //The number of command line arguments supplied
 List* arguments;        //A list of the command line arguments supplied
-List* baseFileNames;     //A list of the names of files or directories, optionally provided by the user at the command-line
+List* baseFileNames;    //A list of the names of files or directories, optionally provided by the user at the command-line
+List* directories;      //A list of all the directories accessed.
+//TODO: closedir() on all the directories accessed at the end of the program.
 
 //Booleans representing whether or not a certain flag was specified by the user
 bool iFlag;
@@ -124,23 +129,26 @@ Directory* directoryReader(const char* directoryName){
     Directory* currentDirectory = malloc(sizeof(Directory));
     currentDirectory->files = List_create();
     currentDirectory->directoryStream = directoryStream;
-    //TODO: parentDirectory
+    currentDirectory->parent = opendir("..");
+    List_append(directories, currentDirectory);
 
     //Read all of the entries in the directory
     struct dirent* directoryEntry;
     while((directoryEntry = readdir(directoryStream)) != NULL){
-        //Store information about each file
+        //Store information we can get from the directory entry about the current file
         File* currentFile = malloc(sizeof(File));
         List_append(currentDirectory->files, currentFile);
         currentFile->iNodeNumber = directoryEntry->d_ino;
         currentFile->fileName = directoryEntry->d_name;
-        currentFile->        
+        if(directoryEntry->d_type == DT_DIR){
+            currentFile->isDirectory = true;
+        }    
+        //TODO: canBeRan, isHiddenFile, userCanRead, userCanWrite, userCanExecute, numOfHardLinks, fileOwner, fileGroupName, sizeOfFile, dateTimeOfMostRecentChange
     }
 
     //The first entry in the directory is the directory itself
     currentDirectory->directoryFile = List_first(currentDirectory->files);
 
-    //Get infor
 }
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
@@ -149,6 +157,7 @@ int main(int argc, char* argv[]){
     argumentCount = argc;
     arguments = List_create();
     baseFileNames = List_create();
+    directories = List_create();
     iFlag = false;
     lFlag = false;
     rFlag = false;

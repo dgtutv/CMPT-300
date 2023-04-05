@@ -37,5 +37,6 @@
   "files.associations": {
     "syscall.h": "c",
     "list.h": "c"
-  }
+  },
+  "C_Cpp.default.intelliSenseMode": "msvc-x64"
 }
