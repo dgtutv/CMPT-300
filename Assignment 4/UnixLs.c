@@ -57,34 +57,51 @@ bool argumentHandler(char* argument){
     //If a hyphen is provided, treat the argument as a set of flags
     char currentChar;
     bool hasHyphen = false;
+    bool flagSet = false;   //Boolean to tell if there has been a valid flag following a hyphen
     for(int i=0; i<strlen(argument); i++){
         currentChar = argument[i];
 
         //Set the flags accordingly, ensuring format of input is correct
         if(currentChar == '-' && !hasHyphen && List_count(baseFileNames) == 0){
-            hasHyphen == true;
+            hasHyphen = true;
+            continue;
         }
-        if(currentChar == '-' && hasHyphen){
-            printf("UnixLs: invalid format, character \'-\' provided too many times\n");
-            return(false);
+        else {
+            if(currentChar == '-' && hasHyphen){
+                printf("UnixLs: invalid format, character \'-\' provided too many times\n");
+                return(false);
+            }
+            if(currentChar == '-' && List_count(baseFileNames) > 0){
+                printf("UnixLs: invalid format, any options must come before file names\n");
+                return(false);
+            }
         }
-        if(currentChar == '-' && List_count(baseFileNames) > 0){
-            printf("UnixLs: invalid format, any options must come before file names\n");
-            return(false);
-        }
-        else if(currentChar == 'i' && hasHyphen){
+        if(currentChar == 'i' && hasHyphen){
             iFlag = true;
+            flagSet = true;
         }
         else if(currentChar == 'R' && hasHyphen){
             rFlag = true;
+            flagSet = true;
         }
         else if(currentChar == 'l' && hasHyphen){
             lFlag = true;
+            flagSet = true;
         }
+        else if(hasHyphen){
+            printf("UnixLs: invalid format, \'%c\' is not an option\n", currentChar);
+            return(false);
+        }
+    }
+
+    //If there is a hyphen provided, but no flags have been set, return an error
+    if(hasHyphen && !flagSet){
+        printf("UnixLs: cannot access \'-\', no such file or directory\n");
+        return(false);
     }
    
     //If there is no hyphen provided, treat the argument as a file or directory
-    if(!hasHyphen){
+    else if(!hasHyphen){
         List_append(baseFileNames, argument);
     }
 
@@ -125,9 +142,9 @@ int main(int argc, char* argv[]){
     if(lFlag){printf("The \'l\' option has been set\n");}
     if(iFlag){printf("The \'i\' option has been set\n");}
     if(List_count(baseFileNames) > 0){
-        printf("Files specified: %s\n", (char*)List_first(baseFileNames));
+        printf("Files specified: %*s\n", 25-17, (char*)List_first(baseFileNames));
         for(int i=1; i<List_count(baseFileNames); i++){
-            printf("%s\n", (char*)List_next(baseFileNames));
+            printf("%*s\n", 25, (char*)List_next(baseFileNames));
         }
     }
 
