@@ -8,6 +8,7 @@ Course: CMPT 300 - Operating Systems*/
 #include <syscall.h>
 #include "list.h"
 #include <string.h>
+#include <dirent.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 typedef struct File File;
@@ -36,6 +37,7 @@ struct Directory{
     List* files;
     Directory* parent;
     File* directoryFile;    //The file information for this directory
+    DIR* directoryStream;     //The pointer to the dirent struct for the directory
 };
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
@@ -108,6 +110,23 @@ bool argumentHandler(char* argument){
     return(true);
 }
 
+/*Gets information about the directory provided by the directoryName parameter
+Returns a pointer to the directory on success, returns NULL on failure*/
+Directory* directoryReader(const char* directoryName){
+    //Get a pointer to the directory with opendir
+    DIR* directoryStream = opendir(directoryName);
+    if(directoryStream == NULL){
+        printf("UnixLs: Cannot open \'%s\', no such file or directory found\n", directoryName);
+        return(NULL);
+    }
+
+    //Read all of the entries in the directory
+    while
+    
+    //Finally, set all the values in our directory struct
+
+}
+
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
 int main(int argc, char* argv[]){
     //Instanstiate some global variables
@@ -148,5 +167,7 @@ int main(int argc, char* argv[]){
         }
     }
 
-    //Call functions associated to flags specified by the user in the command-line arguments
+    //Get directory information for the files/directories provided by the user
+    //If no file or directory is provided by the user, get directory information for the directory of the program
+
 }
