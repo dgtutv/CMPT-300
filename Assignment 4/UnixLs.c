@@ -12,7 +12,9 @@ Course: CMPT 300 - Operating Systems*/
 #include <string.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 typedef struct File File;
@@ -27,12 +29,14 @@ struct File{
     bool userCanRead;
     bool userCanWrite;
     bool userCanExecute;
+    bool isSymbolicLink;
     int numOfHardLinks;
     char* fileOwner;
     char* fileGroupName;
     int sizeOfFile;
     char* dateTimeOfMostRecentChange;
     ino_t iNodeNumber;
+    DIR* linkStream;        //If this file is a symbolic link, this stores the directory stream for the directory the link points to, otherwise stores NULL
 };
 
 //Stores essential information about a directory
@@ -143,6 +147,32 @@ Directory* directoryReader(const char* directoryName){
         if(directoryEntry->d_type == DT_DIR){
             currentFile->isDirectory = true;
         }    
+
+        //Gather information about the file
+        struct stat* fileInformation = malloc(sizeof(struct stat));
+        if(lstat(currentFile->fileName, fileInformation) == -1){
+            printf("UnixLs: directoryReader: failed to obtain information about file \"%s\"\n", currentFile->fileName);
+            return(NULL);
+        }
+
+        //If the file is a symbolic link, get the directory stream to the directory that the link points to
+        if(S_ISLNK(fileInformation->st_mode)){
+            currentFile->isSymbolicLink = true;
+            char linkBuffer[1024];
+            int numOfBytes = readlink(currentFile->fileName, linkBuffer, sizeof(linkBuffer));
+            if(numOfBytes == -1){
+                printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->fileName);
+                return(NULL);
+            }
+            linkBuffer[numOfBytes] = '\0';  //Set the linkBuffer string to end at the correct location after calling readlink() on it
+            DIR* linkDirectoryStream = opendir(linkBuffer);
+            if(linkDirectoryStream == NULL){
+                printf("UnixLs: directoryReader: failed to obtain the directory stream for symbolic link \"%s\"\n", currentFile->fileName);
+                return(NULL);
+            }
+            currentFile->linkStream = linkDirectoryStream;
+        }
+
         //TODO: canBeRan, isHiddenFile, userCanRead, userCanWrite, userCanExecute, numOfHardLinks, fileOwner, fileGroupName, sizeOfFile, dateTimeOfMostRecentChange
     }
 
