@@ -91,6 +91,7 @@ char* addQuotes(char* string){
     }
     return(string);
 }
+
 /*Returns the length of the longest name present in a list of files*/
 int getLongestFileNameLength(List* list){
     int listLength = List_count(list);
@@ -352,15 +353,9 @@ int main(int argc, char* argv[]){
     } 
     returnDirectory = directoryReader(currentWorkingDirectory);
 
-    //Get the size of the terminal
-    struct winsize windowSizeInformation;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &windowSizeInformation);
-
     //Iterate over our directories, print the names of all the files (standard ls with no flags)
     Directory* currentDirectory = List_first(directories);
     int maxFileNameLength = getLongestFileNameLength(currentDirectory->files);    //Get the length of the longest filename for alignment purposes
-    
-    printf("length of longest file name: %d\n", maxFileNameLength);
     int currentLineLength = 0;     //Tracks the number of columns printed per line
     File* currentFile = List_first(currentDirectory->files);
     for(int i=1; i<List_count(currentDirectory->files); i++){
@@ -371,15 +366,15 @@ int main(int argc, char* argv[]){
             currentFile->name[strlen(currentFile->name)-1] = '\0';
         }
         if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
-            printf("\033[1;32m%-*s\033[0m", maxFileNameLength, currentFile->name);    //Make the text green and bold if it can be ran
+            printf("\033[1;32m%s\033[0m  " , currentFile->name);    //Make the text green and bold if it can be ran
             currentLineLength++;
         }
         else if(!currentFile->isHidden && currentFile->isDirectory){
-            printf("\033[1;34m%-*s\033[0m", maxFileNameLength, currentFile->name);     //Make the text blue and bold if it is a folder
+            printf("\033[1;34m%s\033[0m  " , currentFile->name);     //Make the text blue and bold if it is a folder
             currentLineLength++;
         }
         else if(!currentFile->isHidden){
-            printf("%-*s", maxFileNameLength, currentFile->name);
+            printf("%s  " , currentFile->name);
             currentLineLength++;
         }
         
