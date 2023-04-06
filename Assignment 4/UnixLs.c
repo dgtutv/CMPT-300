@@ -3,6 +3,10 @@ Author: Daniel Todd
 Description: The purpose of this program is to emulate the UNIX ls command with flags -i, -l, and -R
 Course: CMPT 300 - Operating Systems*/
 
+/*Known problems:
+1. Does not scale the amount of columns per row relative to the amount of files in the directory we are reading
+2. Does not work correctly when a file is specified at the command line*/
+
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
 /*------------------------------------------------------------Includes-----------------------------------------------------------------------*/
