@@ -15,6 +15,9 @@ Course: CMPT 300 - Operating Systems*/
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <grp.h>
+#include <time.h>
+#include <pwd.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 typedef struct File File;
@@ -25,13 +28,13 @@ struct File{
     char* fileName;
     bool isDirectory;
     bool canBeRan;
-    bool isHiddenFile;
+    bool isHidden;
     bool isSymbolicLink;
     int numOfHardLinks;
-    char* fileOwner;
-    char* fileGroupName;
-    int sizeOfFile;
-    char* dateTimeOfMostRecentChange;
+    char* ownerName;
+    char* groupName;
+    long long sizeOfFile;   //The size of the file in bytes
+    char dateTimeOfMostRecentChange[100];
     ino_t iNodeNumber;
     DIR* linkStream;        //If this file is a symbolic link, this stores the directory stream for the directory the link points to, otherwise stores NULL
     mode_t permissions;     
@@ -141,7 +144,6 @@ Directory* directoryReader(const char* directoryName){
     while((directoryEntry = readdir(directoryStream)) != NULL){
         //Store information we can get from the directory entry about the current file
         File* currentFile = malloc(sizeof(File));
-        List_append(currentDirectory->files, currentFile);
         currentFile->iNodeNumber = directoryEntry->d_ino;
         currentFile->fileName = directoryEntry->d_name;
         if(directoryEntry->d_type == DT_DIR){
@@ -177,8 +179,40 @@ Directory* directoryReader(const char* directoryName){
         currentFile->permissions = fileInformation->st_mode;
         currentFile->ownerUserID = fileInformation->st_uid;
         currentFile->groupID = fileInformation->st_gid;
+        currentFile->sizeOfFile = fileInformation->st_size;
+        if(currentFile->fileName[0] == '.'){
+            currentFile->isHidden = true;
+        } 
+        else{
+            currentFile->isHidden = false;
+        }
+        currentFile->numOfHardLinks = fileInformation->st_nlink;
+        if((fileInformation->st_mode & S_IXUSR) == S_IXUSR){
+            currentFile->canBeRan = true;
+        }
+        else{
+            currentFile->canBeRan = false;
+        }
+        strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %H:%M", localtime(&fileInformation->st_mtime));
+        
+        //Get the name of the group from the group ID
+        struct group* currentGroup = getgrgid(currentFile->groupID);
+        if(currentGroup == NULL){
+            printf("UnixLs: directoryReader: Could not get group for group ID %d", currentFile->groupID);
+            return(NULL);
+        }
+        currentFile->groupName = currentGroup->gr_name;
+        
+        //Get the name of the owner of the file from the owner's ID
+        struct passwd* currentPassword = getpwuid(currentFile->ownerUserID);
+        if(currentPassword == NULL){
+            perror("getpwuid");
+            exit(EXIT_FAILURE);
+        }
+        currentFile->ownerName = currentPassword->pw_name;
 
-        //TODO: canBeRan, isHiddenFile, userCanRead, userCanWrite, userCanExecute, numOfHardLinks, fileOwner, fileGroupName, sizeOfFile, dateTimeOfMostRecentChange
+        //Store the file in the directories' list
+        List_append(currentDirectory->files, currentFile);
     }
 
     //The first entry in the directory is the directory itself
@@ -253,6 +287,41 @@ int main(int argc, char* argv[]){
     }
 
     //Get directory information for the files/directories provided by the user
-    //If no file or directory is provided by the user, get directory information for the directory of the program
+    Directory* returnDirectory;
+    if(List_count(baseFileNames) > 0){
+        returnDirectory = directoryReader(List_first(baseFileNames));
+        if(returnDirectory == NULL){
+            printf("UnixLs: Directory with name %s does not exist\n", (char*)List_curr(baseFileNames));
+        }
+        for(int i=1; i<List_count(baseFileNames); i++){
+            returnDirectory = directoryReader(List_next(baseFileNames));
+            if(returnDirectory == NULL){
+                printf("UnixLs: Directory with name %s does not exist\n", (char*)List_curr(baseFileNames));
+            }  
+        }
+    }
 
+    //If no file or directory is provided by the user, get directory information for the directory of the program
+    char currentWorkingDirectory[1024];
+    if(getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)) == NULL){
+        printf("UnixLs: Could not find the current working directory\n");
+    } 
+    returnDirectory = directoryReader(currentWorkingDirectory);
+
+    //Iterate over our directories, print the names of all the files (standard ls with no flags)
+    //TODO: surround name in single comma if name has space in it
+    //TODO: sort output alphabetically
+    Directory* currentDirectory = List_first(directories);
+    File* currentFile = List_first(currentDirectory->files);
+    for(int i=1; i<List_count(currentDirectory->files); i++){
+        currentFile = List_next(currentDirectory->files);
+        //Make the text green and bold if it can be ran
+        if(!currentFile->isHidden && currentFile->canBeRan){
+            printf("\033[1;32m%s\033[0m  ", currentFile->fileName);
+        }
+        else if(!currentFile->isHidden){
+            printf("%s  ", currentFile->fileName);
+        }
+    }
+    printf("\n");
 }
