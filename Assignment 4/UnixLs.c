@@ -63,6 +63,48 @@ bool rFlag;
 
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
 
+/*Checks if a given string has spaces present in it
+Returns true if spaces detected, false if not*/
+bool hasSpace(char* string){
+    for(int i=0; i<strlen(string); i++){
+        if(string[i] == ' '){
+            return true;
+        }
+    }
+    return false;
+}
+
+/*Surrounds the string in single quotes if a space is present in the string
+Returns the modified string, returns the original string if no space is present*/
+char* addQuotes(char* string){
+    if(hasSpace(string)){
+        char* newString = malloc(strlen(string)+3);
+        newString[0] = '\'';
+        newString[strlen(string)+1] = '\'';
+        newString[strlen(string)+2] = '\0';
+        int j=0;
+        for(int i=1; i<strlen(string)+1; i++){
+            newString[i] = string[j];
+            j++;
+        }
+        return(newString);
+    }
+    return(string);
+}
+/*Returns the length of the longest name present in a list of files*/
+int getLongestFileNameLength(List* list){
+    int listLength = List_count(list);
+    char* currentString = ((File*)List_first(list))->name;
+    int maxStringLength = 0;
+    for(int i=1; i<listLength; i++){
+        currentString = ((File*)List_next(list))->name;
+        if(strlen(currentString) > maxStringLength){
+            maxStringLength = strlen(currentString);
+        }
+    }
+    return maxStringLength;
+}
+
 /*Processes a given command-line argument, and sets global booleans iFlag, lFlag, and rFlag accordingly
 Returns false on failure, true on success*/
 bool argumentHandler(char* argument){
@@ -175,6 +217,7 @@ Directory* directoryReader(const char* directoryName){
         currentFile->ownerUserID = fileInformation->st_uid;
         currentFile->groupID = fileInformation->st_gid;
         currentFile->sizeOfFile = fileInformation->st_size;
+        currentFile->name = addQuotes(currentFile->name);
         if(currentFile->name[0] == '.'){
             currentFile->isHidden = true;
         } 
@@ -246,47 +289,6 @@ char* decodePermissions(mode_t permissions){
     return(returnString);  
 }
 
-/*Checks if a given string has spaces present in it
-Returns true if spaces detected, false if not*/
-bool hasSpace(char* string){
-    for(int i=0; i<strlen(string); i++){
-        if(string[i] == ' '){
-            return true;
-        }
-    }
-    return false;
-}
-
-/*Surrounds the string in single quotes if a space is present in the string
-Returns the modified string, returns the original string if no space is present*/
-char* addQuotes(char* string){
-    if(hasSpace(string)){
-        char* newString = malloc(strlen(string)+3);
-        newString[0] = '\'';
-        newString[strlen(string)+1] = '\'';
-        newString[strlen(string)+2] = '\0';
-        int j=0;
-        for(int i=1; i<strlen(string)+1; i++){
-            newString[i] = string[j];
-            j++;
-        }
-        return(newString);
-    }
-    return(string);
-}
-/*Returns the length of the longest string present in a list*/
-int getLongestStringLength(List* list){
-    char* currentString = List_first(list);
-    int maxStringLength = strlen(currentString);
-    for(int i=1; i<List_count(list); i++){
-        currentString = List_next(list);
-        if(strlen(currentString) > maxStringLength){
-            maxStringLength = strlen(currentString);
-        }
-    }
-    return maxStringLength;
-}
-
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
 int main(int argc, char* argv[]){
     //Instanstiate some global variables
@@ -356,30 +358,32 @@ int main(int argc, char* argv[]){
 
     //Iterate over our directories, print the names of all the files (standard ls with no flags)
     Directory* currentDirectory = List_first(directories);
-    int maxFileNameLength = getLongestStringLength(currentDirectory->files);    //Get the length of the longest filename for alignment purposes
+    int maxFileNameLength = getLongestFileNameLength(currentDirectory->files);    //Get the length of the longest filename for alignment purposes
+    
+    printf("length of longest file name: %d\n", maxFileNameLength);
     int currentLineLength = 0;     //Tracks the number of columns printed per line
     File* currentFile = List_first(currentDirectory->files);
     for(int i=1; i<List_count(currentDirectory->files); i++){
         currentFile = List_next(currentDirectory->files);
-        currentFile->name = addQuotes(currentFile->name);
+
         //If there is a carriage return character present, remove it
         if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
             currentFile->name[strlen(currentFile->name)-1] = '\0';
         }
         if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
-            printf("\033[1;32m%-*s\033[0m   ", maxFileNameLength, currentFile->name);    //Make the text green and bold if it can be ran
+            printf("\033[1;32m%-*s\033[0m", maxFileNameLength, currentFile->name);    //Make the text green and bold if it can be ran
             currentLineLength++;
         }
         else if(!currentFile->isHidden && currentFile->isDirectory){
-            printf("\033[1;34m%-*s\033[0m   ", maxFileNameLength, currentFile->name);     //Make the text blue and bold if it is a folder
+            printf("\033[1;34m%-*s\033[0m", maxFileNameLength, currentFile->name);     //Make the text blue and bold if it is a folder
             currentLineLength++;
         }
         else if(!currentFile->isHidden){
-            printf("%-*s   ", maxFileNameLength, currentFile->name);
+            printf("%-*s", maxFileNameLength, currentFile->name);
             currentLineLength++;
         }
         
-        //Print a new line after every 6 printed items, to mimic the behaviour of ls
+        //Print a new line after every 5 printed items, to mimic the behaviour of ls
         if(currentLineLength == 5){
             printf("\n");
             currentLineLength = 0;
