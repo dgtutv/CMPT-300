@@ -347,6 +347,51 @@ void ls(){
     }
 }
 
+/*Prints to screen ls output when the i flag is specified*/
+void ls_i(){
+    //Iterate over our directories
+    Directory* currentDirectory;
+    for(int j=0; j<List_count(directories); j++){
+        //Set the current directory
+        if(j == 0){
+            currentDirectory = List_first(directories);
+        }
+        else{
+            currentDirectory = List_next(directories);     
+        }
+
+        //If there is more than one directory to iterate over, print the name of the directory before any input
+        if(List_count(directories) > 1){
+            printf("%s:\n", currentDirectory->directoryFile->name);
+        }
+
+        //Print the names of all the files
+        File* currentFile = List_first(currentDirectory->files);
+        for(int i=0; i<List_count(currentDirectory->files); i++){
+            if(i==0){
+                currentFile = List_first(currentDirectory->files);
+            }
+            else{
+                currentFile = List_next(currentDirectory->files);
+            }
+
+            //If there is a carriage return character present, remove it
+            if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
+                currentFile->name[strlen(currentFile->name)-1] = '\0';
+            }
+            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+                printf("%ld \033[1;32m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);    //Make the text green and bold if it can be ran
+            }
+            else if(!currentFile->isHidden && currentFile->isDirectory){
+                printf("%ld \033[1;34m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);     //Make the text blue and bold if it is a folder
+            }
+            else if(!currentFile->isHidden){
+                printf("%ld %s\n", currentFile->iNodeNumber, currentFile->name);
+            }
+        }
+    }
+}
+
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
 int main(int argc, char* argv[]){
     //Instanstiate some global variables
@@ -400,12 +445,11 @@ int main(int argc, char* argv[]){
     } 
     returnDirectory = directoryReader(currentWorkingDirectory);
 
-
-    //If there are no flags set, print the standard ls output
-    if(!rFlag && !lFlag && !iFlag){
+    //Print ls output
+    if(!rFlag && !lFlag && !iFlag){     //Standard ls
         ls();
     }
-    else if(iFlag && !rFlag && !lFlag){
-
+    else if(iFlag && !rFlag && !lFlag){     //ls with -i flag
+        ls_i();
     }
 }
