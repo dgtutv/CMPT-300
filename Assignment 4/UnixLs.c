@@ -204,9 +204,26 @@ Returns a pointer to the directory on success, returns NULL on failure*/
 Directory* directoryReader(const char* directoryName){
     //Get a pointer to the directory with opendir
     DIR* directoryStream = opendir(directoryName);
+
+    //This is likely then a file, or empty directory
     if(directoryStream == NULL){
-        printf("UnixLs: Cannot open \'%s\', no such file or directory found\n", directoryName);
-        return(NULL);
+        //Search for the file in the current working directory
+        char currentWorkingDirectory[1024];
+        if(getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)) == NULL){
+            printf("UnixLs: directoryReader: Could not find the current working directory\n");
+        }
+        Directory* returnDirectory = directoryReader(currentWorkingDirectory);
+
+        //If the file exists in the working directory, return it
+        if(returnDirectory != NULL){
+            return returnDirectory;
+        }
+
+        //If the file does not exist, throw an error
+        else{
+            printf("UnixLs: DirectoryReader: Cannot open \'%s\', no such file or directory found\n", directoryName);
+            return(NULL);
+        }
     }
 
     //Set information about our directory
@@ -226,7 +243,9 @@ Directory* directoryReader(const char* directoryName){
 
         //Gather information about the file
         struct stat* fileInformation = malloc(sizeof(struct stat));
-        if(lstat(currentFile->name, fileInformation) == -1){
+        char filePath[1024];
+        snprintf(filePath, sizeof(filePath), "%s/%s", directoryName, currentFile->name);
+        if(lstat(filePath, fileInformation) == -1){
             printf("UnixLs: directoryReader: failed to obtain information about file \"%s\"\n", currentFile->name);
             return(NULL);
         }
@@ -294,10 +313,12 @@ Directory* directoryReader(const char* directoryName){
 
         //Store the file in the directories' list
         List_append(currentDirectory->files, currentFile);
-    }
 
-    //The first entry in the directory is the directory itself
-    currentDirectory->directoryFile = List_first(currentDirectory->files);
+        //If this is the file for the directory itself, store it in the Directory struct
+        if(strcmp(currentFile->name, ".")){
+            currentDirectory->directoryFile = currentFile;
+        }
+    }
 }
 
 /*Decodes the permissions given in the parameter from mode_t type to the string format provided by ls
@@ -324,6 +345,74 @@ char* decodePermissions(mode_t permissions){
     //Return our decoded permissions
     returnString[9] = '\0';
     return(returnString);  
+}
+
+/*Prints to screen ls output when no flags are specified*/
+void printStandardLs(){
+    //Iterate over our directories
+    Directory* currentDirectory;
+    for(int j=0; j<List_count(directories); j++){
+        //Set the current directory
+        if(j == 0){
+            currentDirectory = List_first(directories);
+        }
+        else{
+            currentDirectory = List_next(directories);     
+        }
+
+        //If there is more than one directory to iterate over, print the name of the directory before any input
+        if(List_count(directories) > 1){
+            printf("%s:\n", currentDirectory->directoryFile->name);
+        }
+
+        //sort the files in each directory by length of file name
+        currentDirectory->files = sortList(currentDirectory->files);
+
+        //Print the names of all the files (standard ls with no flags)
+        int currentLineLength = 0;     //Tracks the number of columns printed per line
+        File* currentFile = List_first(currentDirectory->files);
+        for(int i=0; i<List_count(currentDirectory->files); i++){
+            if(i==0){
+                currentFile = List_first(currentDirectory->files);
+            }
+            else{
+                currentFile = List_next(currentDirectory->files);
+            }
+            
+            //Make an array with the lengths of the first 5 entries, for alignment purposes
+            int lengthArray[5];
+            if(i<5){
+                lengthArray[i] = strlen(currentFile->name);
+            }
+
+            //If there is a carriage return character present, remove it
+            if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
+                currentFile->name[strlen(currentFile->name)-1] = '\0';
+            }
+            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+                printf("\033[1;32m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);    //Make the text green and bold if it can be ran
+                currentLineLength++;
+            }
+            else if(!currentFile->isHidden && currentFile->isDirectory){
+                printf("\033[1;34m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);     //Make the text blue and bold if it is a folder
+                currentLineLength++;
+            }
+            else if(!currentFile->isHidden){
+                printf("%-*s  ", lengthArray[currentLineLength%5], currentFile->name);
+                currentLineLength++;
+            }
+            
+            //Print a new line after every 5 printed items
+            if(currentLineLength == 5){
+                printf("\n");
+                currentLineLength = 0;
+            }
+        }
+        //Print a final new line if there were any files printed in a row with less than maxNumCols at the end of the printout
+        if(currentLineLength != 0){
+            printf("\n");
+        }
+    }
 }
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
@@ -356,26 +445,27 @@ int main(int argc, char* argv[]){
         }
     }
 
-    //For now, print out all the set flags, and specified files or directories for testing purposes
-    if(rFlag){printf("The \'R\' option has been set\n");}
-    if(lFlag){printf("The \'l\' option has been set\n");}
-    if(iFlag){printf("The \'i\' option has been set\n");}
-    if(List_count(baseFileNames) > 0){
-        printf("Files specified: %*s\n", 25-17, (char*)List_first(baseFileNames));
-        for(int i=1; i<List_count(baseFileNames); i++){
-            printf("%*s\n", 25, (char*)List_next(baseFileNames));
-        }
-    }
+    // //For now, print out all the set flags, and specified files or directories for testing purposes
+    // if(rFlag){printf("The \'R\' option has been set\n");}
+    // if(lFlag){printf("The \'l\' option has been set\n");}
+    // if(iFlag){printf("The \'i\' option has been set\n");}
+    // if(List_count(baseFileNames) > 0){
+    //     printf("Files specified: %*s\n", 25-17, (char*)List_first(baseFileNames));
+    //     for(int i=1; i<List_count(baseFileNames); i++){
+    //         printf("%*s\n", 25, (char*)List_next(baseFileNames));
+    //     }
+    // }
 
     //Get directory information for the files/directories provided by the user
     Directory* returnDirectory;
     if(List_count(baseFileNames) > 0){
-        returnDirectory = directoryReader(List_first(baseFileNames));
-        if(returnDirectory == NULL){
-            printf("UnixLs: Directory with name %s does not exist\n", (char*)List_curr(baseFileNames));
-        }
-        for(int i=1; i<List_count(baseFileNames); i++){
-            returnDirectory = directoryReader(List_next(baseFileNames));
+        for(int i=0; i<List_count(baseFileNames); i++){
+            if(i==0){
+                returnDirectory = directoryReader(List_first(baseFileNames));
+            }
+            else{
+                returnDirectory = directoryReader(List_next(baseFileNames));
+            }
             if(returnDirectory == NULL){
                 printf("UnixLs: Directory with name %s does not exist\n", (char*)List_curr(baseFileNames));
             }  
@@ -389,52 +479,9 @@ int main(int argc, char* argv[]){
     } 
     returnDirectory = directoryReader(currentWorkingDirectory);
 
-    //Iterate over our directories, sort the files in each directory by length of file name
-    Directory* currentDirectory = List_first(directories);
-    currentDirectory->files = sortList(currentDirectory->files);
 
-    //Print the names of all the files (standard ls with no flags)
-    int currentLineLength = 0;     //Tracks the number of columns printed per line
-    File* currentFile = List_first(currentDirectory->files);
-    for(int i=0; i<List_count(currentDirectory->files); i++){
-        if(i==0){
-            currentFile = List_first(currentDirectory->files);
-        }
-        else{
-            currentFile = List_next(currentDirectory->files);
-        }
-        
-        //Make an array with the lengths of the first 5 entries, for alignment purposes
-        int lengthArray[5];
-        if(i<5){
-            lengthArray[i] = strlen(currentFile->name);
-        }
-
-        //If there is a carriage return character present, remove it
-        if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
-            currentFile->name[strlen(currentFile->name)-1] = '\0';
-        }
-        if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
-            printf("\033[1;32m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);    //Make the text green and bold if it can be ran
-            currentLineLength++;
-        }
-        else if(!currentFile->isHidden && currentFile->isDirectory){
-            printf("\033[1;34m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);     //Make the text blue and bold if it is a folder
-            currentLineLength++;
-        }
-        else if(!currentFile->isHidden){
-            printf("%-*s  ", lengthArray[currentLineLength%5], currentFile->name);
-            currentLineLength++;
-        }
-        
-        //Print a new line after every 5 printed items
-        if(currentLineLength == 5){
-            printf("\n");
-            currentLineLength = 0;
-        }
-    }
-    //Print a final new line if there were any files printed in a row with less than maxNumCols at the end of the printout
-    if(currentLineLength != 0){
-        printf("\n");
+    //If there are no flags set, print the standard ls output
+    if(!rFlag && !lFlag && !iFlag){
+        printStandardLs();
     }
 }
