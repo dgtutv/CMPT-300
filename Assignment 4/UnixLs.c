@@ -352,7 +352,7 @@ char* decodePermissions(mode_t permissions){
 }
 
 /*Prints to screen ls output when no flags are specified*/
-void printStandardLs(){
+void ls(){
     //Iterate over our directories
     Directory* currentDirectory;
     for(int j=0; j<List_count(directories); j++){
@@ -486,6 +486,9 @@ int main(int argc, char* argv[]){
 
     //If there are no flags set, print the standard ls output
     if(!rFlag && !lFlag && !iFlag){
-        printStandardLs();
+        ls();
+    }
+    else if(iFlag && !rFlag && !lFlag){
+
     }
 }
