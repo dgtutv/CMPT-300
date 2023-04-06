@@ -62,7 +62,7 @@ bool lFlag;
 bool rFlag;
 
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
-
+void* doNothing(){}
 /*Checks if a given string has spaces present in it
 Returns true if spaces detected, false if not*/
 bool hasSpace(char* string){
@@ -92,18 +92,51 @@ char* addQuotes(char* string){
     return(string);
 }
 
-/*Returns the length of the longest name present in a list of files*/
-int getLongestFileNameLength(List* list){
-    int listLength = List_count(list);
-    char* currentString = ((File*)List_first(list))->name;
+/*Returns the index of the file of the longest name present in a list of files*/
+int getLongestFileNameLength(File** list, int listLength){
+    File* currentFile;
+    File* longestFile;
+    char* currentString;
     int maxStringLength = 0;
-    for(int i=1; i<listLength; i++){
-        currentString = ((File*)List_next(list))->name;
-        if(strlen(currentString) > maxStringLength){
+    int maxStringIndex = 0;
+    for(int i=0; i<listLength; i++){
+        currentFile = list[i];
+        currentString = currentFile->name;
+        if(strlen(currentString)>maxStringLength){
             maxStringLength = strlen(currentString);
+            longestFile = currentFile;
+            maxStringIndex = i;
         }
     }
-    return maxStringLength;
+    return maxStringIndex;
+}
+
+/*Takes a list of File*s, and returns a new list of File*s, sorted by decreasing fileName length*/
+List* sortList(List* originalList){
+    List* newList = List_create();
+    int listLength = List_count(originalList);
+    File* fileWithLongestName;
+    int indexOfFileWithLongestName;
+    File* currentFile;
+
+    // Make a copy of the original list
+    File* fileArray[listLength];
+    for (int i = 0; i < listLength; i++) {
+        if(i == 0){
+            currentFile = (File*)List_first(originalList);
+        }
+        else{
+            currentFile = (File*)List_next(originalList);
+        }
+        fileArray[i] = currentFile;
+    }
+
+    for(int i = 0; i < listLength; i++){
+        indexOfFileWithLongestName = getLongestFileNameLength(fileArray, listLength);  //Find the file with the longest name
+        fileWithLongestName = &fileArray[indexOfFileWithLongestName];
+        List_append(newList, fileWithLongestName);      //Add the file to the new list
+    }
+    return newList;
 }
 
 /*Processes a given command-line argument, and sets global booleans iFlag, lFlag, and rFlag accordingly
@@ -353,9 +386,11 @@ int main(int argc, char* argv[]){
     } 
     returnDirectory = directoryReader(currentWorkingDirectory);
 
-    //Iterate over our directories, print the names of all the files (standard ls with no flags)
+    //Iterate over our directories, sort the files in each directory by length of file name
     Directory* currentDirectory = List_first(directories);
-    int maxFileNameLength = getLongestFileNameLength(currentDirectory->files);    //Get the length of the longest filename for alignment purposes
+    currentDirectory->files = sortList(currentDirectory->files);
+
+    //Print the names of all the files (standard ls with no flags)
     int currentLineLength = 0;     //Tracks the number of columns printed per line
     File* currentFile = List_first(currentDirectory->files);
     for(int i=1; i<List_count(currentDirectory->files); i++){
@@ -378,7 +413,7 @@ int main(int argc, char* argv[]){
             currentLineLength++;
         }
         
-        //Print a new line after every 5 printed items, to mimic the behaviour of ls
+        //Print a new line after every 5 printed items
         if(currentLineLength == 5){
             printf("\n");
             currentLineLength = 0;
