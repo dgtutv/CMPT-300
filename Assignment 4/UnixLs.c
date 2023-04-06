@@ -67,6 +67,7 @@ bool rFlag;
 
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
 void* doNothing(){}
+
 /*Checks if a given string has spaces present in it
 Returns true if spaces detected, false if not*/
 bool hasSpace(char* string){
@@ -94,56 +95,6 @@ char* addQuotes(char* string){
         return(newString);
     }
     return(string);
-}
-
-/*Returns the index of the file of the longest name present in a list of files*/
-int getLongestFileNameLength(File** list, int listLength){
-    File* currentFile;
-    File* longestFile = list[0];
-    char* currentString;
-    int maxStringLength = 0;
-    int maxStringIndex = 0;
-    for(int i=0; i<listLength; i++){
-        currentFile = list[i];
-        currentString = currentFile->name;
-        if(strlen(currentString)>maxStringLength){
-            maxStringLength = strlen(currentString);
-            longestFile = currentFile;
-            maxStringIndex = i;
-        }
-    }
-    return maxStringIndex;
-}
-
-/*Takes a list of File*s, and returns a new list of File*s, sorted by decreasing fileName length*/
-List* sortList(List* originalList){
-    List* newList = List_create();
-    int listLength = List_count(originalList);
-    File* fileWithLongestName;
-    int indexOfFileWithLongestName;
-    File* currentFile;
-
-    //Make a copy of the original list, in array form for simplicity
-    File* fileArray[listLength];
-    for (int i = 0; i < listLength; i++) {
-        if(i == 0){
-            currentFile = (File*)List_first(originalList);
-        }
-        else{
-            currentFile = (File*)List_next(originalList);
-        }
-        fileArray[i] = currentFile;
-    }
-
-    for(int i = 0; i < listLength; i++){
-        indexOfFileWithLongestName = getLongestFileNameLength(fileArray, listLength);  //Find the file with the longest name
-        fileWithLongestName = fileArray[indexOfFileWithLongestName];
-        List_append(newList, fileWithLongestName);      //Add the file to the new list
-        for(int j=indexOfFileWithLongestName; j<listLength-1; j++){
-            fileArray[j] = fileArray[j+1];              //Remove the file with the longest name from the array
-        }
-    }
-    return newList;
 }
 
 /*Processes a given command-line argument, and sets global booleans iFlag, lFlag, and rFlag accordingly
@@ -369,11 +320,7 @@ void ls(){
             printf("%s:\n", currentDirectory->directoryFile->name);
         }
 
-        //sort the files in each directory by length of file name
-        currentDirectory->files = sortList(currentDirectory->files);
-
-        //Print the names of all the files (standard ls with no flags)
-        int currentLineLength = 0;     //Tracks the number of columns printed per line
+        //Print the names of all the files
         File* currentFile = List_first(currentDirectory->files);
         for(int i=0; i<List_count(currentDirectory->files); i++){
             if(i==0){
@@ -382,39 +329,20 @@ void ls(){
             else{
                 currentFile = List_next(currentDirectory->files);
             }
-            
-            //Make an array with the lengths of the first 5 entries, for alignment purposes
-            int lengthArray[5];
-            if(i<5){
-                lengthArray[i] = strlen(currentFile->name);
-            }
 
             //If there is a carriage return character present, remove it
             if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
                 currentFile->name[strlen(currentFile->name)-1] = '\0';
             }
             if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
-                printf("\033[1;32m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);    //Make the text green and bold if it can be ran
-                currentLineLength++;
+                printf("\033[1;32m%s\033[0m\n", currentFile->name);    //Make the text green and bold if it can be ran
             }
             else if(!currentFile->isHidden && currentFile->isDirectory){
-                printf("\033[1;34m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);     //Make the text blue and bold if it is a folder
-                currentLineLength++;
+                printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
             }
             else if(!currentFile->isHidden){
-                printf("%-*s  ", lengthArray[currentLineLength%5], currentFile->name);
-                currentLineLength++;
+                printf("%s\n", currentFile->name);
             }
-            
-            //Print a new line after every 5 printed items
-            if(currentLineLength == 5){
-                printf("\n");
-                currentLineLength = 0;
-            }
-        }
-        //Print a final new line if there were any files printed in a row with less than maxNumCols at the end of the printout
-        if(currentLineLength != 0){
-            printf("\n");
         }
     }
 }
@@ -448,17 +376,6 @@ int main(int argc, char* argv[]){
             currentArgument = List_next(arguments);
         }
     }
-
-    // //For now, print out all the set flags, and specified files or directories for testing purposes
-    // if(rFlag){printf("The \'R\' option has been set\n");}
-    // if(lFlag){printf("The \'l\' option has been set\n");}
-    // if(iFlag){printf("The \'i\' option has been set\n");}
-    // if(List_count(baseFileNames) > 0){
-    //     printf("Files specified: %*s\n", 25-17, (char*)List_first(baseFileNames));
-    //     for(int i=1; i<List_count(baseFileNames); i++){
-    //         printf("%*s\n", 25, (char*)List_next(baseFileNames));
-    //     }
-    // }
 
     //Get directory information for the files/directories provided by the user
     Directory* returnDirectory;
