@@ -26,9 +26,6 @@ struct File{
     bool isDirectory;
     bool canBeRan;
     bool isHiddenFile;
-    bool userCanRead;
-    bool userCanWrite;
-    bool userCanExecute;
     bool isSymbolicLink;
     int numOfHardLinks;
     char* fileOwner;
@@ -37,6 +34,9 @@ struct File{
     char* dateTimeOfMostRecentChange;
     ino_t iNodeNumber;
     DIR* linkStream;        //If this file is a symbolic link, this stores the directory stream for the directory the link points to, otherwise stores NULL
+    mode_t permissions;     
+    int ownerUserID;        //The user ID for the owner of the file
+    int groupID;            //The group ID for the group associated with this file
 };
 
 //Stores essential information about a directory
@@ -173,12 +173,42 @@ Directory* directoryReader(const char* directoryName){
             currentFile->linkStream = linkDirectoryStream;
         }
 
+        //Store information about the file, given by lstat
+        currentFile->permissions = fileInformation->st_mode;
+        currentFile->ownerUserID = fileInformation->st_uid;
+        currentFile->groupID = fileInformation->st_gid;
+
         //TODO: canBeRan, isHiddenFile, userCanRead, userCanWrite, userCanExecute, numOfHardLinks, fileOwner, fileGroupName, sizeOfFile, dateTimeOfMostRecentChange
     }
 
     //The first entry in the directory is the directory itself
     currentDirectory->directoryFile = List_first(currentDirectory->files);
+}
 
+/*Decodes the permissions given in the parameter from mode_t type to the string format provided by ls
+Returns a string*/
+char* decodePermissions(mode_t permissions){
+    //Use ternary operators on indices of the return string to format it
+    char* returnString = malloc(10);
+
+    //Owner permissions
+    returnString[0] = (permissions & S_IRUSR) ? 'r' : '-';
+    returnString[1] = (permissions & S_IWUSR) ? 'w' : '-';
+    returnString[2] = (permissions & S_IXUSR) ? 'x' : '-';
+
+    //Group permissions
+    returnString[3] = (permissions & S_IRGRP) ? 'r' : '-';
+    returnString[4] = (permissions & S_IWGRP) ? 'w' : '-';
+    returnString[5] = (permissions & S_IXGRP) ? 'x' : '-';
+
+    //Other permissions
+    returnString[6] = (permissions & S_IROTH) ? 'r' : '-';
+    returnString[7] = (permissions & S_IWOTH) ? 'w' : '-';
+    returnString[8] = (permissions & S_IXOTH) ? 'x' : '-';  
+
+    //Return our decoded permissions
+    returnString[9] = '\0';
+    return(returnString);  
 }
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
