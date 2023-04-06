@@ -18,14 +18,12 @@ Course: CMPT 300 - Operating Systems*/
 #include <grp.h>
 #include <time.h>
 #include <pwd.h>
+#include <sys/ioctl.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
-typedef struct File File;
-typedef struct Directory Directory;
-
 //Stores essential information about a file
-struct File{
-    char* fileName;
+typedef struct{
+    char* name;
     bool isDirectory;
     bool canBeRan;
     bool isHidden;
@@ -40,15 +38,15 @@ struct File{
     mode_t permissions;     
     int ownerUserID;        //The user ID for the owner of the file
     int groupID;            //The group ID for the group associated with this file
-};
+} File;
 
 //Stores essential information about a directory
-struct Directory{
+typedef struct{
     List* files;
     DIR* parent;            //The directory stream for the parent of this directory, set to NULL if root.
     File* directoryFile;    //The file information for this directory
     DIR* directoryStream;   //The pointer to the dirent struct for the directory
-};
+} Directory;
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
 
@@ -145,15 +143,12 @@ Directory* directoryReader(const char* directoryName){
         //Store information we can get from the directory entry about the current file
         File* currentFile = malloc(sizeof(File));
         currentFile->iNodeNumber = directoryEntry->d_ino;
-        currentFile->fileName = directoryEntry->d_name;
-        if(directoryEntry->d_type == DT_DIR){
-            currentFile->isDirectory = true;
-        }    
+        currentFile->name = directoryEntry->d_name;
 
         //Gather information about the file
         struct stat* fileInformation = malloc(sizeof(struct stat));
-        if(lstat(currentFile->fileName, fileInformation) == -1){
-            printf("UnixLs: directoryReader: failed to obtain information about file \"%s\"\n", currentFile->fileName);
+        if(lstat(currentFile->name, fileInformation) == -1){
+            printf("UnixLs: directoryReader: failed to obtain information about file \"%s\"\n", currentFile->name);
             return(NULL);
         }
 
@@ -161,15 +156,15 @@ Directory* directoryReader(const char* directoryName){
         if(S_ISLNK(fileInformation->st_mode)){
             currentFile->isSymbolicLink = true;
             char linkBuffer[1024];
-            int numOfBytes = readlink(currentFile->fileName, linkBuffer, sizeof(linkBuffer));
+            int numOfBytes = readlink(currentFile->name, linkBuffer, sizeof(linkBuffer));
             if(numOfBytes == -1){
-                printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->fileName);
+                printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->name);
                 return(NULL);
             }
             linkBuffer[numOfBytes] = '\0';  //Set the linkBuffer string to end at the correct location after calling readlink() on it
             DIR* linkDirectoryStream = opendir(linkBuffer);
             if(linkDirectoryStream == NULL){
-                printf("UnixLs: directoryReader: failed to obtain the directory stream for symbolic link \"%s\"\n", currentFile->fileName);
+                printf("UnixLs: directoryReader: failed to obtain the directory stream for symbolic link \"%s\"\n", currentFile->name);
                 return(NULL);
             }
             currentFile->linkStream = linkDirectoryStream;
@@ -180,7 +175,7 @@ Directory* directoryReader(const char* directoryName){
         currentFile->ownerUserID = fileInformation->st_uid;
         currentFile->groupID = fileInformation->st_gid;
         currentFile->sizeOfFile = fileInformation->st_size;
-        if(currentFile->fileName[0] == '.'){
+        if(currentFile->name[0] == '.'){
             currentFile->isHidden = true;
         } 
         else{
@@ -194,7 +189,13 @@ Directory* directoryReader(const char* directoryName){
             currentFile->canBeRan = false;
         }
         strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %H:%M", localtime(&fileInformation->st_mtime));
-        
+        if(S_ISDIR(fileInformation->st_mode)){
+            currentFile->isDirectory = true;
+        } 
+        else{
+            currentFile->isDirectory = false;
+        }
+
         //Get the name of the group from the group ID
         struct group* currentGroup = getgrgid(currentFile->groupID);
         if(currentGroup == NULL){
@@ -243,6 +244,47 @@ char* decodePermissions(mode_t permissions){
     //Return our decoded permissions
     returnString[9] = '\0';
     return(returnString);  
+}
+
+/*Checks if a given string has spaces present in it
+Returns true if spaces detected, false if not*/
+bool hasSpace(char* string){
+    for(int i=0; i<strlen(string); i++){
+        if(string[i] == ' '){
+            return true;
+        }
+    }
+    return false;
+}
+
+/*Surrounds the string in single quotes if a space is present in the string
+Returns the modified string, returns the original string if no space is present*/
+char* addQuotes(char* string){
+    if(hasSpace(string)){
+        char* newString = malloc(strlen(string)+3);
+        newString[0] = '\'';
+        newString[strlen(string)+1] = '\'';
+        newString[strlen(string)+2] = '\0';
+        int j=0;
+        for(int i=1; i<strlen(string)+1; i++){
+            newString[i] = string[j];
+            j++;
+        }
+        return(newString);
+    }
+    return(string);
+}
+/*Returns the length of the longest string present in a list*/
+int getLongestStringLength(List* list){
+    char* currentString = List_first(list);
+    int maxStringLength = strlen(currentString);
+    for(int i=1; i<List_count(list); i++){
+        currentString = List_next(list);
+        if(strlen(currentString) > maxStringLength){
+            maxStringLength = strlen(currentString);
+        }
+    }
+    return maxStringLength;
 }
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
@@ -308,20 +350,43 @@ int main(int argc, char* argv[]){
     } 
     returnDirectory = directoryReader(currentWorkingDirectory);
 
+    //Get the size of the terminal
+    struct winsize windowSizeInformation;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &windowSizeInformation);
+
     //Iterate over our directories, print the names of all the files (standard ls with no flags)
-    //TODO: surround name in single comma if name has space in it
-    //TODO: sort output alphabetically
     Directory* currentDirectory = List_first(directories);
+    int maxFileNameLength = getLongestStringLength(currentDirectory->files);    //Get the length of the longest filename for alignment purposes
+    int currentLineLength = 0;     //Tracks the number of columns printed per line
     File* currentFile = List_first(currentDirectory->files);
     for(int i=1; i<List_count(currentDirectory->files); i++){
         currentFile = List_next(currentDirectory->files);
-        //Make the text green and bold if it can be ran
-        if(!currentFile->isHidden && currentFile->canBeRan){
-            printf("\033[1;32m%s\033[0m  ", currentFile->fileName);
+        currentFile->name = addQuotes(currentFile->name);
+        //If there is a carriage return character present, remove it
+        if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
+            currentFile->name[strlen(currentFile->name)-1] = '\0';
+        }
+        if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+            printf("\033[1;32m%-*s\033[0m   ", maxFileNameLength, currentFile->name);    //Make the text green and bold if it can be ran
+            currentLineLength++;
+        }
+        else if(!currentFile->isHidden && currentFile->isDirectory){
+            printf("\033[1;34m%-*s\033[0m   ", maxFileNameLength, currentFile->name);     //Make the text blue and bold if it is a folder
+            currentLineLength++;
         }
         else if(!currentFile->isHidden){
-            printf("%s  ", currentFile->fileName);
+            printf("%-*s   ", maxFileNameLength, currentFile->name);
+            currentLineLength++;
+        }
+        
+        //Print a new line after every 6 printed items, to mimic the behaviour of ls
+        if(currentLineLength == 5){
+            printf("\n");
+            currentLineLength = 0;
         }
     }
-    printf("\n");
+    //Print a final new line if there were any files printed in a row with less than maxNumCols at the end of the printout
+    if(currentLineLength != 0){
+        printf("\n");
+    }
 }
