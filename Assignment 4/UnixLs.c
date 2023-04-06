@@ -404,21 +404,26 @@ int main(int argc, char* argv[]){
             currentFile = List_next(currentDirectory->files);
         }
         
+        //Make an array with the lengths of the first 5 entries, for alignment purposes
+        int lengthArray[5];
+        if(i<5){
+            lengthArray[i] = strlen(currentFile->name);
+        }
 
         //If there is a carriage return character present, remove it
         if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
             currentFile->name[strlen(currentFile->name)-1] = '\0';
         }
         if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
-            printf("\033[1;32m%s\033[0m  " , currentFile->name);    //Make the text green and bold if it can be ran
+            printf("\033[1;32m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);    //Make the text green and bold if it can be ran
             currentLineLength++;
         }
         else if(!currentFile->isHidden && currentFile->isDirectory){
-            printf("\033[1;34m%s\033[0m  " , currentFile->name);     //Make the text blue and bold if it is a folder
+            printf("\033[1;34m%-*s\033[0m  ", lengthArray[currentLineLength%5], currentFile->name);     //Make the text blue and bold if it is a folder
             currentLineLength++;
         }
         else if(!currentFile->isHidden){
-            printf("%s  " , currentFile->name);
+            printf("%-*s  ", lengthArray[currentLineLength%5], currentFile->name);
             currentLineLength++;
         }
         
