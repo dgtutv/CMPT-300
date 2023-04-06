@@ -95,7 +95,7 @@ char* addQuotes(char* string){
 /*Returns the index of the file of the longest name present in a list of files*/
 int getLongestFileNameLength(File** list, int listLength){
     File* currentFile;
-    File* longestFile;
+    File* longestFile = list[0];
     char* currentString;
     int maxStringLength = 0;
     int maxStringIndex = 0;
@@ -119,7 +119,7 @@ List* sortList(List* originalList){
     int indexOfFileWithLongestName;
     File* currentFile;
 
-    // Make a copy of the original list
+    //Make a copy of the original list, in array form for simplicity
     File* fileArray[listLength];
     for (int i = 0; i < listLength; i++) {
         if(i == 0){
@@ -133,8 +133,11 @@ List* sortList(List* originalList){
 
     for(int i = 0; i < listLength; i++){
         indexOfFileWithLongestName = getLongestFileNameLength(fileArray, listLength);  //Find the file with the longest name
-        fileWithLongestName = &fileArray[indexOfFileWithLongestName];
+        fileWithLongestName = fileArray[indexOfFileWithLongestName];
         List_append(newList, fileWithLongestName);      //Add the file to the new list
+        for(int j=indexOfFileWithLongestName; j<listLength-1; j++){
+            fileArray[j] = fileArray[j+1];              //Remove the file with the longest name from the array
+        }
     }
     return newList;
 }
@@ -393,8 +396,14 @@ int main(int argc, char* argv[]){
     //Print the names of all the files (standard ls with no flags)
     int currentLineLength = 0;     //Tracks the number of columns printed per line
     File* currentFile = List_first(currentDirectory->files);
-    for(int i=1; i<List_count(currentDirectory->files); i++){
-        currentFile = List_next(currentDirectory->files);
+    for(int i=0; i<List_count(currentDirectory->files); i++){
+        if(i==0){
+            currentFile = List_first(currentDirectory->files);
+        }
+        else{
+            currentFile = List_next(currentDirectory->files);
+        }
+        
 
         //If there is a carriage return character present, remove it
         if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
