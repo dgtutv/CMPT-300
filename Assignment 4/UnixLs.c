@@ -5,7 +5,7 @@ Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
 1. Does not work correctly when a file is specified at the command line
-2. Does not remove leading zeros on days for displaying date for -l flag*/
+2. Does not remove leading zeros on days for displaying date for -l flag or -li flag*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -42,6 +42,7 @@ typedef struct{
     mode_t permissions;     
     int ownerUserID;        //The user ID for the owner of the file
     int groupID;            //The group ID for the group associated with this file
+    bool isZip;
 } File;
 
 //Stores essential information about a directory
@@ -166,7 +167,7 @@ bool argumentHandler(char* argument){
 
 /*Gets information about the directory provided by the directoryName parameter
 Returns a pointer to the directory on success, returns NULL on failure*/
-Directory* directoryReader(const char* directoryName){
+Directory* directoryReader(char* directoryName){
     //Get a pointer to the directory with opendir
     DIR* directoryStream = opendir(directoryName);
 
@@ -271,17 +272,36 @@ Directory* directoryReader(const char* directoryName){
         //Get the name of the owner of the file from the owner's ID
         struct passwd* currentPassword = getpwuid(currentFile->ownerUserID);
         if(currentPassword == NULL){
-            perror("getpwuid");
-            exit(EXIT_FAILURE);
+            printf("UnixLs: directoryReader: Could not get the name of the owner for the file %s", currentFile->name);
+            return(NULL);
         }
         currentFile->ownerName = currentPassword->pw_name;
+
+        //Check if the file is a zip file
+        if(S_ISREG(fileInformation->st_mode)) {
+            FILE* file = fopen(filePath, "rb");
+            if (file == NULL) {
+                printf("UnixLs: directoryReader: Could not open file %s", currentFile->name);
+                return NULL;
+            }
+            unsigned char firstFourBytes[4];
+            size_t read_count = fread(firstFourBytes, sizeof(unsigned char), 4, file);
+            fclose(file);
+            if(read_count == 4 && firstFourBytes[0] == 'P' && firstFourBytes[1] == 'K' && firstFourBytes[2] == 3 && firstFourBytes[3] == 4){
+                currentFile->isZip = true;                //If the first 4 bytes are the same as the zip signature, the file is a zip file
+            }
+            else{
+                currentFile->isZip = false;
+            }
+        }
 
         //Store the file in the directories' list
         List_append(currentDirectory->files, currentFile);
 
         //If this is the file for the directory itself, store it in the Directory struct
-        if(strcmp(currentFile->name, ".")){
+        if(strcmp(currentFile->name, ".") == 0){
             currentDirectory->directoryFile = currentFile;
+            currentDirectory->directoryFile->name = directoryName;
         }
     }
 }
@@ -350,6 +370,9 @@ void ls(){
             else if(!currentFile->isHidden && currentFile->isDirectory){
                 printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
             }
+            else if(!currentFile->isHidden && currentFile->isZip){
+                printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
+            }
             else if(!currentFile->isHidden){
                 printf("%s\n", currentFile->name);
             }
@@ -394,6 +417,9 @@ void ls_i(){
             }
             else if(!currentFile->isHidden && currentFile->isDirectory){
                 printf("%ld \033[1;34m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);     //Make the text blue and bold if it is a folder
+            }
+            else if(!currentFile->isHidden && currentFile->isZip){
+                printf("%ld \033[1;31m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);    //Make the text red and bold if it is a zip folder
             }
             else if(!currentFile->isHidden){
                 printf("%ld %s\n", currentFile->iNodeNumber, currentFile->name);
@@ -500,6 +526,9 @@ void ls_l(){
                 }
                 else if(!currentFile->isHidden && currentFile->isDirectory){
                     printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
+                }
+                else if(!currentFile->isHidden && currentFile->isZip){
+                    printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
                 }
                 else{
                     printf("%s\n", currentFile->name);
@@ -610,6 +639,9 @@ void ls_li(){
                 else if(!currentFile->isHidden && currentFile->isDirectory){
                     printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
                 }
+                else if(!currentFile->isHidden && currentFile->isZip){
+                    printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
+                }
                 else{
                     printf("%s\n", currentFile->name);
                 }
@@ -658,18 +690,17 @@ int main(int argc, char* argv[]){
             else{
                 returnDirectory = directoryReader(List_next(baseFileNames));
             }
-            if(returnDirectory == NULL){
-                printf("UnixLs: Directory with name %s does not exist\n", (char*)List_curr(baseFileNames));
-            }  
         }
     }
 
     //If no file or directory is provided by the user, get directory information for the directory of the program
-    char currentWorkingDirectory[1024];
-    if(getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)) == NULL){
-        printf("UnixLs: Could not find the current working directory\n");
-    } 
-    returnDirectory = directoryReader(currentWorkingDirectory);
+    else{
+        char currentWorkingDirectory[1024];
+        if(getcwd(currentWorkingDirectory, sizeof(currentWorkingDirectory)) == NULL){
+            printf("UnixLs: Could not find the current working directory\n");
+        } 
+        returnDirectory = directoryReader(currentWorkingDirectory);
+    }
 
     //Print ls output
     if(!rFlag && !lFlag && !iFlag){     //Standard ls
