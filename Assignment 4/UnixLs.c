@@ -4,7 +4,6 @@ Description: The purpose of this program is to emulate the UNIX ls command with 
 Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
-1. Does not work correctly when a file is specified at the command line
 2. Does not remove leading zeros on days for displaying date for -l flag or -li flag*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
@@ -722,10 +721,6 @@ int main(int argc, char* argv[]){
             printf("UnixLs: Could not find the current working directory\n");
         } 
         returnDirectory = directoryReader(currentWorkingDirectory);
-    }
-
-    if(rFlag){
-        printf("R FLAG SET\n");
     }
 
     //Print ls output
