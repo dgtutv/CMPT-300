@@ -4,7 +4,9 @@ Description: The purpose of this program is to emulate the UNIX ls command with 
 Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
-2. Does not remove leading zeros on days for displaying date for -l flag or -li flag*/
+1. Does not display the year a file was last modified
+2. Is not tested for symbolic links
+3. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -58,6 +60,7 @@ int argumentCount;      //The number of command line arguments supplied
 List* arguments;        //A list of the command line arguments supplied
 List* baseFileNames;    //A list of the names of files or directories, optionally provided by the user at the command-line
 List* directories;      //A list of all the directories accessed.
+List* openedDirectories;        //A list to keep track of all the open directory streams
 //TODO: closedir() on all the directories accessed at the end of the program.
 
 //Booleans representing whether or not a certain flag was specified by the user
@@ -176,6 +179,7 @@ Returns a pointer to the directory on success, returns NULL on failure*/
 Directory* directoryReader(char* directoryName){
     //Get a pointer to the directory with opendir
     DIR* directoryStream = opendir(directoryName);
+    List_append(openedDirectories, directoryStream);
 
     //This is likely then a file, or empty directory
     if(directoryStream == NULL){
@@ -678,6 +682,7 @@ int main(int argc, char* argv[]){
     arguments = List_create();
     baseFileNames = List_create();
     directories = List_create();
+    openedDirectories = List_create();
     iFlag = false;
     lFlag = false;
     rFlag = false;
@@ -735,5 +740,17 @@ int main(int argc, char* argv[]){
     }
     else if(lFlag && iFlag){      //ls with -l & -i flag (could be with -R flag)
         ls_li();    
+    }
+
+    //Close all of our opened directory streams
+    DIR* currentDirectoryStream;
+    for(int i=0; i<List_count(openedDirectories); i++){
+        if(i==0){
+            currentDirectoryStream = List_first(openedDirectories);
+        }
+        else{
+            currentDirectoryStream = List_next(openedDirectories);
+        }
+        closedir(currentDirectoryStream);
     }
 }
