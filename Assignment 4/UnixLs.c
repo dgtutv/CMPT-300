@@ -165,6 +165,13 @@ bool argumentHandler(char* argument){
     return(true);
 }
 
+bool compareDirectories(void* directory1, void* directory2){
+    if(strcmp(((Directory*)directory1)->directoryFile->name,  ((Directory*)directory2)->directoryFile->name) == 0){
+        return(true);
+    }
+    return(false);
+}
+
 /*Gets information about the directory provided by the directoryName parameter
 Returns a pointer to the directory on success, returns NULL on failure*/
 Directory* directoryReader(char* directoryName){
@@ -195,9 +202,11 @@ Directory* directoryReader(char* directoryName){
     //Set information about our directory
     Directory* currentDirectory = malloc(sizeof(Directory));
     currentDirectory->files = List_create();
+    if(currentDirectory->files == NULL){
+        printf("UnixLs: directoryReader(): Failed to allocate a new list for currentDirectory->files\n");
+    }
     currentDirectory->directoryStream = directoryStream;
     currentDirectory->parent = opendir("..");
-    List_append(directories, currentDirectory);
 
     //Read all of the entries in the directory
     struct dirent* directoryEntry;
@@ -220,7 +229,7 @@ Directory* directoryReader(char* directoryName){
         if(S_ISLNK(fileInformation->st_mode)){
             currentFile->isSymbolicLink = true;
             char linkBuffer[1024];
-            int numOfBytes = readlink(currentFile->name, linkBuffer, sizeof(linkBuffer));
+            int numOfBytes = readlink(filePath, linkBuffer, sizeof(linkBuffer));
             if(numOfBytes == -1){
                 printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->name);
                 return(NULL);
@@ -254,8 +263,17 @@ Directory* directoryReader(char* directoryName){
             currentFile->canBeRan = false;
         }
         strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %H:%M", localtime(&fileInformation->st_mtime));
+        
+        //Check if the file is a directory
         if(S_ISDIR(fileInformation->st_mode)){
             currentFile->isDirectory = true;
+            //If the -R flag is set, recursively call directory reader on each directory
+            if(rFlag && strcmp(currentFile->name, ".") != 0 && strcmp(currentFile->name, "..") != 0){
+                char* subDirPath = (char*)malloc(strlen(filePath) + strlen(currentFile->name) + 2);
+                sprintf(subDirPath, "%s/%s", filePath, currentFile->name);
+                directoryReader(subDirPath);
+                free(subDirPath);
+            }
         } 
         else{
             currentFile->isDirectory = false;
@@ -303,6 +321,12 @@ Directory* directoryReader(char* directoryName){
             currentDirectory->directoryFile = currentFile;
             currentDirectory->directoryFile->name = directoryName;
         }
+
+    }
+    //If the directory is not already in the directories list, store it there (redundancy check for -R flag)
+    List_first(directories);
+    if(List_search(directories, &compareDirectories, currentDirectory) == NULL){
+        List_append(directories, currentDirectory);
     }
 }
 
@@ -702,17 +726,21 @@ int main(int argc, char* argv[]){
         returnDirectory = directoryReader(currentWorkingDirectory);
     }
 
+    if(rFlag){
+        printf("R FLAG SET\n");
+    }
+
     //Print ls output
-    if(!rFlag && !lFlag && !iFlag){     //Standard ls
+    if(!lFlag && !iFlag){     //Standard ls (could be with -R flag)
         ls();
     }
-    else if(iFlag && !rFlag && !lFlag){     //ls with -i flag
+    else if(iFlag && !lFlag){     //ls with -i flag (could be with -R flag)
         ls_i();
     }
-    else if(lFlag && !iFlag && !rFlag){     //ls with -l flag
+    else if(lFlag && !iFlag){     //ls with -l flag (could be with -R flag)
         ls_l();
     }
-    else if(lFlag && iFlag && !rFlag){      //ls with -l & -i flag
-        ls_li();
+    else if(lFlag && iFlag){      //ls with -l & -i flag (could be with -R flag)
+        ls_li();    
     }
 }
