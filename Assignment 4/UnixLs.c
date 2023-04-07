@@ -4,7 +4,8 @@ Description: The purpose of this program is to emulate the UNIX ls command with 
 Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
-1. Does not work correctly when a file is specified at the command line*/
+1. Does not work correctly when a file is specified at the command line
+2. Does not remove leading zeros on days for displaying date for -l flag*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -424,6 +425,7 @@ void ls_l(){
         int maxOwnerNameLength = 0;
         int maxGroupNameLength = 0;
         int maxSizeLength = 0;
+        int maxNumHardLinksLength = 0;
         File* currentFile;
         for(int i=0; i<List_count(currentDirectory->files); i++){
             if(i == 0){
@@ -436,6 +438,7 @@ void ls_l(){
                 int ownerNameLength = strlen(currentFile->ownerName);
                 int groupNameLength = strlen(currentFile->groupName);
                 int sizeLength = numDigits(currentFile->sizeOfFile);
+                int numHardLinksLength = numDigits(currentFile->numOfHardLinks);
                 if(ownerNameLength > maxOwnerNameLength){
                     maxOwnerNameLength = ownerNameLength;
                 }
@@ -444,6 +447,9 @@ void ls_l(){
                 }
                 if(sizeLength > maxSizeLength){
                     maxSizeLength = sizeLength;
+                }
+                if(numHardLinksLength > maxNumHardLinksLength){
+                    maxNumHardLinksLength = numHardLinksLength;
                 }
             }
         }
@@ -475,16 +481,16 @@ void ls_l(){
                 printf("%s ", decodePermissions(currentFile->permissions));
 
                 //Print the # of hard links to the file
-                printf("%-3d ", currentFile->numOfHardLinks);
+                printf("%*d ", maxNumHardLinksLength, currentFile->numOfHardLinks);
 
                 //Print the name of the owner of the file
-                printf("%-*s  ", maxOwnerNameLength, currentFile->ownerName);
+                printf("%*s ", maxOwnerNameLength, currentFile->ownerName);
 
                 //Print the name of the group the file belongs to
-                printf("%-*s  ", maxGroupNameLength, currentFile->groupName);
+                printf("%*s ", maxGroupNameLength, currentFile->groupName);
 
                 //Print the size of the file in bytes
-                printf("%-*lld ", maxSizeLength, currentFile->sizeOfFile);
+                printf("%*lld ", maxSizeLength, currentFile->sizeOfFile);
 
                 //Print the date and time of most recent change to contents of the file
                 printf("%s ", currentFile->dateTimeOfMostRecentChange);
