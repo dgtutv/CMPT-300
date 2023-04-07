@@ -269,10 +269,8 @@ Directory* directoryReader(char* directoryName){
             currentFile->isDirectory = true;
             //If the -R flag is set, recursively call directory reader on each directory
             if(rFlag && strcmp(currentFile->name, ".") != 0 && strcmp(currentFile->name, "..") != 0){
-                char* subDirPath = (char*)malloc(strlen(filePath) + strlen(currentFile->name) + 2);
-                sprintf(subDirPath, "%s/%s", filePath, currentFile->name);
-                directoryReader(subDirPath);
-                free(subDirPath);
+                char* fullPath = realpath(filePath, NULL);
+                directoryReader(fullPath);
             }
         } 
         else{
