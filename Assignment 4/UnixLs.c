@@ -398,6 +398,9 @@ void ls(){
             else if(!currentFile->isHidden && currentFile->isZip){
                 printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
             }
+            else if(!currentFile->isHidden && currentFile->isSymbolicLink){
+                printf("\033[36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
+            }
             else if(!currentFile->isHidden){
                 printf("%s\n", currentFile->name);
             }
