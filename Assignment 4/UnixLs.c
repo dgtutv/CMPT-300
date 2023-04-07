@@ -402,6 +402,10 @@ void ls(){
                 printf("%s\n", currentFile->name);
             }
         }
+        //Print a newline if there are any more directories to be printed
+        if(j != List_count(directories)-1 && List_count(directories) > 1){
+            printf("\n");
+        }
     }
 }
 
@@ -449,6 +453,10 @@ void ls_i(){
             else if(!currentFile->isHidden){
                 printf("%ld %s\n", currentFile->iNodeNumber, currentFile->name);
             }
+        }
+        //Print a newline if there are any more directories to be printed
+        if(j != List_count(directories)-1 && List_count(directories) > 1){
+            printf("\n");
         }
     }
 }
@@ -559,6 +567,10 @@ void ls_l(){
                     printf("%s\n", currentFile->name);
                 }
             }
+        }
+        //Print a newline if there are any more directories to be printed
+        if(j != List_count(directories)-1 && List_count(directories) > 1){
+            printf("\n");
         }
     }
 }
@@ -671,6 +683,10 @@ void ls_li(){
                     printf("%s\n", currentFile->name);
                 }
             }
+        }
+        //Print a newline if there are any more directories to be printed
+        if(j != List_count(directories)-1 && List_count(directories) > 1){
+            printf("\n");
         }
     }
 }
