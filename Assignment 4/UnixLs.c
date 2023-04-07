@@ -67,6 +67,16 @@ bool rFlag;
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
 void* doNothing(){}
 
+/*Counts the number of digits in an integer*/
+int numDigits(int num){
+    int count = 0;
+    while(num != 0) {
+        num /= 10;
+        ++count;
+    }
+    return count;
+}
+
 /*Checks if a given string has spaces present in it
 Returns true if spaces detected, false if not*/
 bool hasSpace(char* string){
@@ -410,8 +420,35 @@ void ls_l(){
             printf("%s:\n", currentDirectory->directoryFile->name);
         }
 
+        //Get the max length of the owner name, group name, and file size
+        int maxOwnerNameLength = 0;
+        int maxGroupNameLength = 0;
+        int maxSizeLength = 0;
+        File* currentFile;
+        for(int i=0; i<List_count(currentDirectory->files); i++){
+            if(i == 0){
+                currentFile = List_first(currentDirectory->files);
+            }
+            else{
+                currentFile = List_next(currentDirectory->files);
+            }
+            if(!currentFile->isHidden){
+                int ownerNameLength = strlen(currentFile->ownerName);
+                int groupNameLength = strlen(currentFile->groupName);
+                int sizeLength = numDigits(currentFile->sizeOfFile);
+                if(ownerNameLength > maxOwnerNameLength){
+                    maxOwnerNameLength = ownerNameLength;
+                }
+                if(groupNameLength > maxGroupNameLength){
+                    maxGroupNameLength = groupNameLength;
+                }
+                if(sizeLength > maxSizeLength){
+                    maxSizeLength = sizeLength;
+                }
+            }
+        }
         
-        File* currentFile = List_first(currentDirectory->files);
+        //Print file information to the terminal
         for(int i=0; i<List_count(currentDirectory->files); i++){
             if(i==0){
                 currentFile = List_first(currentDirectory->files);
@@ -419,6 +456,7 @@ void ls_l(){
             else{
                 currentFile = List_next(currentDirectory->files);
             }
+
             if(!currentFile->isHidden){
                 //If there is a carriage return character present, remove it
                 if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
@@ -437,16 +475,16 @@ void ls_l(){
                 printf("%s ", decodePermissions(currentFile->permissions));
 
                 //Print the # of hard links to the file
-                printf("%d ", currentFile->numOfHardLinks);
+                printf("%-3d ", currentFile->numOfHardLinks);
 
                 //Print the name of the owner of the file
-                printf("%s ", currentFile->ownerName);
+                printf("%-*s  ", maxOwnerNameLength, currentFile->ownerName);
 
                 //Print the name of the group the file belongs to
-                printf("%s ", currentFile->groupName);
+                printf("%-*s  ", maxGroupNameLength, currentFile->groupName);
 
                 //Print the size of the file in bytes
-                printf("%lld ", currentFile->sizeOfFile);
+                printf("%-*lld ", maxSizeLength, currentFile->sizeOfFile);
 
                 //Print the date and time of most recent change to contents of the file
                 printf("%s ", currentFile->dateTimeOfMostRecentChange);
