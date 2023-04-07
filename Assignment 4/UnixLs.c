@@ -402,7 +402,6 @@ void ls_i(){
     }
 }
 
-//TODO: ensure columns line up with each other
 /*Prints to screen ls output when the l flag is specified*/
 void ls_l(){
     //Iterate over our directories
@@ -509,6 +508,115 @@ void ls_l(){
         }
     }
 }
+/*Prints to screen ls output when the l flag is specified*/
+void ls_li(){
+    //Iterate over our directories
+    Directory* currentDirectory;
+    for(int j=0; j<List_count(directories); j++){
+        //Set the current directory
+        if(j == 0){
+            currentDirectory = List_first(directories);
+        }
+        else{
+            currentDirectory = List_next(directories);     
+        }
+
+        //If there is more than one directory to iterate over, print the name of the directory before any input
+        if(List_count(directories) > 1){
+            printf("%s:\n", currentDirectory->directoryFile->name);
+        }
+
+        //Get the max length of the owner name, group name, and file size
+        int maxOwnerNameLength = 0;
+        int maxGroupNameLength = 0;
+        int maxSizeLength = 0;
+        int maxNumHardLinksLength = 0;
+        File* currentFile;
+        for(int i=0; i<List_count(currentDirectory->files); i++){
+            if(i == 0){
+                currentFile = List_first(currentDirectory->files);
+            }
+            else{
+                currentFile = List_next(currentDirectory->files);
+            }
+            if(!currentFile->isHidden){
+                int ownerNameLength = strlen(currentFile->ownerName);
+                int groupNameLength = strlen(currentFile->groupName);
+                int sizeLength = numDigits(currentFile->sizeOfFile);
+                int numHardLinksLength = numDigits(currentFile->numOfHardLinks);
+                if(ownerNameLength > maxOwnerNameLength){
+                    maxOwnerNameLength = ownerNameLength;
+                }
+                if(groupNameLength > maxGroupNameLength){
+                    maxGroupNameLength = groupNameLength;
+                }
+                if(sizeLength > maxSizeLength){
+                    maxSizeLength = sizeLength;
+                }
+                if(numHardLinksLength > maxNumHardLinksLength){
+                    maxNumHardLinksLength = numHardLinksLength;
+                }
+            }
+        }
+        
+        //Print file information to the terminal
+        for(int i=0; i<List_count(currentDirectory->files); i++){
+            if(i==0){
+                currentFile = List_first(currentDirectory->files);
+            }
+            else{
+                currentFile = List_next(currentDirectory->files);
+            }
+
+            if(!currentFile->isHidden){
+                //If there is a carriage return character present, remove it
+                if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
+                    currentFile->name[strlen(currentFile->name)-1] = '\0';
+                }
+
+                //Print the i-node number of the file
+                printf("%ld ", currentFile->iNodeNumber);
+
+                //If the file is a directory, print d. Otherwise, print -
+                if(currentFile->isDirectory){
+                    printf("d");
+                }
+                else{
+                    printf("-");
+                }
+
+                //Print the permissions of the file
+                printf("%s ", decodePermissions(currentFile->permissions));
+
+                //Print the # of hard links to the file
+                printf("%*d ", maxNumHardLinksLength, currentFile->numOfHardLinks);
+
+                //Print the name of the owner of the file
+                printf("%*s ", maxOwnerNameLength, currentFile->ownerName);
+
+                //Print the name of the group the file belongs to
+                printf("%*s ", maxGroupNameLength, currentFile->groupName);
+
+                //Print the size of the file in bytes
+                printf("%*lld ", maxSizeLength, currentFile->sizeOfFile);
+
+                //Print the date and time of most recent change to contents of the file
+                printf("%s ", currentFile->dateTimeOfMostRecentChange);
+
+                //Print the names of all the files
+                if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+                    printf("\033[1;32m%s\033[0m\n", currentFile->name);    //Make the text green and bold if it can be ran
+                }
+                else if(!currentFile->isHidden && currentFile->isDirectory){
+                    printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
+                }
+                else{
+                    printf("%s\n", currentFile->name);
+                }
+            }
+        }
+    }
+}
 
 /*----------------------------------------------------------------Main----------------------------------------------------------------------*/
 int main(int argc, char* argv[]){
@@ -572,5 +680,8 @@ int main(int argc, char* argv[]){
     }
     else if(lFlag && !iFlag && !rFlag){     //ls with -l flag
         ls_l();
+    }
+    else if(lFlag && iFlag && !rFlag){      //ls with -l & -i flag
+        ls_li();
     }
 }
