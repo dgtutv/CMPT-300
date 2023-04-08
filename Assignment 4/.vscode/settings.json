@@ -36,7 +36,8 @@
   "C_Cpp_Runner.useAddressSanitizer": false,
   "files.associations": {
     "syscall.h": "c",
-    "list.h": "c"
+    "list.h": "c",
+    "libgen.h": "c"
   },
   "C_Cpp.default.intelliSenseMode": "msvc-x64"
 }

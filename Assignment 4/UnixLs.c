@@ -5,8 +5,7 @@ Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
 1. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called
-2. The -R flag shows hidden directories, when it shouldn't
-3. Not a problem, but would prefer to sort alphabetically if given the extra time*/
+2. Not a problem, but would prefer to sort alphabetically if given the extra time*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -53,6 +52,7 @@ typedef struct{
     DIR* parent;            //The directory stream for the parent of this directory, set to NULL if root.
     File* directoryFile;    //The file information for this directory
     DIR* directoryStream;   //The pointer to the dirent struct for the directory
+    char* name;             //The name of the directory
 } Directory;
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
@@ -71,6 +71,36 @@ bool rFlag;
 
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
 void* doNothing(){}
+
+/*Gets the filename from a full or local path
+Returns a string, returns NULL upon failure*/
+char* getNameFromPath(char* path){
+    char* reverseString = malloc(strlen(path)+1);
+    int forwardIterator = 0;
+
+    //Iterate through the string backwards, store chars after the last '\' in the reverseString
+    for(int i=strlen(path); i > 0; --i){
+        if(path[i] == '/'){
+            break;
+        }
+        reverseString[forwardIterator] = path[i];
+        forwardIterator++;
+    }
+    reverseString[forwardIterator] = '\0';
+    int reverseStringSize = forwardIterator;
+    
+    //Reverse reverseString into returnString
+    char* returnString = malloc(sizeof(reverseString));    
+    forwardIterator = 0;
+    for(int i = reverseStringSize-1; i > 0; --i){
+        returnString[forwardIterator] = reverseString[i];
+        forwardIterator++;
+    }
+    returnString[forwardIterator] = '\0';
+
+    free(reverseString);
+    return(returnString);
+}
 
 /*Counts the number of digits in an integer*/
 int numDigits(int num){
@@ -266,11 +296,11 @@ Directory* directoryReader(char* directoryName){
         strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %Y %H:%M", localtime(&fileInformation->st_mtime));
         
         //Check if the file is a directory
+        char* fullPath = realpath(filePath, NULL);
         if(S_ISDIR(fileInformation->st_mode)){
             currentFile->isDirectory = true;
             //If the -R flag is set, recursively call directory reader on each directory
             if(rFlag && strcmp(currentFile->name, ".") != 0 && strcmp(currentFile->name, "..") != 0){
-                char* fullPath = realpath(filePath, NULL);
                 directoryReader(fullPath);
             }
         } 
@@ -319,12 +349,13 @@ Directory* directoryReader(char* directoryName){
         if(strcmp(currentFile->name, ".") == 0){
             currentDirectory->directoryFile = currentFile;
             currentDirectory->directoryFile->name = directoryName;
+            currentDirectory->name = getNameFromPath(fullPath);
         }
 
     }
-    //If the directory is not already in the directories list, store it there (redundancy check for -R flag)
+    //If the directory is not already in the directories list, and it is not a hidden directory, store it there (redundancy check for -R flag)
     List_first(directories);
-    if(List_search(directories, &compareDirectories, currentDirectory) == NULL){
+    if(List_search(directories, &compareDirectories, currentDirectory) == NULL && currentDirectory->name[0] != '.'){        //TODO: compare to directory name, dont show if directory name has . at start
         List_append(directories, currentDirectory);
     }
 }
@@ -370,7 +401,7 @@ void ls(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->directoryFile->name);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Print the names of all the files
@@ -425,7 +456,7 @@ void ls_i(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->directoryFile->name);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Print the names of all the files
@@ -480,7 +511,7 @@ void ls_l(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->directoryFile->name);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Get the max length of the owner name, group name, and file size
@@ -602,7 +633,7 @@ void ls_li(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->directoryFile->name);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Get the max length of the owner name, group name, and file size
