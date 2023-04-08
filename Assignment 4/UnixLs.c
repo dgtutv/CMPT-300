@@ -5,7 +5,9 @@ Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
 1. Does not display the year a file was last modified
-2. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called*/
+2. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called
+3. The -R flag shows hidden directories, when it shouldn't
+4. Not a problem, but would prefer to sort alphabetically if given the extra time*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -557,7 +559,7 @@ void ls_l(){
                 printf("%*lld ", maxSizeLength, currentFile->sizeOfFile);
 
                 //Print the date and time of most recent change to contents of the file
-                printf("%s ", currentFile->dateTimeOfMostRecentChange);
+                printf("%s  ", currentFile->dateTimeOfMostRecentChange);
 
                 //Print the names of all the files
                 if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
@@ -682,7 +684,7 @@ void ls_li(){
                 printf("%*lld ", maxSizeLength, currentFile->sizeOfFile);
 
                 //Print the date and time of most recent change to contents of the file
-                printf("%s ", currentFile->dateTimeOfMostRecentChange);
+                printf("%s  ", currentFile->dateTimeOfMostRecentChange);
 
                 //Print the names of all the files
                 if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
