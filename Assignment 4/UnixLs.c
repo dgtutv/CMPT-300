@@ -5,8 +5,7 @@ Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
 1. Does not display the year a file was last modified
-2. Is not tested for symbolic links
-3. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called*/
+2. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -531,9 +530,12 @@ void ls_l(){
                     currentFile->name[strlen(currentFile->name)-1] = '\0';
                 }
 
-                //If the file is a directory, print d. Otherwise, print -
+                //Print the first character on the permissions section
                 if(currentFile->isDirectory){
                     printf("d");
+                }
+                else if(currentFile->isSymbolicLink){
+                    printf("l");
                 }
                 else{
                     printf("-");
@@ -567,9 +569,12 @@ void ls_l(){
                 else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                     printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
                 }
+
+                //If the file is a symbolic link, print the text as bold and turqoise, also show the path to the file it points to
                 else if(!currentFile->isHidden && currentFile->isSymbolicLink){
-                    printf("\033[1;36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
+                    printf("\033[1;36m%s\033[0m -> %s\n", currentFile->name, currentFile->linkPath);    
                 }
+
                 else{
                     printf("%s\n", currentFile->name);
                 }
@@ -650,9 +655,12 @@ void ls_li(){
                 //Print the i-node number of the file
                 printf("%ld ", currentFile->iNodeNumber);
 
-                //If the file is a directory, print d. Otherwise, print -
+                //Print the first character on the permissions section
                 if(currentFile->isDirectory){
                     printf("d");
+                }
+                else if(currentFile->isSymbolicLink){
+                    printf("l");
                 }
                 else{
                     printf("-");
@@ -686,9 +694,12 @@ void ls_li(){
                 else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                     printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
                 }
+            
+                //If the file is a symbolic link, print the text as bold and turqoise, also show the path to the file it points to
                 else if(!currentFile->isHidden && currentFile->isSymbolicLink){
-                    printf("\033[1;36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
+                    printf("\033[1;36m%s\033[0m -> %s\n", currentFile->name, currentFile->linkPath);    
                 }
+
                 else{
                     printf("%s\n", currentFile->name);
                 }
