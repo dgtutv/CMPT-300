@@ -4,10 +4,9 @@ Description: The purpose of this program is to emulate the UNIX ls command with 
 Course: CMPT 300 - Operating Systems*/
 
 /*Known problems:
-1. Does not display the year a file was last modified
-2. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called
-3. The -R flag shows hidden directories, when it shouldn't
-4. Not a problem, but would prefer to sort alphabetically if given the extra time*/
+1. When the -R flag is specified, the full path is shown, rather than the path relative to the folder being recursively called
+2. The -R flag shows hidden directories, when it shouldn't
+3. Not a problem, but would prefer to sort alphabetically if given the extra time*/
 
 #define _DEFAULT_SOURCE     //Defines some necessary macros
 
@@ -264,7 +263,7 @@ Directory* directoryReader(char* directoryName){
         else{
             currentFile->canBeRan = false;
         }
-        strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %H:%M", localtime(&fileInformation->st_mtime));
+        strftime(currentFile->dateTimeOfMostRecentChange, sizeof(currentFile->dateTimeOfMostRecentChange), "%b %d %Y %H:%M", localtime(&fileInformation->st_mtime));
         
         //Check if the file is a directory
         if(S_ISDIR(fileInformation->st_mode)){
