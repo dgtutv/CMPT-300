@@ -24,6 +24,7 @@ Course: CMPT 300 - Operating Systems*/
 #include <time.h>
 #include <pwd.h>
 #include <sys/ioctl.h>
+#include <libgen.h>
 
 /*-------------------------------------------------------------Structs----------------------------------------------------------------------*/
 //Stores essential information about a file
@@ -39,7 +40,7 @@ typedef struct{
     long long sizeOfFile;   //The size of the file in bytes
     char dateTimeOfMostRecentChange[100];
     ino_t iNodeNumber;
-    DIR* linkStream;        //If this file is a symbolic link, this stores the directory stream for the directory the link points to, otherwise stores NULL
+    char* linkPath;        //If this file is a symbolic link, this stores the path to the file the link points to
     mode_t permissions;     
     int ownerUserID;        //The user ID for the owner of the file
     int groupID;            //The group ID for the group associated with this file
@@ -228,22 +229,16 @@ Directory* directoryReader(char* directoryName){
             return(NULL);
         }
 
-        //If the file is a symbolic link, get the directory stream to the directory that the link points to
+        //If the file is a symbolic link, get the path to the file that the link points to
         if(S_ISLNK(fileInformation->st_mode)){
             currentFile->isSymbolicLink = true;
-            char linkBuffer[1024];
-            int numOfBytes = readlink(filePath, linkBuffer, sizeof(linkBuffer));
-            if(numOfBytes == -1){
+            currentFile->linkPath = malloc(1024);
+            int numOfReturnedBytes = readlink(filePath, currentFile->linkPath, 1024);
+            if(numOfReturnedBytes == -1){
                 printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->name);
                 return(NULL);
             }
-            linkBuffer[numOfBytes] = '\0';  //Set the linkBuffer string to end at the correct location after calling readlink() on it
-            DIR* linkDirectoryStream = opendir(linkBuffer);
-            if(linkDirectoryStream == NULL){
-                printf("UnixLs: directoryReader: failed to obtain the directory stream for symbolic link \"%s\"\n", currentFile->name);
-                return(NULL);
-            }
-            currentFile->linkStream = linkDirectoryStream;
+            currentFile->linkPath[numOfReturnedBytes] = '\0';       //Set the path to end at the correct location after calling readlink() on it    
         }
 
         //Store information about the file, given by lstat
