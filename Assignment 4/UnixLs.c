@@ -240,6 +240,9 @@ Directory* directoryReader(char* directoryName){
             }
             currentFile->linkPath[numOfReturnedBytes] = '\0';       //Set the path to end at the correct location after calling readlink() on it    
         }
+        else{
+            currentFile->isSymbolicLink = false;
+        }
 
         //Store information about the file, given by lstat
         currentFile->permissions = fileInformation->st_mode;
@@ -384,17 +387,17 @@ void ls(){
             if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
                 currentFile->name[strlen(currentFile->name)-1] = '\0';
             }
-            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
                 printf("\033[1;32m%s\033[0m\n", currentFile->name);    //Make the text green and bold if it can be ran
             }
-            else if(!currentFile->isHidden && currentFile->isDirectory){
+            else if(!currentFile->isHidden && currentFile->isDirectory && !currentFile->isSymbolicLink){
                 printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
             }
-            else if(!currentFile->isHidden && currentFile->isZip){
+            else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                 printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
             }
             else if(!currentFile->isHidden && currentFile->isSymbolicLink){
-                printf("\033[36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
+                printf("\033[1;36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
             }
             else if(!currentFile->isHidden){
                 printf("%s\n", currentFile->name);
@@ -439,14 +442,17 @@ void ls_i(){
             if(strlen(currentFile->name) > 0 && currentFile->name[strlen(currentFile->name)-1] == '\r'){
                 currentFile->name[strlen(currentFile->name)-1] = '\0';
             }
-            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+            if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
                 printf("%ld \033[1;32m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);    //Make the text green and bold if it can be ran
             }
-            else if(!currentFile->isHidden && currentFile->isDirectory){
+            else if(!currentFile->isHidden && currentFile->isDirectory && !currentFile->isSymbolicLink){
                 printf("%ld \033[1;34m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);     //Make the text blue and bold if it is a folder
             }
-            else if(!currentFile->isHidden && currentFile->isZip){
+            else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                 printf("%ld \033[1;31m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);    //Make the text red and bold if it is a zip folder
+            }
+            else if(!currentFile->isHidden && currentFile->isSymbolicLink){
+                printf("%ld \033[1;36m%s\033[0m\n", currentFile->iNodeNumber, currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
             }
             else if(!currentFile->isHidden){
                 printf("%ld %s\n", currentFile->iNodeNumber, currentFile->name);
@@ -552,14 +558,17 @@ void ls_l(){
                 printf("%s ", currentFile->dateTimeOfMostRecentChange);
 
                 //Print the names of all the files
-                if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+                if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
                     printf("\033[1;32m%s\033[0m\n", currentFile->name);    //Make the text green and bold if it can be ran
                 }
-                else if(!currentFile->isHidden && currentFile->isDirectory){
+                else if(!currentFile->isHidden && currentFile->isDirectory && !currentFile->isSymbolicLink){
                     printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
                 }
-                else if(!currentFile->isHidden && currentFile->isZip){
+                else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                     printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
+                }
+                else if(!currentFile->isHidden && currentFile->isSymbolicLink){
+                    printf("\033[1;36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
                 }
                 else{
                     printf("%s\n", currentFile->name);
@@ -668,14 +677,17 @@ void ls_li(){
                 printf("%s ", currentFile->dateTimeOfMostRecentChange);
 
                 //Print the names of all the files
-                if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory){
+                if(!currentFile->isHidden && currentFile->canBeRan && !currentFile->isDirectory && !currentFile->isSymbolicLink){
                     printf("\033[1;32m%s\033[0m\n", currentFile->name);    //Make the text green and bold if it can be ran
                 }
-                else if(!currentFile->isHidden && currentFile->isDirectory){
+                else if(!currentFile->isHidden && currentFile->isDirectory && !currentFile->isSymbolicLink){
                     printf("\033[1;34m%s\033[0m\n", currentFile->name);     //Make the text blue and bold if it is a folder
                 }
-                else if(!currentFile->isHidden && currentFile->isZip){
+                else if(!currentFile->isHidden && currentFile->isZip && !currentFile->isSymbolicLink){
                     printf("\033[1;31m%s\033[0m\n", currentFile->name);    //Make the text red and bold if it is a zip folder
+                }
+                else if(!currentFile->isHidden && currentFile->isSymbolicLink){
+                    printf("\033[1;36m%s\033[0m\n", currentFile->name);       //Make the text turquoise and bold if it is a symbolic link
                 }
                 else{
                     printf("%s\n", currentFile->name);
