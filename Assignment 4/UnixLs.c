@@ -53,6 +53,7 @@ typedef struct{
     File* directoryFile;    //The file information for this directory
     DIR* directoryStream;   //The pointer to the dirent struct for the directory
     char* name;             //The name of the directory
+    char* compareName;
 } Directory;
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
@@ -63,7 +64,7 @@ List* baseFileNames;    //A list of the names of files or directories, optionall
 List* directories;      //A list of all the directories accessed.
 List* openedDirectories;        //A list to keep track of all the open directory streams
 List* allAllocatedBlocks;       //A list of all allocated blocks, so they can be freed at the end of execution
-//TODO: closedir() on all the directories accessed at the end of the program.
+char* currentPseudoWorkingDirectory;        //The name of the current pseudo-working directory
 
 //Booleans representing whether or not a certain flag was specified by the user
 bool iFlag;
@@ -91,7 +92,7 @@ char* getNameFromPath(char* path){
     int reverseStringSize = forwardIterator;
     
     //Reverse reverseString into returnString
-    char* returnString = malloc(sizeof(reverseString));   
+    char* returnString = malloc(strlen(reverseString)+1);   
     List_append(allAllocatedBlocks, returnString); 
     forwardIterator = 0;
     for(int i = reverseStringSize-1; i > 0; --i){
@@ -208,6 +209,13 @@ bool compareDirectories(void* directory1, void* directory2){
     return(false);
 }
 
+bool isNameInList(void* stringInList, void* name){
+    if(strcmp(stringInList,  name) == 0){
+        return(true);
+    }
+    return(false);
+}
+
 /*Gets information about the directory provided by the directoryName parameter
 Returns a pointer to the directory on success, returns NULL on failure*/
 Directory* directoryReader(char* directoryName){
@@ -238,6 +246,7 @@ Directory* directoryReader(char* directoryName){
 
     //Set information about our directory
     Directory* currentDirectory = malloc(sizeof(Directory));
+    currentDirectory->compareName = directoryName;
     List_append(allAllocatedBlocks, currentDirectory);
     currentDirectory->files = List_create();
     if(currentDirectory->files == NULL){
@@ -364,8 +373,21 @@ Directory* directoryReader(char* directoryName){
     }
     //If the directory is not already in the directories list, and it is not a hidden directory, store it there (redundancy check for -R flag)
     List_first(directories);
-    if(List_search(directories, &compareDirectories, currentDirectory) == NULL && currentDirectory->name[0] != '.'){        //TODO: compare to directory name, dont show if directory name has . at start
+    if(List_search(directories, &compareDirectories, currentDirectory) == NULL && currentDirectory->name[0] != '.'){
         List_append(directories, currentDirectory);
+    }
+
+    //If the directoryName is in baseFileNames, it is the current pseudo-working directory
+    if(List_search(baseFileNames, &isNameInList, currentDirectory->name) != NULL){
+        currentPseudoWorkingDirectory = currentDirectory->name;
+    }
+
+    //Otherwise, prepend the current pseudo-working directory to the current directories' name
+    else{
+        char* newName = malloc(strlen(currentPseudoWorkingDirectory) + strlen(currentDirectory->name) + 2);
+        List_append(allAllocatedBlocks, newName);
+        snprintf(newName, strlen(currentPseudoWorkingDirectory) + strlen(currentDirectory->name) + 2, "%s/%s", currentPseudoWorkingDirectory, currentDirectory->name);
+        currentDirectory->name = newName;
     }
 }
 
@@ -806,7 +828,6 @@ int main(int argc, char* argv[]){
             printf("UnixLs: Could not find the current working directory\n");
         } 
         returnDirectory = directoryReader(currentWorkingDirectory);
-        List_append(allAllocatedBlocks, returnDirectory);
     }
 
     //Print ls output
