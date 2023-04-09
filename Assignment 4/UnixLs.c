@@ -53,7 +53,6 @@ typedef struct{
     File* directoryFile;    //The file information for this directory
     DIR* directoryStream;   //The pointer to the dirent struct for the directory
     char* name;             //The name of the directory
-    char* localPath;        //The path of this directory, local to the directory this specified by the user (userDir/thisDir), used with R flag
 } Directory;
 
 /*-----------------------------------------------------------Global Variables-------------------------------------------------------------------*/
@@ -63,7 +62,7 @@ List* arguments;        //A list of the command line arguments supplied
 List* baseFileNames;    //A list of the names of files or directories, optionally provided by the user at the command-line
 List* directories;      //A list of all the directories accessed.
 List* openedDirectories;        //A list to keep track of all the open directory streams
-char* currentPseudoWorkingDirectoryPath;        //This is the absolute path to the directory that is the root of a recursive call by -R
+List* allAllocatedBlocks;       //A list of all allocated blocks, so they can be freed at the end of execution
 //TODO: closedir() on all the directories accessed at the end of the program.
 
 //Booleans representing whether or not a certain flag was specified by the user
@@ -74,18 +73,9 @@ bool rFlag;
 /*--------------------------------------------------------------Functions-------------------------------------------------------------------*/
 void* doNothing(){}
 
-/*Gets a substring of specified length from a given string, starting at a given index
-Returns a string*/
-char* getSubstring(const char* string, int startingIndex, int stringLength){
-    char* returnString = malloc(stringLength + 1);     
-    strncpy(returnString, string + startingIndex, stringLength); 
-    returnString[stringLength] = '\0';     //strncpy does not always add null-terminating character, so I do it explicitly
-    return returnString;
-}
-
 /*Gets the filename from a full or local path
-Returns a string*/
-char* getNameFromPath(const char* path){
+Returns a string, returns NULL upon failure*/
+char* getNameFromPath(char* path){
     char* reverseString = malloc(strlen(path)+1);
     int forwardIterator = 0;
 
@@ -101,7 +91,8 @@ char* getNameFromPath(const char* path){
     int reverseStringSize = forwardIterator;
     
     //Reverse reverseString into returnString
-    char* returnString = malloc(sizeof(reverseString));    
+    char* returnString = malloc(sizeof(reverseString));   
+    List_append(allAllocatedBlocks, returnString); 
     forwardIterator = 0;
     for(int i = reverseStringSize-1; i > 0; --i){
         returnString[forwardIterator] = reverseString[i];
@@ -113,43 +104,11 @@ char* getNameFromPath(const char* path){
     return(returnString);
 }
 
-/*Gets the local path of a file from its full path, given a pseudo-working-directory's full pathparameter
-Returns a string*/
-char* getLocalPath(const char* path, const char* workingDirectory){
-    char* reverseString = malloc(strlen(path)+1);
-    int forwardIterator = 0;
-
-    //Iterate through the string backwards, store chars after the current-working-directory in the reverseString
-    for(int i=strlen(path); i > 0; --i){
-        //char* comparisonString = getSubstring(path, i, strlen(workingDirectory));
-        if(strcmp(comparisonString, workingDirectory) == 0){
-            break;
-        }
-        reverseString[forwardIterator] = path[i];
-        forwardIterator++;
-    }
-    reverseString[forwardIterator] = '\0';
-    int reverseStringSize = forwardIterator;
-    
-    //Reverse reverseString into returnString
-    char* returnString = malloc(sizeof(reverseString));    
-    forwardIterator = 0;
-    for(int i = reverseStringSize-1; i > 0; --i){
-        returnString[forwardIterator] = reverseString[i];
-        forwardIterator++;
-    }
-    returnString[forwardIterator] = '\0';
-
-    free(reverseString);
-    return(returnString);
-}
-
-/*Counts the number of digits in an integer
-Returns an int*/
-int numDigits(int number){
+/*Counts the number of digits in an integer*/
+int numDigits(int num){
     int count = 0;
-    while(number != 0) {
-        number /= 10;
+    while(num != 0) {
+        num /= 10;
         ++count;
     }
     return count;
@@ -171,6 +130,7 @@ Returns the modified string, returns the original string if no space is present*
 char* addQuotes(char* string){
     if(hasSpace(string)){
         char* newString = malloc(strlen(string)+3);
+        List_append(allAllocatedBlocks, newString);
         newString[0] = '\'';
         newString[strlen(string)+1] = '\'';
         newString[strlen(string)+2] = '\0';
@@ -251,7 +211,6 @@ bool compareDirectories(void* directory1, void* directory2){
 /*Gets information about the directory provided by the directoryName parameter
 Returns a pointer to the directory on success, returns NULL on failure*/
 Directory* directoryReader(char* directoryName){
-
     //Get a pointer to the directory with opendir
     DIR* directoryStream = opendir(directoryName);
     List_append(openedDirectories, directoryStream);
@@ -279,32 +238,27 @@ Directory* directoryReader(char* directoryName){
 
     //Set information about our directory
     Directory* currentDirectory = malloc(sizeof(Directory));
+    List_append(allAllocatedBlocks, currentDirectory);
     currentDirectory->files = List_create();
     if(currentDirectory->files == NULL){
         printf("UnixLs: directoryReader(): Failed to allocate a new list for currentDirectory->files\n");
     }
     currentDirectory->directoryStream = directoryStream;
     currentDirectory->parent = opendir("..");
+    List_append(allAllocatedBlocks, currentDirectory->parent);
 
     //Read all of the entries in the directory
     struct dirent* directoryEntry;
-
-    char* absolutePath = "home/fuck/this";
-
-    //If there are no slashes in the directoryName, then this is the current pseudo-working-directory
-    // char* slashIndex = strchr(directoryName, '/');
-    // if(slashIndex != NULL){
-    //   currentPseudoWorkingDirectoryPath = absolutePath;
-    // }
-
     while((directoryEntry = readdir(directoryStream)) != NULL){
         //Store information we can get from the directory entry about the current file
         File* currentFile = malloc(sizeof(File));
+        List_append(allAllocatedBlocks, currentFile);
         currentFile->iNodeNumber = directoryEntry->d_ino;
         currentFile->name = directoryEntry->d_name;
 
         //Gather information about the file
         struct stat* fileInformation = malloc(sizeof(struct stat));
+        List_append(allAllocatedBlocks, fileInformation);
         char filePath[1024];
         snprintf(filePath, sizeof(filePath), "%s/%s", directoryName, currentFile->name);
         if(lstat(filePath, fileInformation) == -1){
@@ -316,6 +270,7 @@ Directory* directoryReader(char* directoryName){
         if(S_ISLNK(fileInformation->st_mode)){
             currentFile->isSymbolicLink = true;
             currentFile->linkPath = malloc(1024);
+            List_append(allAllocatedBlocks, currentFile->linkPath);
             int numOfReturnedBytes = readlink(filePath, currentFile->linkPath, 1024);
             if(numOfReturnedBytes == -1){
                 printf("UnixLs: directoryReader: failed to read the link pertaining to file \"%s\"\n", currentFile->name);
@@ -350,6 +305,7 @@ Directory* directoryReader(char* directoryName){
         
         //Check if the file is a directory
         char* fullPath = realpath(filePath, NULL);
+        List_append(allAllocatedBlocks, fullPath);
         if(S_ISDIR(fileInformation->st_mode)){
             currentFile->isDirectory = true;
             //If the -R flag is set, recursively call directory reader on each directory
@@ -403,19 +359,12 @@ Directory* directoryReader(char* directoryName){
             currentDirectory->directoryFile = currentFile;
             currentDirectory->directoryFile->name = directoryName;
             currentDirectory->name = getNameFromPath(fullPath);
-
-            //Get the correct local path for the directory
-            char* directoryLocalPath = getLocalPath(fullPath, currentPseudoWorkingDirectoryPath);
-            char* completeDirectoryLocalPath = malloc(strlen(directoryLocalPath)+3);
-            strcpy(completeDirectoryLocalPath, "./");
-            strcat(completeDirectoryLocalPath, directoryLocalPath);
-            free(directoryLocalPath);
         }
 
     }
     //If the directory is not already in the directories list, and it is not a hidden directory, store it there (redundancy check for -R flag)
     List_first(directories);
-    if(List_search(directories, &compareDirectories, currentDirectory) == NULL && currentDirectory->name[0] != '.'){        
+    if(List_search(directories, &compareDirectories, currentDirectory) == NULL && currentDirectory->name[0] != '.'){        //TODO: compare to directory name, dont show if directory name has . at start
         List_append(directories, currentDirectory);
     }
 }
@@ -425,6 +374,7 @@ Returns a string*/
 char* decodePermissions(mode_t permissions){
     //Use ternary operators on indices of the return string to format it
     char* returnString = malloc(10);
+    List_append(allAllocatedBlocks, returnString);
 
     //Owner permissions
     returnString[0] = (permissions & S_IRUSR) ? 'r' : '-';
@@ -461,7 +411,7 @@ void ls(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->localPath);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Print the names of all the files
@@ -516,7 +466,7 @@ void ls_i(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->localPath);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Print the names of all the files
@@ -571,7 +521,7 @@ void ls_l(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->localPath);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Get the max length of the owner name, group name, and file size
@@ -693,7 +643,7 @@ void ls_li(){
 
         //If there is more than one directory to iterate over, print the name of the directory before any input
         if(List_count(directories) > 1){
-            printf("%s:\n", currentDirectory->localPath);
+            printf("%s:\n", currentDirectory->name);
         }
 
         //Get the max length of the owner name, group name, and file size
@@ -812,6 +762,7 @@ int main(int argc, char* argv[]){
     baseFileNames = List_create();
     directories = List_create();
     openedDirectories = List_create();
+    allAllocatedBlocks = List_create();
     iFlag = false;
     lFlag = false;
     rFlag = false;
@@ -855,6 +806,7 @@ int main(int argc, char* argv[]){
             printf("UnixLs: Could not find the current working directory\n");
         } 
         returnDirectory = directoryReader(currentWorkingDirectory);
+        List_append(allAllocatedBlocks, returnDirectory);
     }
 
     //Print ls output
@@ -881,5 +833,17 @@ int main(int argc, char* argv[]){
             currentDirectoryStream = List_next(openedDirectories);
         }
         closedir(currentDirectoryStream);
+    }
+
+    //Free all allocated blocks
+    void* currentBlock;
+    for(int i=0; i<List_count(allAllocatedBlocks); i++){
+        if(i == 0){
+            currentBlock = List_first(allAllocatedBlocks);
+        }
+        else{
+            currentBlock = List_next(allAllocatedBlocks);
+        }
+        free(currentBlock);
     }
 }
